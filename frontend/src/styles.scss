@@ -1,4 +1,8 @@
 @import '~bulma/bulma';
+@import 'primeicons/primeicons.css';
+@import 'primeng/resources/themes/nova-light/theme.css';
+@import 'primeng/resources/primeng.css';
+
 table.is-clickable tbody tr {
-  cursor: pointer;
+    cursor: pointer;
 }

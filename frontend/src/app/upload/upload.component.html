@@ -1,3 +1,70 @@
-<p>
-  upload works!
-</p>
+<h1 class="title">Upload a New Manuscript</h1>
+<form>
+  <div class="field is-horizontal">
+    <div class="field-label is-normal">
+      <label class="label">Book</label>
+    </div>
+    <div class="field-body">
+      <div class="field">
+        <p class="control">
+          <p-autoComplete [formControl]="book" [suggestions]="results" (completeMethod)="search($event)"
+            [dropdown]="true"></p-autoComplete>
+        </p>
+      </div>
+    </div>
+  </div>
+  <div class="field is-horizontal">
+    <div class="field-label is-normal">
+      <label class="label">Title</label>
+    </div>
+    <div class="field-body">
+      <div class="field">
+        <p class="control">
+          <input class="input" type="text">
+        </p>
+      </div>
+    </div>
+  </div>
+  <div class="field is-horizontal">
+    <div class="field-label is-normal">
+      <label class="label">Date</label>
+    </div>
+    <div class="field-body">
+      <div class="field">
+        <p class="control">
+          <input class="input" type="text">
+        </p>
+      </div>
+    </div>
+  </div>
+  <div class="field is-horizontal">
+    <div class="field-label is-normal">
+      <label class="label">File</label>
+    </div>
+    <div class="field-body">
+      <div class="field">
+        <div class="file" [ngClass]="{'has-name': !!filename}">
+          <label class="file-label">
+            <input class="file-input" type="file" name="manuscript" (change)="detectFilename(fileInput)" accept=".pdf" #fileInput>
+            <span class="file-cta">
+              <span class="file-icon">
+                  <fa-icon [icon]="faUpload"></fa-icon>
+              </span>
+              <span class="file-label">
+                Choose a file…
+              </span>
+            </span>
+            <span class="file-name" *ngIf="filename">
+              {{filename}}
+            </span>
+          </label>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="field is-grouped">
+    <div class="control">
+      <button type="submit" class="button is-primary">Upload</button>
+    </div>
+  </div>
+</form>
