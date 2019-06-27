@@ -1,0 +1,28 @@
+<nav class="navbar is-dark" role="navigation" aria-label="main navigation">
+  <div class="container">
+    <div class="navbar-brand">
+      <strong class="navbar-item">
+        KHATT
+      </strong>
+
+      <a role="button" class="navbar-burger burger" aria-label="menu" aria-expanded="false"
+        data-target="navbarBasicExample" (click)="burgerActive=!burgerActive" [ngClass]="{'is-active': burgerActive}">
+        <span aria-hidden="true"></span>
+        <span aria-hidden="true"></span>
+        <span aria-hidden="true"></span>
+      </a>
+    </div>
+
+    <div id="navbarBasicExample" class="navbar-menu" [ngClass]="{'is-active': burgerActive}">
+      <div class="navbar-start">
+        <a [routerLink]="['/books']" routerLinkActive="is-active" class="navbar-item">
+          Books
+        </a>
+
+        <a [routerLink]="['/upload']" routerLinkActive="is-active" class="navbar-item">
+          Upload
+        </a>
+      </div>
+    </div>
+  </div>
+</nav>

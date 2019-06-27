@@ -17,6 +17,7 @@ import { BooksComponent } from './books/books.component';
 import { EditingComponent } from './editing/editing.component';
 import { ManuscriptsComponent } from './manuscripts/manuscripts.component';
 import { MarkManuscriptComponent } from './mark-manuscript/mark-manuscript.component';
+import { MenuComponent } from './menu/menu.component';
 import { UploadComponent } from './upload/upload.component';
 
 @NgModule({
@@ -29,7 +30,8 @@ import { UploadComponent } from './upload/upload.component';
     EditingComponent,
     MarkManuscriptComponent,
     ManuscriptsComponent,
-    UploadComponent
+    MenuComponent,
+    UploadComponent,
   ],
   imports: [
     AppRoutingModule,
