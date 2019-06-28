@@ -1,9 +1,11 @@
-import { Routes } from "@angular/router";
+import { Routes } from '@angular/router';
+
 import { BookComponent } from '../book/book.component';
 import { BooksComponent } from '../books/books.component';
-import { UploadComponent } from '../upload/upload.component';
+import { EditManuscriptComponent } from '../edit-manuscript/edit-manuscript.component';
 import { ManuscriptsComponent } from '../manuscripts/manuscripts.component';
 import { MarkManuscriptComponent } from '../mark-manuscript/mark-manuscript.component';
+import { UploadComponent } from '../upload/upload.component';
 
 const routes: Routes = [
   {
@@ -23,6 +25,10 @@ const routes: Routes = [
     component: ManuscriptsComponent
   },
   {
+    path: 'edit-manuscript',
+    component: EditManuscriptComponent
+  },
+  {
     path: 'mark-manuscript',
     component: MarkManuscriptComponent
   },
@@ -33,4 +39,4 @@ const routes: Routes = [
   }
 ];
 
-export { routes }
+export { routes };

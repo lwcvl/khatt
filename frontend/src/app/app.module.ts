@@ -19,6 +19,8 @@ import { ManuscriptsComponent } from './manuscripts/manuscripts.component';
 import { MarkManuscriptComponent } from './mark-manuscript/mark-manuscript.component';
 import { MenuComponent } from './menu/menu.component';
 import { UploadComponent } from './upload/upload.component';
+import { EditManuscriptComponent } from './edit-manuscript/edit-manuscript.component';
+import { PageMarkerComponent } from './page-marker/page-marker.component';
 
 @NgModule({
   declarations: [
@@ -32,6 +34,8 @@ import { UploadComponent } from './upload/upload.component';
     ManuscriptsComponent,
     MenuComponent,
     UploadComponent,
+    EditManuscriptComponent,
+    PageMarkerComponent,
   ],
   imports: [
     AppRoutingModule,

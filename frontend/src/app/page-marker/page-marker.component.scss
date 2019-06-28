@@ -1,0 +1,45 @@
+@import '../../colors';
+
+$strokeWidth: 2px;
+$strokeDasharray: 4;
+
+.is-dragging {
+    display: none;
+}
+
+.square,
+.polygon {
+    fill: rgba($primary, 0.5);
+    stroke: $primary;
+    stroke-width: $strokeWidth;
+}
+
+.pages {
+    stroke: $danger;
+    stroke-width: $strokeWidth*4;
+}
+
+.is-draft {
+    fill: $primary;
+
+    &.is-line {
+        stroke: $primary;
+        stroke-width: $strokeWidth;
+        stroke-dasharray: $strokeDasharray;
+
+        &.pages {
+            @extend .pages;
+        }
+    }
+
+    &.polygon {
+        fill: rgba(white, 0.5);
+        stroke: $primary;
+        stroke-width: $strokeWidth;
+        stroke-dasharray: $strokeDasharray;
+    }
+}
+
+:host:hover .is-dragging {
+    display: block;
+}

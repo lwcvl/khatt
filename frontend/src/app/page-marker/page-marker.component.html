@@ -1,0 +1,14 @@
+<svg style="width: 100%" #canvas>
+  <image xlink:href="assets/page.jpg" [attr.height]="height" [attr.width]="width" />
+  <circle *ngFor="let mark of draftMarks" [attr.cx]="mark.x" [attr.cy]="mark.y" r="5"
+    [attr.class]="'is-draft ' + mark.className" />
+  <polygon *ngIf="draftPoints" [attr.points]="draftPoints" class="is-draft polygon" />
+  <line *ngFor="let line of draftLines" [attr.x1]="line.x1" [attr.y1]="line.y1" [attr.x2]="line.x2" [attr.y2]="line.y2"
+    [attr.class]="'is-line is-draft ' + line.className" />
+  <ng-container *ngFor="let shape of shapes">
+    <rect class="square" *ngIf="shape.type === 'square'" [attr.x]="shape.x" [attr.y]="shape.y"
+      [attr.width]="shape.width" [attr.height]="shape.height" />
+    <polygon *ngIf="shape.type === 'polygon'" [attr.points]="shape.points" class="polygon" />
+    <line *ngIf="shape.type === 'pages'" [attr.x1]="shape.x" [attr.x2]="shape.x" y1="0" [attr.y2]="height" class="pages" />
+  </ng-container>
+</svg>
