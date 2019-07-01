@@ -1,1 +1,1 @@
-export type MarkMode = 'square' | 'polygon' | 'lines' | 'pages';
+export type MarkMode = 'square' | 'polygon' | 'lines' | 'vertical_lines' | 'pages' | 'remove';

@@ -5,7 +5,9 @@ import {
   faColumns,
   faDrawPolygon,
   faGripLines,
+  faGripLinesVertical,
   faPencilAlt,
+  faTrash,
   faVectorSquare
 } from '@fortawesome/free-solid-svg-icons';
 
@@ -24,6 +26,8 @@ export class MarkManuscriptComponent implements OnInit {
     i: () => this.toggleMode('polygon'),
     l: () => this.toggleMode('lines'),
     d: () => this.toggleMode('pages'),
+    v: () => this.toggleMode('vertical_lines'),
+    r: () => this.toggleMode('remove'),
     esc: () => { this.mode = null; }
   };
 
@@ -32,7 +36,9 @@ export class MarkManuscriptComponent implements OnInit {
   faColumns = faColumns;
   faDrawPolygon = faDrawPolygon;
   faGripLines = faGripLines;
+  faGripLinesVertical = faGripLinesVertical;
   faPencilAlt = faPencilAlt;
+  faTrash = faTrash;
   faVectorSquare = faVectorSquare;
 
   mode: MarkMode | null = null;

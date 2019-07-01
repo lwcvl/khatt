@@ -7,16 +7,28 @@ $strokeDasharray: 4;
     display: none;
 }
 
+%smooth {
+    transition: all 0.2s;
+}
+
 .square,
 .polygon {
+    @extend %smooth;
     fill: rgba($primary, 0.5);
     stroke: $primary;
     stroke-width: $strokeWidth;
 }
 
 .pages {
-    stroke: $danger;
+    @extend %smooth;
+    stroke: $primary;
     stroke-width: $strokeWidth*4;
+}
+
+.text-line {
+    @extend %smooth;
+    stroke: rgba($text, 0.8);
+    stroke-width: $strokeWidth*2;
 }
 
 .is-draft {
@@ -30,6 +42,10 @@ $strokeDasharray: 4;
         &.pages {
             @extend .pages;
         }
+
+        &.text-line {
+            @extend .text-line;
+        }
     }
 
     &.polygon {
@@ -37,6 +53,23 @@ $strokeDasharray: 4;
         stroke: $primary;
         stroke-width: $strokeWidth;
         stroke-dasharray: $strokeDasharray;
+    }
+}
+
+.remove {
+
+    .square:hover,
+    .polygon:hover,
+    .pages:hover,
+    .text-line:hover {
+        cursor: pointer;
+        fill: rgba($danger, 0.8);
+        stroke: rgba($danger, 0.8);
+    }
+
+    .pages,
+    .text-line {
+        stroke-width: $strokeWidth*8;
     }
 }
 

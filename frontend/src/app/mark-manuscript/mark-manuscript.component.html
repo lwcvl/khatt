@@ -30,6 +30,18 @@
           </a>
         </p>
         <p class="control">
+          <a class="button" title="Marks the page _d_ivision" [ngClass]="{'is-active is-dark': mode == 'pages'}"
+            (click)="toggleMode('pages')">
+            <span class="icon">
+              <fa-icon [icon]="faColumns"></fa-icon>
+            </span>
+          </a>
+        </p>
+      </div>
+    </div>
+    <div class="level-item">
+      <div class="field has-addons">
+        <p class="control">
           <a class="button" title="Marks _l_ines within a text container"
             [ngClass]="{'is-active is-dark': mode == 'lines'}" (click)="toggleMode('lines')">
             <span class="icon">
@@ -38,10 +50,22 @@
           </a>
         </p>
         <p class="control">
-          <a class="button" title="Marks the page _d_ivision" [ngClass]="{'is-active is-dark': mode == 'pages'}"
-            (click)="toggleMode('pages')">
+          <a class="button" title="Marks _v_ertical lines within a text container"
+            [ngClass]="{'is-active is-dark': mode == 'vertical_lines'}" (click)="toggleMode('vertical_lines')">
             <span class="icon">
-              <fa-icon [icon]="faColumns"></fa-icon>
+              <fa-icon [icon]="faGripLinesVertical"></fa-icon>
+            </span>
+          </a>
+        </p>
+      </div>
+    </div>
+    <div class="level-item">
+      <div class="field">
+        <p class="control">
+          <a class="button" title="_R_emove markings"
+            [ngClass]="{'is-active is-dark': mode == 'remove'}" (click)="toggleMode('remove')">
+            <span class="icon">
+              <fa-icon [icon]="faTrash"></fa-icon>
             </span>
           </a>
         </p>

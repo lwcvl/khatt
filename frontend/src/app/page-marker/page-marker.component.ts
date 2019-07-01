@@ -47,7 +47,11 @@ export class PageMarkerComponent implements OnChanges, OnInit {
   draftLines: Line[] = [];
   draftMarks: Mark[] = [];
   draftPoints: string;
+
   shapes: Shape[] = [];
+  currentTextContainer: Square | Polygon = undefined;
+
+  shapeCounter = 0;
 
   @HostListener('document:keydown', ['$event'])
   keyDown(event: KeyboardEvent) {
@@ -62,7 +66,7 @@ export class PageMarkerComponent implements OnChanges, OnInit {
   }
 
   @HostListener('document:pointermove', ['$event'])
-  mouseMove(event: MouseEvent) {
+  pointerMove(event: MouseEvent) {
     const { x, y } = this.getPointerPosition(event);
 
     // draw draft marks
@@ -97,6 +101,12 @@ export class PageMarkerComponent implements OnChanges, OnInit {
           y2: this.height
         }];
         break;
+
+      case 'lines':
+      case 'vertical_lines':
+        const line = this.drawLine(x, y, this.mode === 'vertical_lines', 'text-line');
+        this.draftLines = line ? [line] : [];
+        break;
     }
 
     // draw draft shapes
@@ -128,20 +138,31 @@ export class PageMarkerComponent implements OnChanges, OnInit {
 
   @HostListener('pointerdown', ['$event'])
   pointerDown(event: PointerEvent) {
+    if (this.mode === 'remove') {
+      const target = event.target as HTMLElement;
+      if (target && target.id) {
+        for (const shape of this.shapes) {
+          if (shape.id === target.id) {
+            this.removeShape(shape);
+          }
+        }
+        return;
+      }
+    }
     const { x, y } = this.getPointerPosition(event);
     this.dragStart = { x, y };
-    this.handleMouseEvent(x, y);
+    this.handlePointerEvent(x, y);
   }
 
-  @HostListener('document:pointerup', ['$event'])
+  @HostListener('pointerup', ['$event'])
   pointerUp(event: PointerEvent) {
     const { x, y } = this.getPointerPosition(event);
     if ((Math.abs(this.dragStart.x - x) + Math.abs(this.dragStart.y - y) > DELTA)) {
-      this.handleMouseEvent(x, y);
+      this.handlePointerEvent(x, y);
     }
   }
 
-  handleMouseEvent(x: number, y: number) {
+  private handlePointerEvent(x: number, y: number) {
     switch (this.mode) {
       case 'square':
         switch (this.draftMarks.length) {
@@ -167,6 +188,7 @@ export class PageMarkerComponent implements OnChanges, OnInit {
             }
             this.clearDraft();
             this.shapes.push({
+              id: this.getShapeId(),
               type: 'square',
               x: x1,
               y: y1,
@@ -184,6 +206,7 @@ export class PageMarkerComponent implements OnChanges, OnInit {
             this.draftMarks.push({ x, y, className: markClassNames.dragging });
           } else {
             this.shapes.push({
+              id: this.getShapeId(),
               type: 'polygon',
               points: this.draftPoints,
               marks: [...this.draftMarks]
@@ -196,7 +219,28 @@ export class PageMarkerComponent implements OnChanges, OnInit {
 
       case 'pages':
         this.clearDraft();
-        this.shapes.push({ type: 'pages', x });
+        this.shapes.push({
+          id: this.getShapeId(),
+          type: 'pages',
+          x
+        });
+        break;
+
+      case 'lines':
+      case 'vertical_lines':
+        if (this.currentTextContainer) {
+          this.shapes.push(...this.draftLines.map<TextLine>(line => ({
+            id: this.getShapeId(),
+            type: 'text-line',
+            className: '',
+            parent: this.currentTextContainer,
+            x1: line.x1,
+            x2: line.x2,
+            y1: line.y1,
+            y2: line.y2
+          })));
+          this.draftLines = [];
+        }
         break;
     }
   }
@@ -218,6 +262,44 @@ export class PageMarkerComponent implements OnChanges, OnInit {
     this.draftPoints = undefined;
   }
 
+  private drawLine(x: number, y: number, vertical: boolean, className: string): Line | void {
+    // detect bounding box
+    for (const shape of this.shapes) {
+      switch (shape.type) {
+        case 'square':
+          if (x >= shape.x && y >= shape.y &&
+            x < (shape.x + shape.width) &&
+            y < (shape.y + shape.height)) {
+            this.currentTextContainer = shape;
+            return vertical ? {
+              className,
+              x1: x,
+              x2: x,
+              y1: shape.y,
+              y2: shape.y + shape.height
+            } : {
+                className,
+                x1: shape.x,
+                x2: shape.x + shape.width,
+                y1: y,
+                y2: y
+              };
+          }
+          break;
+      }
+    }
+    this.currentTextContainer = undefined;
+  }
+
+  private getShapeId() {
+    return `shape${this.shapeCounter++}`;
+  }
+
+  private removeShape(shape: Shape) {
+    this.shapes = this.shapes.filter(s => s !== shape &&
+      (s.type !== 'text-line' || s.parent !== shape));
+  }
+
   ngOnInit() {
     this.canvas.nativeElement.setAttribute('viewBox', `0 0 ${this.width} ${this.height}`);
   }
@@ -228,12 +310,14 @@ export class PageMarkerComponent implements OnChanges, OnInit {
       this.clearDraft();
     }
   }
-
 }
+
 
 interface Line { x1: number; y1: number; x2: number; y2: number; className: string; }
 interface Mark { x: number; y: number; className: string; }
 interface Square { type: 'square'; x: number; y: number; width: number; height: number; }
 interface Polygon { type: 'polygon'; points: string; marks: Mark[]; }
 interface Pages { type: 'pages'; x: number; }
-type Shape = Square | Polygon | Pages;
+interface TextLine extends Line { id: string; type: 'text-line'; parent: Square | Polygon; }
+
+type Shape = { id: string } & (Square | Polygon | Pages | TextLine);
