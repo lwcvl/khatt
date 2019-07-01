@@ -16,6 +16,9 @@ const markClassNames = {
   dragging: 'is-dragging'
 };
 
+// even when the pointer is moved a little bit, this isn't seen as "two" clicks
+const DELTA = 10;
+
 @Component({
   selector: 'kht-page-marker',
   templateUrl: './page-marker.component.html',
@@ -38,6 +41,8 @@ export class PageMarkerComponent implements OnChanges, OnInit {
   @Output()
   escape = new EventEmitter();
 
+  dragStart: { x: number, y: number };
+
   draftBlank = true;
   draftLines: Line[] = [];
   draftMarks: Mark[] = [];
@@ -56,9 +61,9 @@ export class PageMarkerComponent implements OnChanges, OnInit {
     }
   }
 
-  @HostListener('mousemove', ['$event'])
+  @HostListener('document:pointermove', ['$event'])
   mouseMove(event: MouseEvent) {
-    const { x, y } = this.getMousePosition(event);
+    const { x, y } = this.getPointerPosition(event);
 
     // draw draft marks
     switch (this.mode) {
@@ -121,9 +126,22 @@ export class PageMarkerComponent implements OnChanges, OnInit {
     }
   }
 
-  @HostListener('mousedown', ['$event'])
-  mouseDown(event: MouseEvent) {
-    const { x, y } = this.getMousePosition(event);
+  @HostListener('pointerdown', ['$event'])
+  pointerDown(event: PointerEvent) {
+    const { x, y } = this.getPointerPosition(event);
+    this.dragStart = { x, y };
+    this.handleMouseEvent(x, y);
+  }
+
+  @HostListener('document:pointerup', ['$event'])
+  pointerUp(event: PointerEvent) {
+    const { x, y } = this.getPointerPosition(event);
+    if ((Math.abs(this.dragStart.x - x) + Math.abs(this.dragStart.y - y) > DELTA)) {
+      this.handleMouseEvent(x, y);
+    }
+  }
+
+  handleMouseEvent(x: number, y: number) {
     switch (this.mode) {
       case 'square':
         switch (this.draftMarks.length) {
@@ -183,7 +201,7 @@ export class PageMarkerComponent implements OnChanges, OnInit {
     }
   }
 
-  private getMousePosition(event: MouseEvent) {
+  private getPointerPosition(event: MouseEvent) {
     const { width, height } = this.canvas.nativeElement;
     const { offsetX, offsetY } = event;
 
