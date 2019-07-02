@@ -1,5 +1,6 @@
 import { Routes } from '@angular/router';
 
+import { AnnotateComponent } from '../annotate/annotate.component';
 import { BookComponent } from '../book/book.component';
 import { BooksComponent } from '../books/books.component';
 import { EditManuscriptComponent } from '../edit-manuscript/edit-manuscript.component';
@@ -9,8 +10,8 @@ import { UploadComponent } from '../upload/upload.component';
 
 const routes: Routes = [
   {
-    path: 'upload',
-    component: UploadComponent
+    path: 'annotate',
+    component: AnnotateComponent,
   },
   {
     path: 'book',
@@ -31,6 +32,10 @@ const routes: Routes = [
   {
     path: 'mark-manuscript',
     component: MarkManuscriptComponent
+  },
+  {
+    path: 'upload',
+    component: UploadComponent
   },
   {
     path: '',
