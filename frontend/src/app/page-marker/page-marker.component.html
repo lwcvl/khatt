@@ -1,4 +1,4 @@
-<svg style="width: 100%" #canvas [attr.class]="mode">
+<svg style="width: 100%" #canvas [attr.class]="mode" [ngClass]="{'hover-first-mark': hoverFirstMark}">
   <image xlink:href="assets/page.jpg" [attr.height]="height" [attr.width]="width" />
   <ng-container *ngFor="let shape of shapes">
     <rect class="square" *ngIf="shape.type === 'square'" [attr.x]="shape.x" [attr.y]="shape.y"

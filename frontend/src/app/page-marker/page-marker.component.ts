@@ -19,6 +19,9 @@ const markClassNames = {
 // even when the pointer is moved a little bit, this isn't seen as "two" clicks
 const DELTA = 10;
 
+// threshold for snapping a polygon for completion
+const POLYGON_SNAP = 50;
+
 @Component({
   selector: 'kht-page-marker',
   templateUrl: './page-marker.component.html',
@@ -48,6 +51,8 @@ export class PageMarkerComponent implements OnChanges, OnInit {
   draftMarks: Mark[] = [];
   draftPoints: string;
 
+  hoverFirstMark = false;
+
   shapes: Shape[] = [];
   currentTextContainer: Square | Polygon = undefined;
 
@@ -59,8 +64,12 @@ export class PageMarkerComponent implements OnChanges, OnInit {
       case 'Escape':
         if (this.draftBlank) {
           this.escape.next();
+        } else if (this.mode === 'polygon' && this.draftMarks.length > 2) {
+          this.draftMarks.splice(this.draftMarks.length - 2, 1);
+          this.drawDraftShapes();
+        } else {
+          this.clearDraft();
         }
-        this.clearDraft();
         break;
     }
   }
@@ -83,7 +92,21 @@ export class PageMarkerComponent implements OnChanges, OnInit {
             break;
 
           default:
-            this.draftMarks[this.draftMarks.length - 1] = draftMark;
+            const lastIndex = this.draftMarks.length - 1;
+            const hoveredFirstMark = this.hoverFirstMark;
+            this.hoverFirstMark = this.draftMarks.length > 2 && this.distance(this.draftMarks[0], draftMark) < POLYGON_SNAP;
+            if (this.hoverFirstMark) {
+              // hovering over the first point: the polygon could be completed
+              if (this.draftMarks[lastIndex].className.indexOf(markClassNames.dragging) > -1) {
+                this.draftMarks.splice(lastIndex);
+              }
+            } else {
+              if (hoveredFirstMark) {
+                this.draftMarks.push(draftMark);
+              } else {
+                this.draftMarks[lastIndex] = draftMark;
+              }
+            }
             break;
         }
 
@@ -109,6 +132,42 @@ export class PageMarkerComponent implements OnChanges, OnInit {
         break;
     }
 
+    this.drawDraftShapes();
+  }
+
+  @HostListener('pointerdown', ['$event'])
+  pointerDown(event: PointerEvent) {
+    if (event.which !== 1) {
+      return;
+    }
+    if (this.mode === 'remove') {
+      const target = event.target as HTMLElement;
+      if (target && target.id) {
+        for (const shape of this.shapes) {
+          if (shape.id === target.id) {
+            this.removeShape(shape);
+          }
+        }
+        return;
+      }
+    }
+    const { x, y } = this.getPointerPosition(event);
+    this.dragStart = { x, y };
+    this.handlePointerEvent(x, y);
+  }
+
+  @HostListener('pointerup', ['$event'])
+  pointerUp(event: PointerEvent) {
+    if (event.which !== 1) {
+      return;
+    }
+    const { x, y } = this.getPointerPosition(event);
+    if ((Math.abs(this.dragStart.x - x) + Math.abs(this.dragStart.y - y) > DELTA)) {
+      this.handlePointerEvent(x, y);
+    }
+  }
+
+  private drawDraftShapes() {
     // draw draft shapes
     switch (this.mode) {
       case 'square':
@@ -129,36 +188,11 @@ export class PageMarkerComponent implements OnChanges, OnInit {
             y2: this.draftMarks[1].y,
             className: ''
           }];
+          this.draftPoints = undefined;
         } else {
           this.draftLines = [];
           this.draftPoints = this.draftMarks.map(mark => `${mark.x},${mark.y}`).join(' ');
         }
-    }
-  }
-
-  @HostListener('pointerdown', ['$event'])
-  pointerDown(event: PointerEvent) {
-    if (this.mode === 'remove') {
-      const target = event.target as HTMLElement;
-      if (target && target.id) {
-        for (const shape of this.shapes) {
-          if (shape.id === target.id) {
-            this.removeShape(shape);
-          }
-        }
-        return;
-      }
-    }
-    const { x, y } = this.getPointerPosition(event);
-    this.dragStart = { x, y };
-    this.handlePointerEvent(x, y);
-  }
-
-  @HostListener('pointerup', ['$event'])
-  pointerUp(event: PointerEvent) {
-    const { x, y } = this.getPointerPosition(event);
-    if ((Math.abs(this.dragStart.x - x) + Math.abs(this.dragStart.y - y) > DELTA)) {
-      this.handlePointerEvent(x, y);
     }
   }
 
@@ -201,10 +235,14 @@ export class PageMarkerComponent implements OnChanges, OnInit {
 
       case 'polygon':
         if (this.draftMarks.length > 0) {
-          if (this.draftMarks.length < 4) {
-            this.draftMarks[this.draftMarks.length - 1].className = '';
-            this.draftMarks.push({ x, y, className: markClassNames.dragging });
+          // if (this.draftMarks.length < 4) {
+          const lastIndex = this.draftMarks.length - 1;
+          if (lastIndex === 0) {
+            this.draftMarks[lastIndex].className = 'is-first';
           } else {
+            this.draftMarks[lastIndex].className = '';
+          }
+          if (this.hoverFirstMark) {
             this.shapes.push({
               id: this.getShapeId(),
               type: 'polygon',
@@ -212,6 +250,8 @@ export class PageMarkerComponent implements OnChanges, OnInit {
               marks: [...this.draftMarks]
             });
             this.clearDraft();
+          } else {
+            this.draftMarks.push({ x, y, className: markClassNames.dragging });
           }
         }
 
@@ -260,6 +300,7 @@ export class PageMarkerComponent implements OnChanges, OnInit {
     this.draftLines = [];
     this.draftMarks = [];
     this.draftPoints = undefined;
+    this.hoverFirstMark = false;
   }
 
   private drawLine(x: number, y: number, vertical: boolean, className: string): Line | void {
@@ -289,6 +330,11 @@ export class PageMarkerComponent implements OnChanges, OnInit {
       }
     }
     this.currentTextContainer = undefined;
+  }
+
+  private distance(a: { x: number, y: number }, b: { x: number, y: number }) {
+    const distance = Math.abs(a.x - b.x) + Math.abs(a.y - b.y);
+    return distance;
   }
 
   private getShapeId() {

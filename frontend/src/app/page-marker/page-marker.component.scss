@@ -31,8 +31,20 @@ $strokeDasharray: 4;
     stroke-width: $strokeWidth*2;
 }
 
+.hover-first-mark {
+    cursor: pointer;
+}
+
 .is-draft {
     fill: $primary;
+
+    &.is-first {
+        @extend %smooth;
+
+        .hover-first-mark & {
+            stroke-width: 20px;
+        }
+    }
 
     &.is-line {
         stroke: $primary;
@@ -53,6 +65,10 @@ $strokeDasharray: 4;
         stroke: $primary;
         stroke-width: $strokeWidth;
         stroke-dasharray: $strokeDasharray;
+
+        .hover-first-mark & {
+          stroke-dasharray: none;
+        }
     }
 }
 
