@@ -10,7 +10,7 @@ import {
   Output,
   EventEmitter
 } from '@angular/core';
-import { MarkMode } from '../models';
+import { MarkMode } from '../models/mark-mode';
 
 const markClassNames = {
   dragging: 'is-dragging'

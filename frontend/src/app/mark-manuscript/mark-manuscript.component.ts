@@ -11,7 +11,7 @@ import {
   faVectorSquare
 } from '@fortawesome/free-solid-svg-icons';
 
-import { MarkMode } from '../models';
+import { MarkMode } from '../models/mark-mode';
 
 @Component({
   selector: 'kht-mark-manuscript',

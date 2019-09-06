@@ -1,21 +1,9 @@
 import { Component, ViewChild, ElementRef, Input, AfterViewInit, QueryList, ViewChildren, ChangeDetectorRef } from '@angular/core';
+import { TextPart, TextParts } from '../models/text-parts';
+import { CursorPosition } from '../models/cursor-position';
+import { ClipboardService } from '../clipboard.service';
 
-const HYPO_TEXT_CLASS_NAME = 'is-hypotext';
 const NODE_ID_ATTRIBUTE = 'data-part-id';
-
-interface CursorPosition {
-  // index of the text part where the selection starts
-  startIndex: number;
-  startOffset: number;
-  endIndex: number;
-  endOffset: number;
-}
-
-interface TextPart {
-  text: string;
-  class: string;
-  id: number;
-}
 
 @Component({
   selector: 'kht-hypo-editor',
@@ -33,6 +21,9 @@ export class HypoEditorComponent implements AfterViewInit {
   @Input()
   tabindex: number;
 
+  @Input()
+  dir: string;
+
   // The virtual cursor position might differ from the position in the DOM
   // this is because in the DOM empty elements cannot be selected.
   cursorPosition: CursorPosition = {
@@ -42,15 +33,11 @@ export class HypoEditorComponent implements AfterViewInit {
     endOffset: 0
   };
 
-  text: string;
-  parts: TextPart[] = [];
-
-  // counter to be able to give each part a unique ID
-  partIds = 0;
+  parts: TextParts = new TextParts();
 
   composingKey = false;
 
-  constructor() {
+  constructor(private clipboardService: ClipboardService) {
   }
 
   ngAfterViewInit() {
@@ -62,8 +49,8 @@ export class HypoEditorComponent implements AfterViewInit {
   private renderText(spansRefs: ElementRef<HTMLSpanElement>[]) {
     const spans = spansRefs.map(s => s.nativeElement);
 
-    for (let i = 0; i < this.parts.length; i++) {
-      spans[i].innerText = this.parts[i].text;
+    for (const part of this.parts.items()) {
+      spans[part.index].innerText = part.text;
     }
     this.setCursorPosition(
       this.cursorPosition,
@@ -91,7 +78,7 @@ export class HypoEditorComponent implements AfterViewInit {
       }
 
       const id = parseInt((node as Element).getAttribute(NODE_ID_ATTRIBUTE), 10);
-      return this.parts.findIndex(p => p.id === id);
+      return this.parts.byId(id).index;
     };
 
     const startIndex = getPartIndex(selection.anchorNode);
@@ -117,7 +104,7 @@ export class HypoEditorComponent implements AfterViewInit {
   }
 
   private setCursorPosition(cursorPosition: CursorPosition, spans?: HTMLSpanElement[]) {
-    if (this.parts.reduce((prev, curr) => prev + curr.text.length, 0) === 0) {
+    if (this.parts.text.length === 0) {
       // no text nodes to select
       return;
     }
@@ -130,22 +117,8 @@ export class HypoEditorComponent implements AfterViewInit {
 
     // empty nodes cannot be selected (they don't have text nodes)
     // move the DOM selection to the nearest node
-    const skipEmpty = (index: number, offset: number) => {
-      while (index > 0 && this.parts[index].text.length === 0) {
-        index--;
-        offset = this.parts[index].text.length;
-      }
-
-      while (index < this.parts.length && this.parts[index].text.length === 0) {
-        index++;
-        offset = 0;
-      }
-
-      return [index, offset];
-    };
-
-    [startIndex, startOffset] = skipEmpty(startIndex, startOffset);
-    [endIndex, endOffset] = skipEmpty(endIndex, endOffset);
+    [startIndex, startOffset] = this.parts.skipEmpty(startIndex, startOffset);
+    [endIndex, endOffset] = this.parts.skipEmpty(endIndex, endOffset);
 
     const contentElement = this.transcription.nativeElement;
     const selection = document.getSelection();
@@ -153,7 +126,7 @@ export class HypoEditorComponent implements AfterViewInit {
 
     const nodeByIndex = (index: number) => spans
       ? spans[index]
-      : contentElement.querySelector(`span[${NODE_ID_ATTRIBUTE}="${this.parts[index].id}"]`);
+      : contentElement.querySelector(`span[${NODE_ID_ATTRIBUTE}="${this.parts.byIndex(index).id}"]`);
 
     // select the text node, there should only be one under each span
     const anchorNode = nodeByIndex(startIndex).childNodes[0];
@@ -168,122 +141,10 @@ export class HypoEditorComponent implements AfterViewInit {
     selection.addRange(range);
   }
 
-  private * partsFromHtml(element: HTMLElement, parentClass?: string): IterableIterator<TextPart> {
-    switch (element.tagName) {
-      case 'HEAD':
-      case 'STYLE':
-      case 'SCRIPT':
-        // don't include the text of these elements
-        return;
-    }
-
-    parentClass = this.htmlElementIsHypo(element) ? HYPO_TEXT_CLASS_NAME : parentClass;
-    if (element.childElementCount === 0) {
-      yield {
-        class: parentClass || '',
-        text: element.textContent,
-        id: this.partIds++
-      };
-      return;
-    }
-
-    for (const node of Array.from(element.childNodes)) {
-      switch (node.nodeType) {
-        case Node.TEXT_NODE:
-        case Node.ENTITY_NODE:
-        case Node.ENTITY_REFERENCE_NODE:
-          yield {
-            class: parentClass || '',
-            text: node.textContent,
-            id: this.partIds++
-          };
-          break;
-
-        case Node.ELEMENT_NODE:
-          yield* this.partsFromHtml(node as HTMLElement, parentClass);
-          break;
-
-        default:
-          console.error(`Unsupported node type ${node.nodeType}`);
-      }
-    }
-  }
-
-  private htmlElementIsHypo(element: HTMLElement) {
-    if (element.className === HYPO_TEXT_CLASS_NAME) {
-      return true;
-    }
-
-    switch (element.tagName.toUpperCase()) {
-      case 'B':
-      case 'STRONG':
-      case 'U':
-      case 'I':
-        return true;
-    }
-
-    return false;
-  }
 
   onPaste(event: ClipboardEvent) {
     event.preventDefault();
-    const parts: TextPart[] = [];
-
-    if (event.clipboardData.types.indexOf('text/html') >= 0) {
-      const data = event.clipboardData.getData('text/html');
-
-      let placeholder: HTMLElement = document.createElement('div');
-      placeholder.innerHTML = data;
-      const body = placeholder.getElementsByTagName('body');
-      if (body.length) {
-        // only use the body
-        placeholder = body[0];
-      }
-
-      // reconstruct the text and parts from the actual html
-      let lastPart: TextPart;
-      let atStart = true;
-
-      for (const part of this.partsFromHtml(placeholder)) {
-        // remove line breaks and tabs
-        part.text = part.text.replace(/(\t|\n\r?)/g, ' ');
-
-        if (atStart) {
-          if (/^\s*$/.test(part.text)) {
-            // skip empty parts at the start
-            continue;
-          }
-
-          part.text = part.text.trimLeft();
-          atStart = false;
-        }
-
-        if (lastPart && lastPart.class === part.class) {
-          lastPart.text += part.text;
-        } else {
-          parts.push(part);
-          lastPart = part;
-        }
-      }
-
-      for (let i = parts.length - 1; i >= 0; i--) {
-        if (/^\s*$/.test(parts[i].text)) {
-          // remove empty parts at the end
-          delete parts[i];
-        } else {
-          // trim the final part
-          parts[i].text = parts[i].text.trimRight();
-          break;
-        }
-      }
-    } else {
-      const text = event.clipboardData.getData('text/plain');
-      parts.push({
-        text: text.replace(/(\t|\n\r?)/g, ' ').trim(),
-        class: '',
-        id: this.partIds = 0
-      });
-    }
+    const parts: TextPart[] = this.clipboardService.getParts(event.clipboardData);
 
     this.replaceParts(parts.filter(p => !!p));
     return false;
@@ -376,8 +237,7 @@ export class HypoEditorComponent implements AfterViewInit {
       // the dom and place the content back in the model
       this.composingKey = false;
       const index = this.cursorPosition.startIndex;
-      this.parts[index].text = this.partSpans.toArray()[index].nativeElement.innerText;
-      this.composingKey = false;
+      this.parts.replaceText(index, this.partSpans.toArray()[index].nativeElement.innerText);
     }
   }
 
@@ -417,7 +277,7 @@ export class HypoEditorComponent implements AfterViewInit {
         }
       } else {
         position.endIndex = this.parts.length - 1;
-        position.endOffset = this.parts[position.endIndex].text.length;
+        position.endOffset = this.parts.byIndex(position.endIndex).text.length;
 
         if (!select) {
           position.startIndex = position.endIndex;
@@ -433,7 +293,7 @@ export class HypoEditorComponent implements AfterViewInit {
   }
 
   private insertCharacter(char: string, position: CursorPosition = this.cursorPosition) {
-    let className: string;
+    let hypo: boolean;
 
     if (this.parts.length) {
       if (position.startIndex === position.endIndex) {
@@ -441,10 +301,11 @@ export class HypoEditorComponent implements AfterViewInit {
 
         // most common scenario when a user is typing and
         // adds a single character to an existing part
-        const part = this.parts[position.startIndex];
-        part.text = `${part.text.substring(0, position.startOffset)}${
-          char}${part.text.substring(position.endOffset)}`;
-        const textOffset = position.startOffset + char.length;
+        const [part, textOffset] = this.parts.replaceText(
+          position.startIndex,
+          char,
+          position.startOffset,
+          position.endOffset);
 
         // Manually update the span contents: I could not find an event
         // triggered by having the text rendered in an existing DOM
@@ -462,13 +323,12 @@ export class HypoEditorComponent implements AfterViewInit {
           }, spans);
         return;
       }
-      className = this.parts[position.startIndex].class;
+      hypo = this.parts.byIndex(position.startIndex).hypo;
     }
 
     this.replaceParts([{
       text: char,
-      class: className || '',
-      id: this.partIds++
+      hypo: hypo || false
     }],
       position);
   }
@@ -494,7 +354,7 @@ export class HypoEditorComponent implements AfterViewInit {
         // at beginning of current part
         do {
           position.startIndex--;
-          position.startOffset = this.parts[position.startIndex].text.length - 1;
+          position.startOffset = this.parts.byIndex(position.startIndex).text.length - 1;
         } while (position.startOffset < 0 && position.startIndex > 0);
         // also delete empty preceding parts
 
@@ -503,13 +363,13 @@ export class HypoEditorComponent implements AfterViewInit {
         position.startOffset--;
       }
     } else {
-      const currPartEnd = this.parts[position.endIndex].text.length - 1;
+      const currPartEnd = this.parts.byIndex(position.endIndex).text.length - 1;
       if (position.endOffset > currPartEnd && position.endIndex < this.parts.length - 1) {
         // at end of current part
         do {
           position.endIndex++;
           position.endOffset = 1;
-        } while (position.endIndex < this.parts.length - 1 && this.parts[position.endIndex].text.length > 0);
+        } while (position.endIndex < this.parts.length - 1 && this.parts.byIndex(position.endIndex).text.length > 0);
         // also delete empty following parts
 
       } else if (position.endOffset <= currPartEnd) {
@@ -539,71 +399,14 @@ export class HypoEditorComponent implements AfterViewInit {
 
   private replaceParts(newParts: TextPart[], position: CursorPosition = this.cursorPosition, selectInsertion = false) {
     position = this.normalizePosition(position);
-    const updatedParts: TextPart[] = [];
 
-    for (let i = 0; i < position.startIndex; i++) {
-      // copy everything before the selection bounds
-      updatedParts.push(this.parts[i]);
-    }
+    const { startIndex, endIndex, endOffset } = this.parts.replaceParts(newParts, position);
 
-    if (this.parts.length) {
-      const startPart = this.parts[position.startIndex];
-      const startText = startPart.text.substring(0, position.startOffset);
-      if (startText.length) {
-        updatedParts.push({
-          class: startPart.class,
-          id: startPart.id,
-          text: startText
-        });
-      }
-    }
-
-    const startIndex = updatedParts.length;
-
-    let newIndex = updatedParts.length - 1;
-    let newOffset = updatedParts.length ? updatedParts[newIndex].text.length : 0;
-
-    for (const newPart of newParts) {
-      updatedParts.push(newPart);
-      newIndex++;
-      newOffset = newPart.text.length;
-    }
-
-    if (this.parts.length > 0) {
-      const endPart = this.parts[position.endIndex];
-      const endText = endPart.text.substring(position.endOffset);
-
-      if (endText.length) {
-        if (position.endIndex === position.startIndex && position.startOffset > 0) {
-          // split in two parts, two different ids needed
-          updatedParts.push({
-            id: this.partIds++,
-            class: endPart.class,
-            text: endText
-          });
-        } else {
-          endPart.text = endText;
-          updatedParts.push(endPart);
-        }
-      }
-    }
-
-    for (let i = position.endIndex + 1; i < this.parts.length; i++) {
-      // copy everything after the selection bounds
-      updatedParts.push(this.parts[i]);
-    }
-
-    if (newIndex < 0) {
-      // no negative index
-      newIndex = 0;
-    }
-
-    this.parts = updatedParts;
     this.cursorPosition = {
-      startIndex: selectInsertion ? startIndex : newIndex,
-      startOffset: selectInsertion ? 0 : newOffset,
-      endIndex: newIndex,
-      endOffset: newOffset
+      startIndex: selectInsertion ? startIndex : endIndex,
+      startOffset: selectInsertion ? 0 : endOffset,
+      endIndex,
+      endOffset
     };
   }
 
@@ -614,53 +417,17 @@ export class HypoEditorComponent implements AfterViewInit {
   toggleComment() {
     this.transcription.nativeElement.focus();
     let position = this.cursorPosition;
+
+    // TODO: retain backwards selection
     position = this.normalizePosition(position);
 
-    if (this.parts.length === 0) {
-      this.parts.push({
-        id: this.partIds = 0,
-        class: HYPO_TEXT_CLASS_NAME,
-        text: ''
-      });
-      return;
-    }
+    const { startIndex, endIndex, endOffset } = this.parts.toggleHypo(position);
 
-    const currentPart = this.parts[position.startIndex];
-    if (position.startIndex === position.endIndex &&
-      position.startOffset === 0 &&
-      currentPart.text.length === position.endOffset - 1) {
-      // toggle the hypo class of the entire part
-      currentPart.class = currentPart.class.indexOf(HYPO_TEXT_CLASS_NAME) === -1
-        ? HYPO_TEXT_CLASS_NAME
-        : '';
-
-      return;
-    }
-
-    let text = '';
-    let toNormal = true;
-
-    for (let i = position.startIndex; i <= position.endIndex; i++) {
-      const part = this.parts[i];
-      if (part.class.indexOf(HYPO_TEXT_CLASS_NAME) === -1) {
-        toNormal = false;
-      }
-
-      if (i === position.startIndex) {
-        text += part.text.substring(position.startOffset, i === position.endIndex ? position.endOffset : undefined);
-      } else if (i === position.endIndex) {
-        text += part.text.substring(0, position.endOffset);
-      } else {
-        text += part.text;
-      }
-    }
-
-    this.replaceParts([{
-      class: toNormal ? '' : HYPO_TEXT_CLASS_NAME,
-      id: this.partIds++,
-      text
-    }],
-      position,
-      true);
+    this.cursorPosition = {
+      startIndex,
+      startOffset: 0,
+      endIndex,
+      endOffset
+    };
   }
 }
