@@ -1,6 +1,8 @@
 import { Component, ViewChild, ElementRef, Input, AfterViewInit, QueryList, ViewChildren, ChangeDetectorRef } from '@angular/core';
-import { TextPart, TextParts } from '../models/text-parts';
-import { CursorPosition } from '../models/cursor-position';
+
+import { CursorPosition, Direction } from '../models/cursor-position';
+import { TextPart, TextParts, TextPartSelection } from '../models/text-parts';
+
 import { ClipboardService } from '../clipboard.service';
 
 const NODE_ID_ATTRIBUTE = 'data-part-id';
@@ -26,12 +28,7 @@ export class HypoEditorComponent implements AfterViewInit {
 
   // The virtual cursor position might differ from the position in the DOM
   // this is because in the DOM empty elements cannot be selected.
-  cursorPosition: CursorPosition = {
-    startIndex: 0,
-    startOffset: 0,
-    endIndex: 0,
-    endOffset: 0
-  };
+  cursorPosition = new CursorPosition();
 
   parts: TextParts = new TextParts();
 
@@ -52,12 +49,10 @@ export class HypoEditorComponent implements AfterViewInit {
     for (const part of this.parts.items()) {
       spans[part.index].innerText = part.text;
     }
-    this.setCursorPosition(
-      this.cursorPosition,
-      spans);
+    this.setCursorPosition(this.cursorPosition.get(), spans);
   }
 
-  private getCursorPosition(): CursorPosition {
+  private getCursorPosition() {
     const selection = document.getSelection();
     const contentElement = this.transcription.nativeElement;
 
@@ -103,7 +98,7 @@ export class HypoEditorComponent implements AfterViewInit {
     };
   }
 
-  private setCursorPosition(cursorPosition: CursorPosition, spans?: HTMLSpanElement[]) {
+  private setCursorPosition(cursorPosition: TextPartSelection, spans?: HTMLSpanElement[]) {
     if (this.parts.text.length === 0) {
       // no text nodes to select
       return;
@@ -134,13 +129,21 @@ export class HypoEditorComponent implements AfterViewInit {
 
     contentElement.focus();
 
-    range.setStart(anchorNode, startOffset);
-    range.setEnd(focusNode, endOffset);
+    if (cursorPosition.forward) {
+      range.setStart(anchorNode, startOffset);
+      range.setEnd(focusNode, endOffset);
 
-    selection.removeAllRanges();
-    selection.addRange(range);
+      selection.removeAllRanges();
+      selection.addRange(range);
+    } else {
+      // going backwards needs a slightly different call
+      range.setStart(anchorNode, startOffset);
+
+      selection.removeAllRanges();
+      selection.addRange(range);
+      selection.extend(focusNode, endOffset);
+    }
   }
-
 
   onPaste(event: ClipboardEvent) {
     event.preventDefault();
@@ -200,12 +203,13 @@ export class HypoEditorComponent implements AfterViewInit {
 
       case 229: // Composing (dead keys)
         this.composingKey = true;
-        nativeAction = true;
-        break;
+        // retain the current selection, compose otherwise
+        // gives a very weird position
+        return true;
 
       case 35: // End
       case 36: // Home
-        this.homeEndPosition(keycode === 36, event.shiftKey);
+        this.move(keycode === 36 ? 'home' : 'end', event.shiftKey);
         return false;
       case 37: // Left arrow
       case 38: // Up arrow
@@ -222,7 +226,7 @@ export class HypoEditorComponent implements AfterViewInit {
     if (nativeAction) {
       // native action might affect the cursor position, read it
       setTimeout(() => {
-        this.cursorPosition = this.getCursorPosition();
+        this.updateSelection();
       }, 1);
       return true;
     }
@@ -234,103 +238,60 @@ export class HypoEditorComponent implements AfterViewInit {
   keyup() {
     if (this.composingKey) {
       // a composed text (dead key) has been added, read this from
-      // the dom and place the content back in the model
+      // the DOM and place the content back in the model
       this.composingKey = false;
-      const index = this.cursorPosition.startIndex;
-      this.parts.replaceText(index, this.partSpans.toArray()[index].nativeElement.innerText);
+      const { forwards } = this.cursorPosition.forwards();
+
+      // replace the current selection with the composed entry
+      const textNode = this.parts.text.length
+        ? this.partSpans.toArray()[forwards.startIndex].nativeElement
+        : this.transcription.nativeElement;
+
+      const {
+        endIndex,
+        endOffset
+      } = this.parts.composed(
+        textNode.innerText.substr(forwards.startOffset),
+        forwards);
+
+      if (textNode === this.transcription.nativeElement) {
+        // if the text ended up in the field itself, remove it
+        // it will be added to a text part which are rendered as spans
+        textNode.removeChild(textNode.childNodes[0]);
+      }
+
+      this.cursorPosition.set({
+        startIndex: endIndex,
+        startOffset: endOffset,
+        endIndex,
+        endOffset
+      });
     }
   }
 
-  private positionReversed(position: CursorPosition) {
-    return position.startIndex > position.endIndex ||
-      (position.startIndex === position.endIndex &&
-        position.startOffset > position.endOffset);
-  }
-
-  private normalizePosition(position: CursorPosition, alwaysCopy = false) {
-    if (this.positionReversed(position)) {
-      // start and end could be flipped
-      return {
-        startIndex: position.endIndex,
-        startOffset: position.endOffset,
-        endIndex: position.startIndex,
-        endOffset: position.startOffset
-      };
-    } else if (alwaysCopy) {
-      return { ...position };
-    }
-
-    return position;
-  }
-
-  private homeEndPosition(home: boolean, select: boolean) {
+  private move(direction: Direction, select: boolean) {
     if (this.parts.length) {
-      const position = this.normalizePosition(this.cursorPosition, true);
+      const position = this.cursorPosition.move(this.parts, direction, select);
 
-      if (home) {
-        position.startIndex = 0;
-        position.startOffset = 0;
-
-        if (!select) {
-          position.endIndex = 0;
-          position.endOffset = 0;
-        }
-      } else {
-        position.endIndex = this.parts.length - 1;
-        position.endOffset = this.parts.byIndex(position.endIndex).text.length;
-
-        if (!select) {
-          position.startIndex = position.endIndex;
-          position.startOffset = position.endOffset;
-        }
-      }
-
-      this.cursorPosition = position;
       if (this.partSpans.toArray().length === this.parts.length) {
-        this.setCursorPosition(this.cursorPosition);
+        this.setCursorPosition(position);
       }
     }
   }
 
-  private insertCharacter(char: string, position: CursorPosition = this.cursorPosition) {
+  private insertCharacter(char: string) {
     let hypo: boolean;
 
+    const { forwards } = this.cursorPosition.forwards();
+
     if (this.parts.length) {
-      if (position.startIndex === position.endIndex) {
-        position = this.normalizePosition(position);
-
-        // most common scenario when a user is typing and
-        // adds a single character to an existing part
-        const [part, textOffset] = this.parts.replaceText(
-          position.startIndex,
-          char,
-          position.startOffset,
-          position.endOffset);
-
-        // Manually update the span contents: I could not find an event
-        // triggered by having the text rendered in an existing DOM
-        // element. So update the span directly and update the selection
-        // afterwards.
-        const spans = this.partSpans.toArray().map(e => e.nativeElement);
-        spans[position.startIndex].innerText = part.text;
-
-        this.setCursorPosition(
-          this.cursorPosition = {
-            startIndex: position.startIndex,
-            startOffset: textOffset,
-            endIndex: position.endIndex,
-            endOffset: textOffset
-          }, spans);
-        return;
-      }
-      hypo = this.parts.byIndex(position.startIndex).hypo;
+      hypo = this.parts.byIndex(forwards.startIndex).hypo;
     }
 
     this.replaceParts([{
       text: char,
       hypo: hypo || false
-    }],
-      position);
+    }], forwards);
   }
 
   private delete(backspace: boolean) {
@@ -338,54 +299,52 @@ export class HypoEditorComponent implements AfterViewInit {
       return;
     }
 
-    let position = this.cursorPosition;
-    if (position.startIndex !== position.endIndex ||
-      position.startOffset !== position.endOffset) {
+    const { forwards } = this.cursorPosition.forwards();
+    if (forwards.startIndex !== forwards.endIndex ||
+      forwards.startOffset !== forwards.endOffset) {
       // selection range, delete it
-      this.replaceParts([], position);
+      this.replaceParts([], forwards);
       return;
     }
 
     // backspace or delete from cursor
-    position = this.normalizePosition(position, true);
-
     if (backspace) {
-      if (position.startOffset === 0 && position.startIndex > 0) {
+      if (forwards.startOffset === 0 && forwards.startIndex > 0) {
         // at beginning of current part
         do {
-          position.startIndex--;
-          position.startOffset = this.parts.byIndex(position.startIndex).text.length - 1;
-        } while (position.startOffset < 0 && position.startIndex > 0);
+          forwards.startIndex--;
+          forwards.startOffset = this.parts.byIndex(forwards.startIndex).text.length - 1;
+        } while (forwards.startOffset < 0 && forwards.startIndex > 0);
         // also delete empty preceding parts
 
-      } else if (position.startOffset > 0) {
+      } else if (forwards.startOffset > 0) {
         // within a part, delete a single character
-        position.startOffset--;
+        forwards.startOffset--;
       }
     } else {
-      const currPartEnd = this.parts.byIndex(position.endIndex).text.length - 1;
-      if (position.endOffset > currPartEnd && position.endIndex < this.parts.length - 1) {
+      const currPartEnd = this.parts.byIndex(forwards.endIndex).text.length - 1;
+      if (forwards.endOffset > currPartEnd && forwards.endIndex < this.parts.length - 1) {
         // at end of current part
         do {
-          position.endIndex++;
-          position.endOffset = 1;
-        } while (position.endIndex < this.parts.length - 1 && this.parts.byIndex(position.endIndex).text.length > 0);
+          forwards.endIndex++;
+          forwards.endOffset = 1;
+        } while (forwards.endIndex < this.parts.length - 1 && this.parts.byIndex(forwards.endIndex).text.length > 0);
         // also delete empty following parts
 
-      } else if (position.endOffset <= currPartEnd) {
+      } else if (forwards.endOffset <= currPartEnd) {
         // within a part, delete a single character
-        position.endOffset++;
+        forwards.endOffset++;
       }
     }
 
-    if (position.startIndex === position.endIndex &&
-      position.startOffset === position.endOffset) {
+    if (forwards.startIndex === forwards.endIndex &&
+      forwards.startOffset === forwards.endOffset) {
       // don't delete anything
       return;
     }
 
     const currLength = this.parts.length;
-    this.replaceParts([], position);
+    this.replaceParts([], forwards);
 
     if (this.parts.length === currLength) {
       const spans = this.partSpans.toArray();
@@ -397,37 +356,41 @@ export class HypoEditorComponent implements AfterViewInit {
     }
   }
 
-  private replaceParts(newParts: TextPart[], position: CursorPosition = this.cursorPosition, selectInsertion = false) {
-    position = this.normalizePosition(position);
+  private replaceParts(newParts: TextPart[], position: TextPartSelection = this.cursorPosition.get(), selectInsertion = false) {
+    const { forwards, flipped } = this.cursorPosition.forwards(position);
 
-    const { startIndex, endIndex, endOffset } = this.parts.replaceParts(newParts, position);
+    const { startIndex, startOffset, endIndex, endOffset, render } = this.parts.replaceParts(newParts, forwards);
 
-    this.cursorPosition = {
+    this.cursorPosition.set({
       startIndex: selectInsertion ? startIndex : endIndex,
-      startOffset: selectInsertion ? 0 : endOffset,
+      startOffset: selectInsertion ? startOffset : endOffset,
       endIndex,
       endOffset
-    };
+    }, flipped);
+
+    if (render) {
+      // Manually update the span contents: I could not find an event
+      // triggered by having the text rendered in an existing DOM
+      // element. So update the span directly and update the selection
+      // afterwards.
+      this.renderText(this.partSpans.toArray());
+    }
   }
 
   updateSelection() {
-    this.cursorPosition = this.getCursorPosition();
+    this.cursorPosition.set(this.getCursorPosition());
   }
 
   toggleComment() {
     this.transcription.nativeElement.focus();
-    let position = this.cursorPosition;
+    const { forwards, flipped } = this.cursorPosition.forwards();
+    const { startIndex, endIndex, endOffset } = this.parts.toggleHypo(forwards);
 
-    // TODO: retain backwards selection
-    position = this.normalizePosition(position);
-
-    const { startIndex, endIndex, endOffset } = this.parts.toggleHypo(position);
-
-    this.cursorPosition = {
+    this.cursorPosition.set({
       startIndex,
       startOffset: 0,
       endIndex,
       endOffset
-    };
+    }, flipped);
   }
 }

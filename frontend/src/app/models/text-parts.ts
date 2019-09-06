@@ -1,4 +1,3 @@
-import { CursorPosition } from './cursor-position';
 import { BehaviorSubject } from 'rxjs';
 
 export interface TextPart {
@@ -6,6 +5,26 @@ export interface TextPart {
   hypo: boolean;
   id?: number;
 }
+
+/**
+ * Note: a selection can also be backwards.
+ */
+export interface TextPartSelection {
+  // index of the text part where the selection starts
+  startIndex: number;
+  startOffset: number;
+  endIndex: number;
+  endOffset: number;
+  forward: boolean;
+}
+
+/**
+ * The end should always follow the start for this selection type
+ */
+export interface ForwardTextPartSelection extends TextPartSelection {
+  forward: true;
+}
+
 
 type ReadonlyTextPartIndex = Readonly<{ index: number } & TextPart>;
 
@@ -45,32 +64,68 @@ export class TextParts {
     }));
   }
 
-  /**
-   * Replaces text in an existing part.
-   * @param index Part index.
-   * @param text The text to insert.
-   * @param startOffset The starting character position, text before is retained.
-   * @param endOffset The final exclusive character position, text starting from this offset is retained.
-   */
-  replaceText(index: number, text: string, startOffset: number = 0, endOffset?: number) {
-    const part = this.itemsList[index];
-    part.text = part.text.substring(0, startOffset)
-      + text
-      + (endOffset !== undefined ? part.text.substring(endOffset) : '');
-    return [part, startOffset + text.length] as [Readonly<TextPart>, number];
+  composed(text: string, selection: ForwardTextPartSelection) {
+    // currently assume 1 composed character
+    const currentPart = this.itemsList[selection.endIndex];
+    const updatedLocation = this.replaceParts([
+      {
+        text: text.substr(0, 1),
+        hypo: this.itemsList.length && currentPart.hypo ||
+          (selection.endIndex < this.itemsList.length - 1 &&
+            selection.endOffset === currentPart.text.length &&
+            this.itemsList[selection.endIndex + 1].hypo)
+      }
+    ], selection, true);
+
+    // need to force redrawing everything, because if the compose action
+    // replaced in the editable content, they aren't going to be redrawn
+    // by themselves
+    this.itemsList = this.itemsList.map(item => ({
+      ...item
+    }));
+    this.emit();
+
+    return updatedLocation;
   }
 
-  replaceParts(newParts: TextPart[], position: CursorPosition) {
+  /**
+   * Replaces parts
+   */
+  replaceParts(newParts: TextPart[], selection: ForwardTextPartSelection, silent = false) {
+    if (this.length && newParts.length === 1 &&
+      selection.startIndex === selection.endIndex) {
+      const part = this.itemsList[selection.startIndex];
+      if (part.hypo === newParts[0].hypo) {
+        // most common scenario when a user is typing and
+        // adds just a single character to an existing part
+        const text = newParts[0].text;
+
+        part.text = part.text.substring(0, selection.startOffset)
+          + text
+          + (selection.endOffset !== undefined ? part.text.substring(selection.endOffset) : '');
+
+        const textOffset = selection.startOffset + text.length;
+
+        return {
+          startIndex: selection.startIndex,
+          startOffset: textOffset,
+          endIndex: selection.endIndex,
+          endOffset: textOffset,
+          render: true
+        };
+      }
+    }
+
     const updatedParts: TextPart[] = [];
 
-    for (let i = 0; i < position.startIndex; i++) {
+    for (let i = 0; i < selection.startIndex; i++) {
       // copy everything before the selection bounds
       updatedParts.push(this.itemsList[i]);
     }
 
     if (this.itemsList.length) {
-      const startPart = this.itemsList[position.startIndex];
-      const startText = startPart.text.substring(0, position.startOffset);
+      const startPart = this.itemsList[selection.startIndex];
+      const startText = startPart.text.substring(0, selection.startOffset);
       if (startText.length) {
         updatedParts.push({
           hypo: startPart.hypo,
@@ -93,11 +148,11 @@ export class TextParts {
     }
 
     if (this.itemsList.length > 0) {
-      const endPart = this.itemsList[position.endIndex];
-      const endText = endPart.text.substring(position.endOffset);
+      const endPart = this.itemsList[selection.endIndex];
+      const endText = endPart.text.substring(selection.endOffset);
 
       if (endText.length) {
-        if (position.endIndex === position.startIndex && position.startOffset > 0) {
+        if (selection.endIndex === selection.startIndex && selection.startOffset > 0) {
           // split in two parts, two different ids needed
           updatedParts.push({
             id: this.partIds++,
@@ -111,7 +166,7 @@ export class TextParts {
       }
     }
 
-    for (let i = position.endIndex + 1; i < this.itemsList.length; i++) {
+    for (let i = selection.endIndex + 1; i < this.itemsList.length; i++) {
       // copy everything after the selection bounds
       updatedParts.push(this.itemsList[i]);
     }
@@ -121,13 +176,19 @@ export class TextParts {
       endIndex = 0;
     }
 
+    const currLength = this.itemsList.length;
     this.itemsList = updatedParts;
-    this.emit();
+
+    if (!silent) {
+      this.emit();
+    }
 
     return {
       startIndex,
+      startOffset: 0,
       endIndex,
-      endOffset
+      endOffset,
+      render: currLength === this.itemsList.length
     };
   }
 
@@ -154,7 +215,7 @@ export class TextParts {
     this.emit();
   }
 
-  toggleHypo(position: CursorPosition) {
+  toggleHypo(position: ForwardTextPartSelection) {
     if (this.itemsList.length === 0) {
       this.push({
         hypo: true,
@@ -194,6 +255,6 @@ export class TextParts {
   }
 
   private emit() {
-    this.itemsSubject.next(this.itemsList);
+    this.itemsSubject.next([...this.itemsList]);
   }
 }
