@@ -1,0 +1,20 @@
+@import '../../colors';
+
+.input.transcription {
+  white-space: pre;
+
+  span::selection {
+    background-color: $text;
+    color: $white-ter;
+  }
+
+  span.is-hypotext {
+    color: $danger;
+    font-weight: bold;
+
+    &::selection {
+      background-color: $danger;
+      color: $white-ter;
+    }
+  }
+}

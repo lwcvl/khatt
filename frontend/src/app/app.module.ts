@@ -21,6 +21,7 @@ import { MenuComponent } from './menu/menu.component';
 import { UploadComponent } from './upload/upload.component';
 import { EditManuscriptComponent } from './edit-manuscript/edit-manuscript.component';
 import { PageMarkerComponent } from './page-marker/page-marker.component';
+import { HypoEditorComponent } from './hypo-editor/hypo-editor.component';
 
 @NgModule({
   declarations: [
@@ -36,6 +37,7 @@ import { PageMarkerComponent } from './page-marker/page-marker.component';
     UploadComponent,
     EditManuscriptComponent,
     PageMarkerComponent,
+    HypoEditorComponent,
   ],
   imports: [
     AppRoutingModule,
