@@ -64,6 +64,32 @@ export class TextParts {
     }));
   }
 
+  absoluteOffset(index: number, partOffset: number) {
+    let offset = 0;
+    for (let i = 0; i < index; i++) {
+      offset += this.itemsList[i].text.length;
+    }
+
+    return offset + partOffset;
+  }
+
+  /**
+   * Gets the part index and the offset within that part.
+   * Returns [-1, 0] if the offset is out of range.
+   * @param absoluteOffset Absolute offset from the start of the text
+   */
+  relativeOffset(absoluteOffset: number): [number, number] {
+    let subOffset = 0;
+    for (const [index, item] of this.itemsList.entries()) {
+      subOffset += item.text.length;
+      if (subOffset >= absoluteOffset) {
+        return [index, absoluteOffset - subOffset + item.text.length];
+      }
+    }
+
+    return [-1, 0];
+  }
+
   composed(text: string, selection: ForwardTextPartSelection) {
     // currently assume 1 composed character
     const currentPart = this.itemsList[selection.endIndex];

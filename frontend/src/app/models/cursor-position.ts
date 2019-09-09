@@ -47,31 +47,81 @@ export class CursorPosition {
     parts: TextParts,
     direction: Direction,
     select: boolean) {
-    const { forwards, flipped } = this.forwards();
+    const selection = this.get();
+
+    let cursorIndex: number;
+    let cursorOffset: number;
 
     switch (direction) {
       case 'home':
-        forwards.startIndex = 0;
-        forwards.startOffset = 0;
+        cursorIndex = 0;
+        cursorOffset = 0;
 
-        if (!select) {
-          forwards.endIndex = 0;
-          forwards.endOffset = 0;
-        }
         break;
 
       case 'end':
-        forwards.endIndex = parts.length - 1;
-        forwards.endOffset = parts.byIndex(forwards.endIndex).text.length;
+        cursorIndex = parts.length - 1;
+        cursorOffset = parts.byIndex(cursorIndex).text.length;
 
-        if (!select) {
-          forwards.startIndex = forwards.endIndex;
-          forwards.startOffset = forwards.endOffset;
+        break;
+
+      case 'prev':
+        {
+          const absoluteOffset = parts.absoluteOffset(selection.endIndex, selection.endOffset);
+          if (absoluteOffset > 0) {
+            [cursorIndex, cursorOffset] = parts.relativeOffset(absoluteOffset - 1);
+          }
+        }
+        break;
+
+      case 'next':
+        {
+          const absoluteOffset = parts.absoluteOffset(selection.endIndex, selection.endOffset);
+          if (absoluteOffset < parts.text.length) {
+            [cursorIndex, cursorOffset] = parts.relativeOffset(absoluteOffset + 1);
+          }
+        }
+        break;
+
+      case 'prev-word':
+        {
+          const absoluteOffset = parts.absoluteOffset(selection.endIndex, selection.endOffset);
+          const croppedText = parts.text.substring(0, absoluteOffset);
+          const match = croppedText.match(/(\b[^\s]+|\b[^\s]+\s+)$/);
+          if (match) {
+            [cursorIndex, cursorOffset] = parts.relativeOffset(croppedText.lastIndexOf(match.pop()));
+            break;
+          } else {
+            cursorIndex = 0;
+            cursorOffset = 0;
+          }
+        }
+        break;
+
+      case 'next-word':
+        {
+          const absoluteOffset = parts.absoluteOffset(selection.endIndex, selection.endOffset);
+          const nextWord = parts.text.substring(absoluteOffset).search(/(?<!^)\s\b/);
+          if (nextWord >= 0) {
+            [cursorIndex, cursorOffset] = parts.relativeOffset(absoluteOffset + nextWord + 1);
+          } else {
+            return this.move(parts, 'end', select);
+          }
         }
         break;
     }
 
-    return this.selection = flipped ? this.flip(forwards) : forwards;
+    selection.endIndex = cursorIndex;
+    selection.endOffset = cursorOffset;
+
+    if (!select) {
+      selection.startIndex = cursorIndex;
+      selection.startOffset = cursorOffset;
+    }
+
+    selection.forward = this.isForward(selection);
+
+    return this.selection = selection;
   }
 
   private isForward(selection: Selection = this.selection) {

@@ -209,14 +209,22 @@ export class HypoEditorComponent implements AfterViewInit {
 
       case 35: // End
       case 36: // Home
+        event.preventDefault();
         this.move(keycode === 36 ? 'home' : 'end', event.shiftKey);
         return false;
       case 37: // Left arrow
-      case 38: // Up arrow
       case 39: // Right arrow
+        event.preventDefault();
+        if (event.ctrlKey || event.metaKey || event.altKey) {
+          this.move(keycode === 39 ? 'next-word' : 'prev-word', event.shiftKey);
+        } else {
+          this.move(keycode === 39 ? 'next' : 'prev', event.shiftKey);
+        }
+        return false;
+
+      case 38: // Up arrow
       case 40: // Down arrow
-        nativeAction = true;
-        break;
+        return false;
 
       case 13: // ENTER
         event.preventDefault();
