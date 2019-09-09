@@ -82,7 +82,7 @@ export class TextParts {
     let subOffset = 0;
     for (const [index, item] of this.itemsList.entries()) {
       subOffset += item.text.length;
-      if (subOffset >= absoluteOffset) {
+      if (subOffset > absoluteOffset) {
         return [index, absoluteOffset - subOffset + item.text.length];
       }
     }
@@ -233,6 +233,37 @@ export class TextParts {
     }
 
     return [index, offset];
+  }
+
+  /**
+   * Gets the texted selected text parts.
+   */
+  *select(selection: ForwardTextPartSelection): Iterable<TextPart> {
+    const first = this.itemsList[selection.startIndex];
+    yield {
+      id: first.id,
+      hypo: first.hypo,
+      text: first.text.substring(
+        selection.startOffset,
+        selection.startIndex === selection.endIndex ? selection.endOffset : undefined)
+    };
+
+    for (let i = selection.startIndex + 1; i < selection.endIndex; i++) {
+      yield this.itemsList[i];
+    }
+
+    if (selection.endIndex > selection.startIndex) {
+      const last = this.itemsList[selection.endIndex];
+      yield {
+        id: last.id,
+        hypo: last.hypo,
+        text: last.text.substring(0, selection.endOffset)
+      };
+    }
+  }
+
+  substring(selection: ForwardTextPartSelection) {
+    return Array.from(this.select(selection)).map(part => part.text).join('');
   }
 
   push(part: TextPart) {

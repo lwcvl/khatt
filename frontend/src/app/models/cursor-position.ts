@@ -87,9 +87,9 @@ export class CursorPosition {
         {
           const absoluteOffset = parts.absoluteOffset(selection.endIndex, selection.endOffset);
           const croppedText = parts.text.substring(0, absoluteOffset);
-          const match = croppedText.match(/(\b[^\s]+|\b[^\s]+\s+)$/);
+          const match = croppedText.match(/(\s[^\s]+\s*)$/);
           if (match) {
-            [cursorIndex, cursorOffset] = parts.relativeOffset(croppedText.lastIndexOf(match.pop()));
+            [cursorIndex, cursorOffset] = parts.relativeOffset(croppedText.lastIndexOf(match.pop()) + 1);
             break;
           } else {
             cursorIndex = 0;
@@ -101,7 +101,7 @@ export class CursorPosition {
       case 'next-word':
         {
           const absoluteOffset = parts.absoluteOffset(selection.endIndex, selection.endOffset);
-          const nextWord = parts.text.substring(absoluteOffset).search(/(?<!^)\s\b/);
+          const nextWord = parts.text.substring(absoluteOffset).search(/(?<!^)\s[^\s]/);
           if (nextWord >= 0) {
             [cursorIndex, cursorOffset] = parts.relativeOffset(absoluteOffset + nextWord + 1);
           } else {
@@ -111,15 +111,17 @@ export class CursorPosition {
         break;
     }
 
-    selection.endIndex = cursorIndex;
-    selection.endOffset = cursorOffset;
+    if (cursorIndex !== undefined) {
+      selection.endIndex = cursorIndex;
+      selection.endOffset = cursorOffset;
 
-    if (!select) {
-      selection.startIndex = cursorIndex;
-      selection.startOffset = cursorOffset;
+      if (!select) {
+        selection.startIndex = cursorIndex;
+        selection.startOffset = cursorOffset;
+      }
+
+      selection.forward = this.isForward(selection);
     }
-
-    selection.forward = this.isForward(selection);
 
     return this.selection = selection;
   }

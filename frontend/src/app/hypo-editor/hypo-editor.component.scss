@@ -3,6 +3,10 @@
 .input.transcription {
   white-space: pre;
 
+  &[dir="rtl"] {
+    text-align: right;
+  }
+
   span::selection {
     background-color: $text;
     color: $white-ter;

@@ -145,6 +145,17 @@ export class HypoEditorComponent implements AfterViewInit {
     }
   }
 
+  onCopy(event: ClipboardEvent) {
+    const selection = this.cursorPosition.forwards().forwards;
+    event.clipboardData.setData(
+      'text/html',
+      Array.from(this.parts.select(selection)).map(part => part.hypo ? `<strong>${part.text}</strong>` : part.text).join(''));
+    event.clipboardData.setData(
+      'text/plain',
+      this.parts.substring(selection));
+    event.preventDefault();
+  }
+
   onPaste(event: ClipboardEvent) {
     event.preventDefault();
     const parts: TextPart[] = this.clipboardService.getParts(event.clipboardData);

@@ -1,5 +1,6 @@
 <p #transcription contenteditable="true" class="input transcription" [tabindex]="tabindex" (focus)="updateSelection()"
-  (click)="updateSelection()" (keydown)="keydown($event)" (keyup)="keyup()" (paste)="onPaste($event)" [dir]="dir"><span
-    #partSpan *ngFor="let part of parts.items$ | async" [ngClass]="{'is-hypotext':part.hypo}"
-    [ngStyle]="{'display': parts.length > 1 || part.text.length ? '' : 'none'}" [attr.data-part-id]="part.id"></span>
+  (click)="updateSelection()" (keydown)="keydown($event)" (keyup)="keyup()" (copy)="onCopy($event)"
+  (paste)="onPaste($event)" [dir]="dir"><span #partSpan *ngFor="let part of parts.items$ | async"
+    [ngClass]="{'is-hypotext':part.hypo}" [ngStyle]="{'display': parts.length > 1 || part.text.length ? '' : 'none'}"
+    [attr.data-part-id]="part.id"></span>
 </p>

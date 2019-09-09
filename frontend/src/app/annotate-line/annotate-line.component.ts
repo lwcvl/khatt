@@ -39,6 +39,8 @@ export class AnnotateLineComponent implements OnInit {
   @Input()
   offset = 0;
 
+  dir = 'rtl';
+
   maskPoints: string;
 
   @HostBinding('class')
