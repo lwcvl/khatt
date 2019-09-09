@@ -82,7 +82,7 @@ export class TextParts {
     let subOffset = 0;
     for (const [index, item] of this.itemsList.entries()) {
       subOffset += item.text.length;
-      if (subOffset > absoluteOffset) {
+      if (subOffset >= absoluteOffset) {
         return [index, absoluteOffset - subOffset + item.text.length];
       }
     }
@@ -222,14 +222,25 @@ export class TextParts {
    * Get the nearest non-empty part and offset.
    */
   skipEmpty(index: number, offset: number) {
-    while (index > 0 && this.itemsList[index].text.length === 0) {
-      index--;
-      offset = this.itemsList[index].text.length;
+    if (this.itemsList[index] && this.itemsList[index].text.length) {
+      return [index, offset];
     }
 
-    while (index < this.itemsList.length && this.itemsList[index].text.length === 0) {
-      index++;
-      offset = 0;
+    // go back until we go something
+    while (index > 0 && this.itemsList[index] && this.itemsList[index].text.length === 0) {
+      index--;
+    }
+
+    // everything preceding the cursor was empty
+    if (this.itemsList[index] && this.itemsList[index].text.length) {
+      // except the first
+      offset = this.itemsList[index].text.length;
+    } else {
+      // try to go forward
+      while (index < this.itemsList.length && this.itemsList[index].text.length === 0) {
+        index++;
+        offset = 0;
+      }
     }
 
     return [index, offset];
