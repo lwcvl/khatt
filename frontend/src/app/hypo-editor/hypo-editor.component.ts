@@ -145,7 +145,11 @@ export class HypoEditorComponent implements AfterViewInit {
     }
   }
 
-  onCopy(event: ClipboardEvent) {
+  onCut(event: ClipboardEvent) {
+    this.onCopy(event, true);
+  }
+
+  onCopy(event: ClipboardEvent, cut = false) {
     const selection = this.cursorPosition.forwards().forwards;
     event.clipboardData.setData(
       'text/html',
@@ -154,6 +158,10 @@ export class HypoEditorComponent implements AfterViewInit {
       'text/plain',
       this.parts.substring(selection));
     event.preventDefault();
+
+    if (cut) {
+      this.replaceParts([], selection);
+    }
   }
 
   onPaste(event: ClipboardEvent) {
@@ -170,6 +178,12 @@ export class HypoEditorComponent implements AfterViewInit {
       if (['h', 'b', 'u', 'i'].indexOf(event.key) !== -1) {
         event.preventDefault();
         this.toggleComment();
+        return false;
+      } else if (event.key === 'a') {
+        // work-around for Firefox: when selecting everything for some
+        // reason the cursor only ends up selecting a boundary
+        this.move('home', false);
+        this.move('end', true);
         return false;
       }
     }
@@ -191,6 +205,9 @@ export class HypoEditorComponent implements AfterViewInit {
         this.delete(false);
         return false;
 
+      case 17: // CTRL
+      case 18: // ALT
+      case 91: // OS
       case 27: // ESC
       case 112: // F1
       case 113: // F2
@@ -248,9 +265,10 @@ export class HypoEditorComponent implements AfterViewInit {
         this.updateSelection();
       }, 1);
       return true;
+    } else {
+      event.preventDefault();
+      this.insertCharacter(event.key);
     }
-
-    this.insertCharacter(event.key);
     return false;
   }
 
@@ -317,7 +335,6 @@ export class HypoEditorComponent implements AfterViewInit {
     if (this.parts.length === 0) {
       return;
     }
-
     const { forwards } = this.cursorPosition.forwards();
     if (forwards.startIndex !== forwards.endIndex ||
       forwards.startOffset !== forwards.endOffset) {

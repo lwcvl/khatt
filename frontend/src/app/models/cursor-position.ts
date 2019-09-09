@@ -100,8 +100,12 @@ export class CursorPosition {
 
       case 'next-word':
         {
-          const absoluteOffset = parts.absoluteOffset(selection.endIndex, selection.endOffset);
-          const nextWord = parts.text.substring(absoluteOffset).search(/(?<!^)\s[^\s]/);
+          let absoluteOffset = parts.absoluteOffset(selection.endIndex, selection.endOffset);
+          const substring = parts.text.substring(absoluteOffset);
+          const trimmedText = substring.trimLeft();
+          absoluteOffset += substring.length - trimmedText.length;
+
+          const nextWord = trimmedText.search(/\s[^\s]/);
           if (nextWord >= 0) {
             [cursorIndex, cursorOffset] = parts.relativeOffset(absoluteOffset + nextWord + 1);
           } else {
