@@ -79,7 +79,7 @@ export class ClipboardService {
         return;
     }
 
-    parentHypo = this.htmlElementIsHypo(element) ? true : parentHypo;
+    parentHypo = parentHypo || this.htmlElementIsHypo(element);
     if (element.childElementCount === 0) {
       yield {
         hypo: parentHypo || false,
