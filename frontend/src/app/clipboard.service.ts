@@ -70,7 +70,7 @@ export class ClipboardService {
   }
 
 
-  private * partsFromHtml(element: HTMLElement, parentHypo?: boolean): IterableIterator<TextPart> {
+  private * partsFromHtml(element: HTMLElement, parentHypo: boolean = false): IterableIterator<TextPart> {
     switch (element.tagName) {
       case 'HEAD':
       case 'STYLE':
