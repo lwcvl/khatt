@@ -3,35 +3,35 @@
 $maskBackground: rgba(black, 0.5);
 
 :host {
-  line-height: 0;
-  overflow: hidden;
+    line-height: 0;
+    overflow: hidden;
 }
 
 .mask {
-  fill: $maskBackground;
+    fill: $maskBackground;
 }
 
 .hypo-toggle {
-  transition: color 0.5s ease;
+    transition: color 0.5s ease;
 }
 
 .footer {
-  background: $maskBackground;
-  line-height: 1.5;
-  padding: 10px;
+    background: $maskBackground;
+    line-height: 1.5;
+    padding: 10px;
 
-  .content {
-    text-shadow: 0px 2px 2px black;
-  }
+    .content {
+        text-shadow: 0px 2px 2px black;
+    }
 }
 
 .research-notes {
-  height: 0;
-  overflow: hidden;
-  transition: height 0.5s;
+    height: 0;
+    overflow: hidden;
+    transition: height 0.5s;
 
-  .textarea {
-    border-top-left-radius: 0;
-    border-top-right-radius: 0;
-  }
+    .textarea {
+        border-top-left-radius: 0;
+        border-top-right-radius: 0;
+    }
 }

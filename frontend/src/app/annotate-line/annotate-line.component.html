@@ -1,56 +1,60 @@
 <svg style="width: 100%" #canvas [attr.height]="canvasHeight">
-  <mask [id]="maskId">
-    <rect x="0" y="0" [attr.width]="width" [attr.height]="height" fill="white" />
-    <polygon [attr.points]="maskPoints" fill="black" />
-  </mask>
-  <rect x="0" y="0" [attr.width]="width" [attr.height]="height" [attr.mask]="'url(#' + maskId + ')'" class="mask" />
+    <mask [id]="maskId">
+        <rect x="0" y="0" [attr.width]="width" [attr.height]="height" fill="white" />
+        <polygon [attr.points]="maskPoints" fill="black" />
+    </mask>
+    <rect x="0" y="0" [attr.width]="width" [attr.height]="height" [attr.mask]="'url(#' + maskId + ')'" class="mask" />
 </svg>
 <footer class="footer">
-  <div class="form">
-    <div class="field">
-      <div class="control has-text-right">
-        <button class="button is-black">De voorgaande getranscribeerde regel</button>
-      </div>
-    </div>
-    <div class="field has-addons">
-      <div class="control">
-        <a class="button is-inverted hypo-toggle"
-           [ngClass]="{'is-danger': !isHypo}"
-           (click)="editor.toggleComment()"
-           title="Switch between hypotext (red and bold) and hypertext (black) using ctrl+h (⌘+h)">
-          <span class="icon">
-            <fa-icon [icon]="faComment"></fa-icon>
-          </span>
-        </a>
-      </div>
-      <div class="control is-expanded">
-        <kht-hypo-editor #editor [tabindex]="offset" [dir]="dir" (hypoChange)="hypoChange($event)"></kht-hypo-editor>
-      </div>
-    </div>
-    <div class="level">
-      <div class="level-left">
-        <div class="content has-text-centered has-text-white">
-          <p>
-            <em>Name of manuscript (Author name)</em> &middot; page 53/240 &middot; line 13/50
-          </p>
+    <div class="form">
+        <div class="field">
+            <div class="control has-text-right">
+                <button class="button is-black">De voorgaande getranscribeerde regel</button>
+            </div>
         </div>
-      </div>
-      <div class="level-right">
-        <div class="level-item">
-          <a class="button" (click)="toggleResearchNotes()" accesskey="r">
-            <span class="icon">
-              <fa-icon [icon]="faStickyNote"></fa-icon>
-            </span>
-            <span><u>R</u>esearch Notes</span>
-          </a>
+        <div class="field has-addons">
+            <div class="control">
+                <a class="button is-inverted hypo-toggle"
+                   [ngClass]="{'is-danger': !isHypo}"
+                   (click)="editor.toggleComment()"
+                   title="Switch between hypotext (red and bold) and hypertext (black) using ctrl+h (⌘+h)">
+                    <span class="icon">
+                        <fa-icon [icon]="faComment"></fa-icon>
+                    </span>
+                </a>
+            </div>
+            <div class="control is-expanded">
+                <kht-hypo-editor #editor
+                                 [tabindex]="offset"
+                                 [dir]="dir"
+                                 (hypoChange)="hypoChange($event)">
+                </kht-hypo-editor>
+            </div>
         </div>
-        <div class="level-item">
-          <button class="button is-black">Next Line</button>
+        <div class="level">
+            <div class="level-left">
+                <div class="content has-text-centered has-text-white">
+                    <p>
+                        <em>Name of manuscript (Author name)</em> &middot; page 53/240 &middot; line 13/50
+                    </p>
+                </div>
+            </div>
+            <div class="level-right">
+                <div class="level-item">
+                    <a class="button" (click)="toggleResearchNotes()" accesskey="r">
+                        <span class="icon">
+                            <fa-icon [icon]="faStickyNote"></fa-icon>
+                        </span>
+                        <span><u>R</u>esearch Notes</span>
+                    </a>
+                </div>
+                <div class="level-item">
+                    <button class="button is-black">Next Line</button>
+                </div>
+            </div>
         </div>
-      </div>
     </div>
-  </div>
 </footer>
 <div class="research-notes" [style.height]="researchNotesHeight">
-  <textarea #researchNotes class="textarea" placeholder="Research notes about this line"></textarea>
+    <textarea #researchNotes class="textarea" placeholder="Research notes about this line"></textarea>
 </div>

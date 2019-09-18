@@ -1,111 +1,113 @@
 <div class="level">
-  <div class="level-left">
-    <div class="level-item">
-      <div class="field">
-        <p class="control">
-          <a class="button is-primary is-inverted" title="_P_revious page">
-            <span class="icon">
-              <fa-icon [icon]="faChevronLeft"></fa-icon>
-            </span>
-          </a>
-        </p>
-      </div>
-    </div>
-    <div class="level-item">
-      <div class="field has-addons">
-        <p class="control">
-          <a class="button" title="Marks a _s_quare text container" (click)="toggleMode('square')"
-            [ngClass]="{'is-active is-dark': mode == 'square'}">
-            <span class="icon">
-              <fa-icon [icon]="faVectorSquare"></fa-icon>
-            </span>
-          </a>
-        </p>
-        <p class="control">
-          <a class="button" title="Marks an _i_rregular text container" (click)="toggleMode('polygon')"
-            [ngClass]="{'is-active is-dark': mode == 'polygon'}">
-            <span class="icon">
-              <fa-icon [icon]="faDrawPolygon"></fa-icon>
-            </span>
-          </a>
-        </p>
-        <p class="control">
-          <a class="button" title="Marks the page _d_ivision" [ngClass]="{'is-active is-dark': mode == 'pages'}"
-            (click)="toggleMode('pages')">
-            <span class="icon">
-              <fa-icon [icon]="faColumns"></fa-icon>
-            </span>
-          </a>
-        </p>
-      </div>
-    </div>
-    <div class="level-item">
-      <div class="field has-addons">
-        <p class="control">
-          <a class="button" title="Marks _l_ines within a text container"
-            [ngClass]="{'is-active is-dark': mode == 'lines'}" (click)="toggleMode('lines')">
-            <span class="icon">
-              <fa-icon [icon]="faGripLines"></fa-icon>
-            </span>
-          </a>
-        </p>
-        <p class="control">
-          <a class="button" title="Marks _v_ertical lines within a text container"
-            [ngClass]="{'is-active is-dark': mode == 'vertical_lines'}" (click)="toggleMode('vertical_lines')">
-            <span class="icon">
-              <fa-icon [icon]="faGripLinesVertical"></fa-icon>
-            </span>
-          </a>
-        </p>
-      </div>
-    </div>
-    <div class="level-item">
-      <div class="field">
-        <p class="control">
-          <a class="button" title="_R_emove markings"
-            [ngClass]="{'is-active is-dark': mode == 'remove'}" (click)="toggleMode('remove')">
-            <span class="icon">
-              <fa-icon [icon]="faTrash"></fa-icon>
-            </span>
-          </a>
-        </p>
-      </div>
-    </div>
-  </div>
-  <div class="level-item">
-    <h1 class="title">Title of the Manuscript</h1>
-    <a class="button is-text" [routerLink]="['/edit-manuscript']">
-      <span class="icon">
-        <fa-icon [icon]="faPencilAlt"></fa-icon>
-      </span>
-    </a>
-  </div>
-  <div class="level-right">
-    <div class="level-item">
-      <div class="field is-horizontal">
-        <div class="field-body">
-          <div class="field">
-            <div class="control">
-              <input class="input is-static page-number" type="text" value="42">
+    <div class="level-left">
+        <div class="level-item">
+            <div class="field">
+                <p class="control">
+                    <a class="button is-primary is-inverted" title="_P_revious page">
+                        <span class="icon">
+                            <fa-icon [icon]="faChevronLeft"></fa-icon>
+                        </span>
+                    </a>
+                </p>
             </div>
-          </div>
         </div>
-        <div class="field-label is-normal">
-          <span class="label">&nbsp;/&nbsp;253</span>
+        <div class="level-item">
+            <div class="field has-addons">
+                <p class="control">
+                    <a class="button" title="Marks a _s_quare text container" (click)="toggleMode('square')"
+                       [ngClass]="{'is-active is-dark': mode == 'square'}">
+                        <span class="icon">
+                            <fa-icon [icon]="faVectorSquare"></fa-icon>
+                        </span>
+                    </a>
+                </p>
+                <p class="control">
+                    <a class="button" title="Marks an _i_rregular text container" (click)="toggleMode('polygon')"
+                       [ngClass]="{'is-active is-dark': mode == 'polygon'}">
+                        <span class="icon">
+                            <fa-icon [icon]="faDrawPolygon"></fa-icon>
+                        </span>
+                    </a>
+                </p>
+                <p class="control">
+                    <a class="button" title="Marks the page _d_ivision"
+                       [ngClass]="{'is-active is-dark': mode == 'pages'}"
+                       (click)="toggleMode('pages')">
+                        <span class="icon">
+                            <fa-icon [icon]="faColumns"></fa-icon>
+                        </span>
+                    </a>
+                </p>
+            </div>
         </div>
-      </div>
+        <div class="level-item">
+            <div class="field has-addons">
+                <p class="control">
+                    <a class="button" title="Marks _l_ines within a text container"
+                       [ngClass]="{'is-active is-dark': mode == 'lines'}" (click)="toggleMode('lines')">
+                        <span class="icon">
+                            <fa-icon [icon]="faGripLines"></fa-icon>
+                        </span>
+                    </a>
+                </p>
+                <p class="control">
+                    <a class="button" title="Marks _v_ertical lines within a text container"
+                       [ngClass]="{'is-active is-dark': mode == 'vertical_lines'}"
+                       (click)="toggleMode('vertical_lines')">
+                        <span class="icon">
+                            <fa-icon [icon]="faGripLinesVertical"></fa-icon>
+                        </span>
+                    </a>
+                </p>
+            </div>
+        </div>
+        <div class="level-item">
+            <div class="field">
+                <p class="control">
+                    <a class="button" title="_R_emove markings"
+                       [ngClass]="{'is-active is-dark': mode == 'remove'}" (click)="toggleMode('remove')">
+                        <span class="icon">
+                            <fa-icon [icon]="faTrash"></fa-icon>
+                        </span>
+                    </a>
+                </p>
+            </div>
+        </div>
     </div>
     <div class="level-item">
-      <div class="field">
-        <p class="control">
-          <a class="button is-primary is-inverted" title="_N_ext page">
+        <h1 class="title">Title of the Manuscript</h1>
+        <a class="button is-text" [routerLink]="['/edit-manuscript']">
             <span class="icon">
-              <fa-icon [icon]="faChevronRight"></fa-icon>
+                <fa-icon [icon]="faPencilAlt"></fa-icon>
             </span>
-          </a>
-        </p>
-      </div>
+        </a>
     </div>
-  </div>
+    <div class="level-right">
+        <div class="level-item">
+            <div class="field is-horizontal">
+                <div class="field-body">
+                    <div class="field">
+                        <div class="control">
+                            <input class="input is-static page-number" type="text" value="42">
+                        </div>
+                    </div>
+                </div>
+                <div class="field-label is-normal">
+                    <span class="label">&nbsp;/&nbsp;253</span>
+                </div>
+            </div>
+        </div>
+        <div class="level-item">
+            <div class="field">
+                <p class="control">
+                    <a class="button is-primary is-inverted" title="_N_ext page">
+                        <span class="icon">
+                            <fa-icon [icon]="faChevronRight"></fa-icon>
+                        </span>
+                    </a>
+                </p>
+            </div>
+        </div>
+    </div>
 </div>
 <kht-page-marker [mode]="mode" (escape)="mode = undefined"></kht-page-marker>

@@ -9,39 +9,39 @@ import { MarkManuscriptComponent } from '../mark-manuscript/mark-manuscript.comp
 import { UploadComponent } from '../upload/upload.component';
 
 const routes: Routes = [
-  {
-    path: 'annotate',
-    component: AnnotateComponent,
-  },
-  {
-    path: 'book',
-    component: BookComponent,
-  },
-  {
-    path: 'books',
-    component: BooksComponent,
-  },
-  {
-    path: 'manuscripts',
-    component: ManuscriptsComponent
-  },
-  {
-    path: 'edit-manuscript',
-    component: EditManuscriptComponent
-  },
-  {
-    path: 'mark-manuscript',
-    component: MarkManuscriptComponent
-  },
-  {
-    path: 'upload',
-    component: UploadComponent
-  },
-  {
-    path: '',
-    redirectTo: '/books',
-    pathMatch: 'full'
-  }
+    {
+        path: 'annotate',
+        component: AnnotateComponent,
+    },
+    {
+        path: 'book',
+        component: BookComponent,
+    },
+    {
+        path: 'books',
+        component: BooksComponent,
+    },
+    {
+        path: 'manuscripts',
+        component: ManuscriptsComponent
+    },
+    {
+        path: 'edit-manuscript',
+        component: EditManuscriptComponent
+    },
+    {
+        path: 'mark-manuscript',
+        component: MarkManuscriptComponent
+    },
+    {
+        path: 'upload',
+        component: UploadComponent
+    },
+    {
+        path: '',
+        redirectTo: '/books',
+        pathMatch: 'full'
+    }
 ];
 
 export { routes };

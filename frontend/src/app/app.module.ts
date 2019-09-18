@@ -24,32 +24,32 @@ import { PageMarkerComponent } from './page-marker/page-marker.component';
 import { HypoEditorComponent } from './hypo-editor/hypo-editor.component';
 
 @NgModule({
-  declarations: [
-    AppComponent,
-    AnnotateComponent,
-    AnnotateLineComponent,
-    BookComponent,
-    BooksComponent,
-    EditingComponent,
-    MarkManuscriptComponent,
-    ManuscriptsComponent,
-    MenuComponent,
-    UploadComponent,
-    EditManuscriptComponent,
-    PageMarkerComponent,
-    HypoEditorComponent,
-  ],
-  imports: [
-    AppRoutingModule,
-    BrowserModule,
-    RouterModule,
-    FormsModule,
-    ReactiveFormsModule,
-    BrowserAnimationsModule,
-    FontAwesomeModule,
-    AutoCompleteModule
-  ],
-  providers: [],
-  bootstrap: [AppComponent]
+    declarations: [
+        AppComponent,
+        AnnotateComponent,
+        AnnotateLineComponent,
+        BookComponent,
+        BooksComponent,
+        EditingComponent,
+        MarkManuscriptComponent,
+        ManuscriptsComponent,
+        MenuComponent,
+        UploadComponent,
+        EditManuscriptComponent,
+        PageMarkerComponent,
+        HypoEditorComponent,
+    ],
+    imports: [
+        AppRoutingModule,
+        BrowserModule,
+        RouterModule,
+        FormsModule,
+        ReactiveFormsModule,
+        BrowserAnimationsModule,
+        FontAwesomeModule,
+        AutoCompleteModule
+    ],
+    providers: [],
+    bootstrap: [AppComponent]
 })
 export class AppModule { }

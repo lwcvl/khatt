@@ -4,24 +4,24 @@ $transition-duration: 0.5s;
 $transition-timing: ease;
 
 .input.transcription {
-  white-space: pre;
+    white-space: pre;
 
-  &[dir="rtl"] {
-    text-align: right;
-  }
-
-  span::selection {
-    background-color: $text;
-    color: $white-ter;
-  }
-
-  span.is-hypotext {
-    color: $danger;
-    font-weight: bold;
-
-    &::selection {
-      background-color: $danger;
-      color: $white-ter;
+    &[dir="rtl"] {
+        text-align: right;
     }
-  }
+
+    span::selection {
+        background-color: $text;
+        color: $white-ter;
+    }
+
+    span.is-hypotext {
+        color: $danger;
+        font-weight: bold;
+
+        &::selection {
+            background-color: $danger;
+            color: $white-ter;
+        }
+    }
 }

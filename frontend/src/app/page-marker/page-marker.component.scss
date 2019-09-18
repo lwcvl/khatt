@@ -67,7 +67,7 @@ $strokeDasharray: 4;
         stroke-dasharray: $strokeDasharray;
 
         .hover-first-mark & {
-          stroke-dasharray: none;
+            stroke-dasharray: none;
         }
     }
 }
