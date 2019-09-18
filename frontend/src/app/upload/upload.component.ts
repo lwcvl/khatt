@@ -1,5 +1,4 @@
 import { Component, OnInit } from '@angular/core';
-import { FormControl } from '@angular/forms';
 import { faUpload } from '@fortawesome/free-solid-svg-icons';
 
 @Component({
@@ -8,25 +7,12 @@ import { faUpload } from '@fortawesome/free-solid-svg-icons';
     styleUrls: ['./upload.component.scss']
 })
 export class UploadComponent implements OnInit {
-    available = [
-        'A book',
-        'Some book title',
-        'Yet another book title'
-    ];
-
-    results: string[];
-    book = new FormControl('');
     filename: string;
     faUpload = faUpload;
 
     constructor() { }
 
     ngOnInit() {
-    }
-
-    search(event: { query: string }) {
-        const search = event.query.toLowerCase();
-        this.results = this.available.filter(t => t.toLowerCase().includes(search));
     }
 
     detectFilename(fileInput: HTMLInputElement) {

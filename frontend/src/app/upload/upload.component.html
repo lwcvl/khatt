@@ -1,42 +1,5 @@
 <h1 class="title">Upload a New Manuscript</h1>
-<form>
-    <div class="field is-horizontal">
-        <div class="field-label is-normal">
-            <label class="label">Book</label>
-        </div>
-        <div class="field-body">
-            <div class="field">
-                <p class="control">
-                    <p-autoComplete [formControl]="book" [suggestions]="results" (completeMethod)="search($event)"
-                                    [dropdown]="true"></p-autoComplete>
-                </p>
-            </div>
-        </div>
-    </div>
-    <div class="field is-horizontal">
-        <div class="field-label is-normal">
-            <label class="label">Title</label>
-        </div>
-        <div class="field-body">
-            <div class="field">
-                <p class="control">
-                    <input class="input" type="text">
-                </p>
-            </div>
-        </div>
-    </div>
-    <div class="field is-horizontal">
-        <div class="field-label is-normal">
-            <label class="label">Date</label>
-        </div>
-        <div class="field-body">
-            <div class="field">
-                <p class="control">
-                    <input class="input" type="text">
-                </p>
-            </div>
-        </div>
-    </div>
+<kht-manuscript-form>
     <div class="field is-horizontal">
         <div class="field-label is-normal">
             <label class="label">File</label>
@@ -72,4 +35,4 @@
             <button type="submit" class="button is-primary">Upload</button>
         </div>
     </div>
-</form>
+</kht-manuscript-form>
