@@ -10,7 +10,7 @@ import {
   Output,
   EventEmitter
 } from '@angular/core';
-import { MarkMode } from '../models';
+import { MarkMode } from '../models/mark-mode';
 
 const markClassNames = {
   dragging: 'is-dragging'
@@ -97,7 +97,7 @@ export class PageMarkerComponent implements OnChanges, OnInit {
             this.hoverFirstMark = this.draftMarks.length > 2 && this.distance(this.draftMarks[0], draftMark) < POLYGON_SNAP;
             if (this.hoverFirstMark) {
               // hovering over the first point: the polygon could be completed
-              if (this.draftMarks[lastIndex].className.indexOf(markClassNames.dragging) > -1) {
+              if (this.draftMarks[lastIndex].className.includes(markClassNames.dragging)) {
                 this.draftMarks.splice(lastIndex);
               }
             } else {

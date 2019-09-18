@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewChild, ElementRef, Input, HostBinding, SimpleChanges } from '@angular/core';
+import { ChangeDetectorRef, Component, OnInit, ViewChild, ElementRef, Input, HostBinding } from '@angular/core';
 import { faComment, faCommentSlash, faStickyNote } from '@fortawesome/free-solid-svg-icons';
 
 const CONTAINER_WIDTH = 1344;
@@ -28,9 +28,6 @@ export class AnnotateLineComponent implements OnInit {
 
   viewBox: { x: number, y: number, width: number, height: number };
 
-  @ViewChild('transcription', { static: true })
-  transcription: ElementRef<HTMLParagraphElement>;
-
   @ViewChild('researchNotes', { static: true })
   researchNotes: ElementRef<HTMLTextAreaElement>;
 
@@ -41,6 +38,8 @@ export class AnnotateLineComponent implements OnInit {
 
   @Input()
   offset = 0;
+
+  dir = 'ltr';
 
   maskPoints: string;
 
@@ -59,7 +58,14 @@ export class AnnotateLineComponent implements OnInit {
   @ViewChild('canvas', { static: true })
   canvas: ElementRef<SVGImageElement>;
 
-  constructor() {
+  isHypo: boolean;
+
+  constructor(private changeDetectorRef: ChangeDetectorRef) {
+  }
+
+  hypoChange(isHypo: boolean) {
+    this.isHypo = isHypo;
+    this.changeDetectorRef.detectChanges();
   }
 
   ngOnInit() {
@@ -98,90 +104,6 @@ export class AnnotateLineComponent implements OnInit {
     this.backgroundPosition = `${-scale * boundingBox.x1}px ${-scale * boundingBox.y1}px`;
     this.canvasHeight = Math.ceil(-scale * (boundingBox.y1 - boundingBox.y2));
     this.canvas.nativeElement.setAttribute('viewBox', `${this.viewBox.x} ${this.viewBox.y} ${this.viewBox.width} ${this.viewBox.height}`);
-  }
-
-  keydown(event: KeyboardEvent) {
-    if (event.key === 'Enter') {
-      return false;
-    }
-  }
-
-  keyup(event: KeyboardEvent) {
-    this.cleanComments();
-  }
-
-  toggleComment() {
-    const selection = document.getSelection();
-    const contentElement = this.transcription.nativeElement;
-
-    const somethingElseSelected = !contentElement.contains(selection.anchorNode);
-    if (selection.isCollapsed || somethingElseSelected) {
-      const range = document.createRange();
-      range.selectNodeContents(contentElement);
-      if (somethingElseSelected) {
-        // move the cursor to the end of the content
-        range.collapse(false);
-      } else {
-        // restore selection
-        range.setStart(selection.anchorNode, selection.anchorOffset);
-        range.collapse(true);
-      }
-
-      selection.removeAllRanges();
-      selection.addRange(range);
-    }
-
-    document.execCommand('bold');
-    this.cleanComments();
-  }
-
-  cleanComments() {
-    let selection: Selection;
-    const contentElement = this.transcription.nativeElement;
-
-    contentElement.childNodes.forEach(node => {
-      if (node.nodeType === Node.ELEMENT_NODE) {
-        const element = (node as HTMLElement);
-        if (element.className === 'is-hypotext') {
-          if (element.childNodes.length >= 2) {
-            // unwrap
-            const items: [boolean, string][] = [];
-            element.childNodes.forEach(child => items.push([/(SPAN|B|STRONG)/.test(child.nodeName), child.textContent]));
-            const replacements = items.map(([hypo, text]) => hypo ? this.createHypotext(text) : document.createTextNode(text));
-            element.replaceWith(...replacements);
-            const range = document.createRange();
-            range.selectNode(replacements[replacements.length - 1]);
-            range.collapse(false);
-            selection = document.getSelection();
-            selection.removeAllRanges();
-            selection.addRange(range);
-          }
-        } else {
-          let restoreSelection = false;
-          if (!selection) {
-            selection = document.getSelection();
-            restoreSelection = element.contains(selection.anchorNode);
-          }
-          const hypotext = this.createHypotext(element.innerText);
-          element.replaceWith(hypotext);
-
-          if (restoreSelection) {
-            const range = document.createRange();
-            range.selectNodeContents(this.transcription.nativeElement);
-            range.collapse(false);
-            selection.removeAllRanges();
-            selection.addRange(range);
-          }
-        }
-      }
-    });
-  }
-
-  private createHypotext(text: string) {
-    const hypotext = document.createElement('strong');
-    hypotext.className = 'is-hypotext';
-    hypotext.innerText = text;
-    return hypotext;
   }
 
   toggleResearchNotes() {

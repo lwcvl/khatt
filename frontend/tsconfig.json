@@ -16,6 +16,7 @@
       "node_modules/@types"
     ],
     "lib": [
+      "es2019.string",
       "es2018",
       "dom"
     ]

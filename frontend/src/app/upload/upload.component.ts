@@ -26,7 +26,7 @@ export class UploadComponent implements OnInit {
 
   search(event: { query: string }) {
     const search = event.query.toLowerCase();
-    this.results = this.available.filter(t => t.toLowerCase().indexOf(search) >= 0);
+    this.results = this.available.filter(t => t.toLowerCase().includes(search));
   }
 
   detectFilename(fileInput: HTMLInputElement) {

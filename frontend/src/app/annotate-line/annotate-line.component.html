@@ -14,14 +14,17 @@
     </div>
     <div class="field has-addons">
       <div class="control">
-        <a class="button is-danger is-inverted" (click)="toggleComment()" title="Switch between hypotext (red and bold) and hypertext (black) using ctrl+b">
+        <a class="button is-inverted hypo-toggle"
+           [ngClass]="{'is-danger': !isHypo}"
+           (click)="editor.toggleComment()"
+           title="Switch between hypotext (red and bold) and hypertext (black) using ctrl+h (⌘+h)">
           <span class="icon">
             <fa-icon [icon]="faComment"></fa-icon>
           </span>
         </a>
       </div>
       <div class="control is-expanded">
-        <p #transcription class="input transcription" contenteditable="true" [tabindex]="offset" (keydown)="keydown($event)" (keyup)="keyup($event)"></p>
+        <kht-hypo-editor #editor [tabindex]="offset" [dir]="dir" (hypoChange)="hypoChange($event)"></kht-hypo-editor>
       </div>
     </div>
     <div class="level">
