@@ -13,7 +13,10 @@ export interface TextPartSelection {
   // index of the text part where the selection starts
   startIndex: number;
   startOffset: number;
+  // end of the selection including this part
   endIndex: number;
+  // end of the selection with the last part, excluding the character
+  // at this position
   endOffset: number;
   forward: boolean;
 }
@@ -28,7 +31,7 @@ export interface ForwardTextPartSelection extends TextPartSelection {
 
 type ReadonlyTextPartIndex = Readonly<{ index: number } & TextPart>;
 
-export class TextParts {
+export class TextPartCollection {
   private itemsList: TextPart[] = [];
   private itemsSubject = new BehaviorSubject<Readonly<TextPart>[]>(this.itemsList);
 
@@ -38,9 +41,12 @@ export class TextParts {
   public items$ = this.itemsSubject.asObservable();
 
   get text() {
-    return this.itemsList.reduce((prev, curr) => prev + curr.text, '');
+    return this.join(this.itemsList);
   }
 
+  /**
+   * Gets the number of items.
+   */
   get length() {
     return this.itemsList.length;
   }
@@ -93,15 +99,13 @@ export class TextParts {
   composed(text: string, selection: ForwardTextPartSelection) {
     // currently assume 1 composed character
     const currentPart = this.itemsList[selection.endIndex];
-    const updatedLocation = this.replaceParts([
-      {
-        text: text.substr(0, 1),
-        hypo: this.itemsList.length && currentPart.hypo ||
-          (selection.endIndex < this.itemsList.length - 1 &&
-            selection.endOffset === currentPart.text.length &&
-            this.itemsList[selection.endIndex + 1].hypo)
-      }
-    ], selection, true);
+    const updatedLocation = this.replaceParts([{
+      text: text.substr(0, 1),
+      hypo: this.itemsList.length && currentPart.hypo ||
+        (selection.endIndex < this.itemsList.length - 1 &&
+          selection.endOffset === currentPart.text.length &&
+          this.itemsList[selection.endIndex + 1].hypo)
+    }], selection, true);
 
     // need to force redrawing everything, because if the compose action
     // replaced in the editable content, they aren't going to be redrawn
@@ -124,41 +128,14 @@ export class TextParts {
       if (part.hypo === newParts[0].hypo) {
         // most common scenario when a user is typing and
         // adds just a single character to an existing part
-        const text = newParts[0].text;
-
-        part.text = part.text.substring(0, selection.startOffset)
-          + text
-          + (selection.endOffset !== undefined ? part.text.substring(selection.endOffset) : '');
-
-        const textOffset = selection.startOffset + text.length;
-
-        return {
-          startIndex: selection.startIndex,
-          startOffset: textOffset,
-          endIndex: selection.endIndex,
-          endOffset: textOffset,
-          render: true
-        };
+        return this.replaceWithinPart(part, newParts[0].text, selection);
       }
     }
 
     const updatedParts: TextPart[] = [];
 
-    for (let i = 0; i < selection.startIndex; i++) {
-      // copy everything before the selection bounds
-      updatedParts.push(this.itemsList[i]);
-    }
-
     if (this.itemsList.length) {
-      const startPart = this.itemsList[selection.startIndex];
-      const startText = startPart.text.substring(0, selection.startOffset);
-      if (startText.length) {
-        updatedParts.push({
-          hypo: startPart.hypo,
-          id: startPart.id,
-          text: startText
-        });
-      }
+      updatedParts.push(...this.select(this.before(selection)));
     }
 
     const startIndex = updatedParts.length;
@@ -173,28 +150,14 @@ export class TextParts {
       endOffset = newPart.text.length;
     }
 
-    if (this.itemsList.length > 0) {
-      const endPart = this.itemsList[selection.endIndex];
-      const endText = endPart.text.substring(selection.endOffset);
-
-      if (endText.length) {
-        if (selection.endIndex === selection.startIndex && selection.startOffset > 0) {
-          // split in two parts, two different ids needed
-          updatedParts.push({
-            id: this.partIds++,
-            hypo: endPart.hypo,
-            text: endText
-          });
-        } else {
-          endPart.text = endText;
-          updatedParts.push(endPart);
-        }
+    if (this.itemsList.length) {
+      const endParts = Array.from(this.select(this.after(selection)));
+      if (endParts.length && selection.endIndex === selection.startIndex && selection.startOffset > 0) {
+        // split in two parts, two different ids needed
+        endParts[0].id = this.partIds++;
       }
-    }
 
-    for (let i = selection.endIndex + 1; i < this.itemsList.length; i++) {
-      // copy everything after the selection bounds
-      updatedParts.push(this.itemsList[i]);
+      updatedParts.push(...endParts);
     }
 
     if (endIndex < 0) {
@@ -215,6 +178,24 @@ export class TextParts {
       endIndex,
       endOffset,
       render: currLength === this.itemsList.length
+    };
+  }
+
+  replaceWithinPart(part: TextPart, text: string, selection: ForwardTextPartSelection) {
+    const preceding = part.text.substring(0, selection.startOffset);
+    const following = selection.endOffset !== undefined
+      ? part.text.substring(selection.endOffset)
+      : '';
+    part.text = preceding + text + following;
+
+    const textOffset = selection.startOffset + text.length;
+
+    return {
+      startIndex: selection.startIndex,
+      startOffset: textOffset,
+      endIndex: selection.endIndex,
+      endOffset: textOffset,
+      render: true
     };
   }
 
@@ -249,32 +230,54 @@ export class TextParts {
   /**
    * Gets the texted selected text parts.
    */
-  *select(selection: ForwardTextPartSelection): Iterable<TextPart> {
+  *select(selection: ForwardTextPartSelection, skipEmpty = true): Iterable<TextPart> {
+    let text;
     const first = this.itemsList[selection.startIndex];
-    yield {
-      id: first.id,
-      hypo: first.hypo,
-      text: first.text.substring(
-        selection.startOffset,
-        selection.startIndex === selection.endIndex ? selection.endOffset : undefined)
-    };
+    text = first.text.substring(
+      selection.startOffset,
+      selection.startIndex === selection.endIndex ? selection.endOffset : undefined);
+    if (!skipEmpty || text.length) {
+      yield {
+        id: first.id,
+        hypo: first.hypo,
+        text
+      };
+    }
 
     for (let i = selection.startIndex + 1; i < selection.endIndex; i++) {
-      yield this.itemsList[i];
+      const item = this.itemsList[i];
+      if (!skipEmpty || item.text.length) {
+        yield item;
+      }
     }
 
     if (selection.endIndex > selection.startIndex) {
       const last = this.itemsList[selection.endIndex];
-      yield {
-        id: last.id,
-        hypo: last.hypo,
-        text: last.text.substring(0, selection.endOffset)
-      };
+      text = last.text.substring(0, selection.endOffset);
+      if (!skipEmpty || text.length) {
+        yield {
+          id: last.id,
+          hypo: last.hypo,
+          text
+        };
+      }
     }
   }
 
+  isAllHypo(selection: ForwardTextPartSelection): boolean {
+    let hypo = false;
+    for (const part of this.select(selection, false)) {
+      if (part.hypo) {
+        hypo = true;
+      } else {
+        return false;
+      }
+    }
+    return hypo;
+  }
+
   substring(selection: ForwardTextPartSelection) {
-    return Array.from(this.select(selection)).map(part => part.text).join('');
+    return this.join(this.select(selection));
   }
 
   push(part: TextPart) {
@@ -320,6 +323,42 @@ export class TextParts {
     }
 
     return this.replaceParts([{ text, hypo }], position);
+  }
+
+  /**
+   * Selection of the text before the passed selection
+   */
+  private before(selection: ForwardTextPartSelection): ForwardTextPartSelection {
+    return {
+      startIndex: 0,
+      startOffset: 0,
+      endIndex: selection.startIndex,
+      endOffset: selection.startOffset,
+      forward: true
+    };
+  }
+
+  /**
+   * Selection of the text after the passed selection
+   */
+  private after(selection: ForwardTextPartSelection): ForwardTextPartSelection {
+    const endIndex = this.itemsList.length - 1;
+    return {
+      startIndex: selection.endIndex,
+      startOffset: selection.endOffset,
+      endIndex,
+      endOffset: this.itemsList[endIndex] && this.itemsList[endIndex].text.length || 0,
+      forward: true
+    };
+  }
+
+  private join(parts: Iterable<TextPart>) {
+    let result = '';
+    for (const part of parts) {
+      result += part.text;
+    }
+
+    return result;
   }
 
   private emit() {

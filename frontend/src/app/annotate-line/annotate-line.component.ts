@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewChild, ElementRef, Input, HostBinding, SimpleChanges } from '@angular/core';
+import { ChangeDetectorRef, Component, OnInit, ViewChild, ElementRef, Input, HostBinding } from '@angular/core';
 import { faComment, faCommentSlash, faStickyNote } from '@fortawesome/free-solid-svg-icons';
 
 const CONTAINER_WIDTH = 1344;
@@ -58,7 +58,14 @@ export class AnnotateLineComponent implements OnInit {
   @ViewChild('canvas', { static: true })
   canvas: ElementRef<SVGImageElement>;
 
-  constructor() {
+  isHypo: boolean;
+
+  constructor(private changeDetectorRef: ChangeDetectorRef) {
+  }
+
+  hypoChange(isHypo: boolean) {
+    this.isHypo = isHypo;
+    this.changeDetectorRef.detectChanges();
   }
 
   ngOnInit() {

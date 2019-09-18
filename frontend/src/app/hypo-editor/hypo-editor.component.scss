@@ -1,5 +1,8 @@
 @import '../../colors';
 
+$transition-duration: 0.5s;
+$transition-timing: ease;
+
 .input.transcription {
   white-space: pre;
 

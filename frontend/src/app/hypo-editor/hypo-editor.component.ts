@@ -1,7 +1,17 @@
-import { Component, ViewChild, ElementRef, Input, AfterViewInit, QueryList, ViewChildren, ChangeDetectorRef } from '@angular/core';
+import {
+  Component,
+  ViewChild,
+  ElementRef,
+  EventEmitter,
+  Input,
+  Output,
+  AfterViewInit,
+  QueryList,
+  ViewChildren
+} from '@angular/core';
 
 import { CursorPosition, Direction } from '../models/cursor-position';
-import { TextPart, TextParts, TextPartSelection } from '../models/text-parts';
+import { TextPart, TextPartCollection, TextPartSelection } from '../models/text-part-collection';
 
 import { ClipboardService } from '../clipboard.service';
 
@@ -26,11 +36,17 @@ export class HypoEditorComponent implements AfterViewInit {
   @Input()
   dir: string;
 
+  @Output()
+  hypoChange = new EventEmitter<boolean>();
+
+  // is the current selection hypo?
+  isHypo = false;
+
   // The virtual cursor position might differ from the position in the DOM
   // this is because in the DOM empty elements cannot be selected.
   cursorPosition = new CursorPosition();
 
-  parts: TextParts = new TextParts();
+  parts: TextPartCollection = new TextPartCollection();
 
   composingKey = false;
 
@@ -40,7 +56,16 @@ export class HypoEditorComponent implements AfterViewInit {
   ngAfterViewInit() {
     this.partSpans.changes.subscribe((t: any) => {
       this.renderText(t.toArray());
+      this.checkHypoVal();
     });
+  }
+
+  private checkHypoVal() {
+    const hypo = this.parts.isAllHypo(this.cursorPosition.forwards().forwards);
+    if (hypo !== this.isHypo) {
+      this.isHypo = hypo;
+      this.hypoChange.next(hypo);
+    }
   }
 
   private renderText(spansRefs: ElementRef<HTMLSpanElement>[]) {
@@ -58,7 +83,7 @@ export class HypoEditorComponent implements AfterViewInit {
 
     const somethingElseSelected = !contentElement.contains(selection.anchorNode);
     if (somethingElseSelected || selection.anchorNode.isSameNode(contentElement)) {
-      // then the cursor should be set at the end of the text
+      // then the cursor should be set at the start of the text
       return {
         startIndex: 0,
         startOffset: 0,
@@ -67,16 +92,7 @@ export class HypoEditorComponent implements AfterViewInit {
       };
     }
 
-    const getPartIndex = (node: Node) => {
-      for (; node.nodeType !== Node.ELEMENT_NODE || !((node as Element).getAttribute(NODE_ID_ATTRIBUTE));
-        node = node.parentNode) {
-      }
-
-      const id = parseInt((node as Element).getAttribute(NODE_ID_ATTRIBUTE), 10);
-      return this.parts.byId(id).index;
-    };
-
-    const startIndex = getPartIndex(selection.anchorNode);
+    const startIndex = this.getPartIndex(selection.anchorNode);
     const startOffset = selection.anchorOffset;
 
     let endIndex: number;
@@ -86,9 +102,38 @@ export class HypoEditorComponent implements AfterViewInit {
       endIndex = startIndex;
       endOffset = startOffset;
     } else {
-      endIndex = getPartIndex(selection.focusNode);
+      endIndex = this.getPartIndex(selection.focusNode);
       endOffset = selection.focusOffset;
     }
+
+    return {
+      startIndex,
+      startOffset,
+      endIndex,
+      endOffset
+    };
+  }
+
+  private getPartIndex(node: Node) {
+    for (; node.nodeType !== Node.ELEMENT_NODE || !((node as Element).getAttribute(NODE_ID_ATTRIBUTE));
+      node = node.parentNode) {
+    }
+
+    const id = parseInt((node as Element).getAttribute(NODE_ID_ATTRIBUTE), 10);
+    return this.parts.byId(id).index;
+  }
+
+  /**
+   * Empty nodes cannot be selected (they don't have text nodes)
+   * move the DOM selection to the nearest node.
+   */
+  private skipEmptyNodes(cursorPosition: TextPartSelection) {
+    const [startIndex, startOffset] = this.parts.skipEmpty(
+      cursorPosition.startIndex,
+      cursorPosition.startOffset);
+    const [endIndex, endOffset] = this.parts.skipEmpty(
+      cursorPosition.endIndex,
+      cursorPosition.endOffset);
 
     return {
       startIndex,
@@ -105,15 +150,12 @@ export class HypoEditorComponent implements AfterViewInit {
     }
 
     // make a copy of the variables to prevent updating the position property
-    let startIndex = cursorPosition.startIndex;
-    let startOffset = cursorPosition.startOffset;
-    let endIndex = cursorPosition.endIndex;
-    let endOffset = cursorPosition.endOffset;
-
-    // empty nodes cannot be selected (they don't have text nodes)
-    // move the DOM selection to the nearest node
-    [startIndex, startOffset] = this.parts.skipEmpty(startIndex, startOffset);
-    [endIndex, endOffset] = this.parts.skipEmpty(endIndex, endOffset);
+    const {
+      startIndex,
+      startOffset,
+      endIndex,
+      endOffset
+    } = this.skipEmptyNodes(cursorPosition);
 
     const contentElement = this.transcription.nativeElement;
     const selection = document.getSelection();
@@ -175,7 +217,7 @@ export class HypoEditorComponent implements AfterViewInit {
   keydown(event: KeyboardEvent) {
     if (event.ctrlKey || event.metaKey) {
       // toggle hypotext
-      if (['h', 'b', 'u', 'i'].indexOf(event.key) !== -1) {
+      if (['h', 'b', 'u', 'i'].includes(event.key)) {
         event.preventDefault();
         this.toggleComment();
         return false;
@@ -200,6 +242,12 @@ export class HypoEditorComponent implements AfterViewInit {
         this.delete(true);
         return false;
 
+      case 9: // Tab
+        // allow normal behavior, don't update the selection
+        // it will get confused otherwise (because the cursor is no
+        // longer in the text)
+        return true;
+
       case 46: // DELETE
         event.preventDefault();
         this.delete(false);
@@ -223,7 +271,6 @@ export class HypoEditorComponent implements AfterViewInit {
       case 123: // F12
       case 145: // Scroll Lock
       case 19: // Pause
-      case 9: // Tab
       case 20: // Caps
       case 16: // Shift
         nativeAction = true;
@@ -244,7 +291,7 @@ export class HypoEditorComponent implements AfterViewInit {
       case 39: // Right arrow
         event.preventDefault();
         if (event.ctrlKey || event.metaKey || event.altKey) {
-          this.move(keycode === 39 ? 'next-word' : 'prev-word', event.shiftKey);
+          this.move(keycode === 39 ? 'nextWord' : 'prevWord', event.shiftKey);
         } else {
           this.move(keycode === 39 ? 'next' : 'prev', event.shiftKey);
         }
@@ -312,22 +359,20 @@ export class HypoEditorComponent implements AfterViewInit {
 
       if (this.partSpans.toArray().length === this.parts.length) {
         this.setCursorPosition(position);
+        this.checkHypoVal();
       }
     }
   }
 
   private insertCharacter(char: string) {
-    let hypo: boolean;
-
     const { forwards } = this.cursorPosition.forwards();
 
-    if (this.parts.length) {
-      hypo = this.parts.byIndex(forwards.startIndex).hypo;
-    }
+    const hypo = this.parts.length > 0 &&
+      this.parts.byIndex(forwards.startIndex).hypo;
 
     this.replaceParts([{
       text: char,
-      hypo: hypo || false
+      hypo
     }], forwards);
   }
 
@@ -335,68 +380,35 @@ export class HypoEditorComponent implements AfterViewInit {
     if (this.parts.length === 0) {
       return;
     }
-    const { forwards } = this.cursorPosition.forwards();
-    if (forwards.startIndex !== forwards.endIndex ||
-      forwards.startOffset !== forwards.endOffset) {
+    let selection = this.cursorPosition.get();
+    if (selection.startIndex !== selection.endIndex ||
+      selection.startOffset !== selection.endOffset) {
       // selection range, delete it
-      this.replaceParts([], forwards);
+      this.replaceParts([], selection);
       return;
     }
 
     // backspace or delete from cursor
     if (backspace) {
-      if (forwards.startOffset === 0 && forwards.startIndex > 0) {
-        // at beginning of current part
-        do {
-          forwards.startIndex--;
-          forwards.startOffset = this.parts.byIndex(forwards.startIndex).text.length - 1;
-        } while (forwards.startOffset < 0 && forwards.startIndex > 0);
-        // also delete empty preceding parts
-
-      } else if (forwards.startOffset > 0) {
-        // within a part, delete a single character
-        forwards.startOffset--;
-      }
+      selection = this.cursorPosition.move(this.parts, 'prev', true);
     } else {
-      const currPartEnd = this.parts.byIndex(forwards.endIndex).text.length - 1;
-      if (forwards.endOffset > currPartEnd && forwards.endIndex < this.parts.length - 1) {
-        // at end of current part
-        do {
-          forwards.endIndex++;
-          forwards.endOffset = 1;
-        } while (forwards.endIndex < this.parts.length - 1 && this.parts.byIndex(forwards.endIndex).text.length > 0);
-        // also delete empty following parts
-
-      } else if (forwards.endOffset <= currPartEnd) {
-        // within a part, delete a single character
-        forwards.endOffset++;
-      }
+      selection = this.cursorPosition.move(this.parts, 'next', true);
     }
 
-    if (forwards.startIndex === forwards.endIndex &&
-      forwards.startOffset === forwards.endOffset) {
+    if (selection.startIndex === selection.endIndex &&
+      selection.startOffset === selection.endOffset) {
       // don't delete anything
       return;
     }
 
-    const currLength = this.parts.length;
-    this.replaceParts([], forwards);
-
-    if (this.parts.length === currLength) {
-      const spans = this.partSpans.toArray();
-      if (spans.length === currLength) {
-        // already rendered all the spans, but text has changed:
-        // re-render the text
-        this.renderText(spans);
-      }
-    }
+    // const currLength = this.parts.length;
+    this.replaceParts([], selection);
   }
 
   private replaceParts(newParts: TextPart[], position: TextPartSelection = this.cursorPosition.get(), selectInsertion = false) {
     const { forwards, flipped } = this.cursorPosition.forwards(position);
 
     const { startIndex, startOffset, endIndex, endOffset, render } = this.parts.replaceParts(newParts, forwards);
-
     this.cursorPosition.set({
       startIndex: selectInsertion ? startIndex : endIndex,
       startOffset: selectInsertion ? startOffset : endOffset,
