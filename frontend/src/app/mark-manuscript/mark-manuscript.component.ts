@@ -1,5 +1,6 @@
 import { Component, OnInit, HostListener } from '@angular/core';
 import {
+    faBookmark,
     faChevronLeft,
     faChevronRight,
     faColumns,
@@ -20,6 +21,7 @@ import { MarkMode } from '../models/mark-mode';
 })
 export class MarkManuscriptComponent implements OnInit {
     private shortcuts: { [key: string]: () => void } = {
+        c: () => this.toggleChapter(),
         p: () => {/* previous page */ },
         n: () => {/* next page */ },
         s: () => this.toggleMode('square'),
@@ -31,6 +33,7 @@ export class MarkManuscriptComponent implements OnInit {
         esc: () => { this.mode = null; }
     };
 
+    faBookmark = faBookmark;
     faChevronLeft = faChevronLeft;
     faChevronRight = faChevronRight;
     faColumns = faColumns;
@@ -41,6 +44,7 @@ export class MarkManuscriptComponent implements OnInit {
     faTrash = faTrash;
     faVectorSquare = faVectorSquare;
 
+    isChapter = false;
     mode: MarkMode | null = null;
 
     @HostListener('document:keypress', ['$event'])
@@ -57,7 +61,17 @@ export class MarkManuscriptComponent implements OnInit {
     ngOnInit() {
     }
 
+    toggleChapter() {
+        this.isChapter = !this.isChapter;
+        if (!['square', 'polygon'].includes(this.mode)) {
+            this.mode = 'square';
+        }
+    }
+
     toggleMode(mode: MarkMode) {
         this.mode = this.mode === mode ? null : mode;
+        if (!['square', 'polygon'].includes(this.mode)) {
+            this.isChapter = false;
+        }
     }
 }

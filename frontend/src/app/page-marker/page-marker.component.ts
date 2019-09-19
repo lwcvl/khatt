@@ -13,7 +13,8 @@ import {
 import { MarkMode } from '../models/mark-mode';
 
 const markClassNames = {
-    dragging: 'is-dragging'
+    dragging: 'is-dragging',
+    hover: 'is-hover'
 };
 
 // even when the pointer is moved a little bit, this isn't seen as "two" clicks
@@ -39,6 +40,9 @@ export class PageMarkerComponent implements OnChanges, OnInit {
     canvas: ElementRef<SVGImageElement>;
 
     @Input()
+    isChapter: boolean;
+
+    @Input()
     mode: MarkMode;
 
     @Output()
@@ -51,7 +55,7 @@ export class PageMarkerComponent implements OnChanges, OnInit {
     draftMarks: Mark[] = [];
     draftPoints: string;
 
-    hoverFirstMark = false;
+    hoverMark: Mark;
 
     shapes: Shape[] = [];
     currentTextContainer: Square | Polygon = undefined;
@@ -93,15 +97,25 @@ export class PageMarkerComponent implements OnChanges, OnInit {
 
                     default:
                         const lastIndex = this.draftMarks.length - 1;
-                        const hoveredFirstMark = this.hoverFirstMark;
-                        this.hoverFirstMark = this.draftMarks.length > 2 && this.distance(this.draftMarks[0], draftMark) < POLYGON_SNAP;
-                        if (this.hoverFirstMark) {
+                        const currentHover = this.hoverMark;
+                        const drag = currentHover ? 0 : 1;
+
+                        if (this.draftMarks.length >= 3 + drag) {
+                            this.hoverMark = this.checkMarkHover(this.hoverMark, draftMark)
+                                || this.checkMarkHover(this.draftMarks[0], draftMark)
+                                || this.checkMarkHover(
+                                    this.draftMarks[this.draftMarks.length - 1 - drag],
+                                    draftMark); // skip checking against the mark being dragged (if it exists)
+                        }
+
+                        if (this.hoverMark) {
                             // hovering over the first point: the polygon could be completed
                             if (this.draftMarks[lastIndex].className.includes(markClassNames.dragging)) {
                                 this.draftMarks.splice(lastIndex);
                             }
                         } else {
-                            if (hoveredFirstMark) {
+                            if (currentHover) {
+                                currentHover.className = '';
                                 this.draftMarks.push(draftMark);
                             } else {
                                 this.draftMarks[lastIndex] = draftMark;
@@ -140,6 +154,7 @@ export class PageMarkerComponent implements OnChanges, OnInit {
         if (event.which !== 1) {
             return;
         }
+        event.preventDefault();
         if (this.mode === 'remove') {
             const target = event.target as HTMLElement;
             if (target && target.id) {
@@ -161,9 +176,23 @@ export class PageMarkerComponent implements OnChanges, OnInit {
         if (event.which !== 1) {
             return;
         }
+        event.preventDefault();
         const { x, y } = this.getPointerPosition(event);
         if ((Math.abs(this.dragStart.x - x) + Math.abs(this.dragStart.y - y) > DELTA)) {
             this.handlePointerEvent(x, y);
+        }
+    }
+
+    private checkMarkHover(mark: Mark, draftMark: Mark) {
+        if (mark === undefined) {
+            return undefined;
+        }
+        if (this.distance(mark, draftMark) < POLYGON_SNAP) {
+            mark.className = markClassNames.hover;
+            return mark;
+        } else {
+            mark.className = '';
+            return undefined;
         }
     }
 
@@ -224,6 +253,7 @@ export class PageMarkerComponent implements OnChanges, OnInit {
                         this.shapes.push({
                             id: this.getShapeId(),
                             type: 'square',
+                            isChapter: this.isChapter,
                             x: x1,
                             y: y1,
                             width: x2 - x1,
@@ -235,22 +265,27 @@ export class PageMarkerComponent implements OnChanges, OnInit {
 
             case 'polygon':
                 if (this.draftMarks.length > 0) {
-                    // if (this.draftMarks.length < 4) {
-                    const lastIndex = this.draftMarks.length - 1;
-                    if (lastIndex === 0) {
-                        this.draftMarks[lastIndex].className = 'is-first';
-                    } else {
-                        this.draftMarks[lastIndex].className = '';
-                    }
-                    if (this.hoverFirstMark) {
+                    if (this.hoverMark) {
                         this.shapes.push({
                             id: this.getShapeId(),
                             type: 'polygon',
+                            isChapter: this.isChapter,
                             points: this.draftPoints,
                             marks: [...this.draftMarks]
                         });
                         this.clearDraft();
                     } else {
+                        if (this.draftMarks.length > 2) {
+                            // the marker is already being hovered on when it's placed
+                            if (this.hoverMark) {
+                                this.hoverMark.className = '';
+                            }
+                            this.hoverMark = this.draftMarks[this.draftMarks.length - 1];
+                            this.hoverMark.className = markClassNames.hover;
+                        } else if (this.draftMarks.length > 0) {
+                            this.draftMarks[this.draftMarks.length - 1].className = '';
+                        }
+
                         this.draftMarks.push({ x, y, className: markClassNames.dragging });
                     }
                 }
@@ -300,7 +335,7 @@ export class PageMarkerComponent implements OnChanges, OnInit {
         this.draftLines = [];
         this.draftMarks = [];
         this.draftPoints = undefined;
-        this.hoverFirstMark = false;
+        this.hoverMark = undefined;
     }
 
     private drawLine(x: number, y: number, vertical: boolean, className: string): Line | void {
@@ -352,7 +387,7 @@ export class PageMarkerComponent implements OnChanges, OnInit {
 
     ngOnChanges(changes: SimpleChanges) {
         const modeChange = changes.mode;
-        if (modeChange.previousValue !== modeChange.currentValue) {
+        if (modeChange && modeChange.previousValue !== modeChange.currentValue) {
             this.clearDraft();
         }
     }
@@ -361,8 +396,8 @@ export class PageMarkerComponent implements OnChanges, OnInit {
 
 interface Line { x1: number; y1: number; x2: number; y2: number; className: string; }
 interface Mark { x: number; y: number; className: string; }
-interface Square { type: 'square'; x: number; y: number; width: number; height: number; }
-interface Polygon { type: 'polygon'; points: string; marks: Mark[]; }
+interface Square { type: 'square'; x: number; y: number; width: number; height: number; isChapter: boolean; }
+interface Polygon { type: 'polygon'; points: string; marks: Mark[]; isChapter: boolean; }
 interface Pages { type: 'pages'; x: number; }
 interface TextLine extends Line { id: string; type: 'text-line'; parent: Square | Polygon; }
 

@@ -17,6 +17,11 @@ $strokeDasharray: 4;
     fill: rgba($primary, 0.5);
     stroke: $primary;
     stroke-width: $strokeWidth;
+
+    &.is-chapter {
+        fill: rgba($chapter, 0.5);
+        stroke: $chapter;
+    }
 }
 
 .pages {
@@ -31,17 +36,27 @@ $strokeDasharray: 4;
     stroke-width: $strokeWidth*2;
 }
 
-.hover-first-mark {
+.hover-mark {
     cursor: pointer;
 }
 
 .is-draft {
     fill: $primary;
 
-    &.is-first {
-        @extend %smooth;
+    &.is-chapter {
+        fill: $chapter;
+    }
 
-        .hover-first-mark & {
+    &.is-mark {
+        stroke: $primary;
+        stroke-width: 1px;
+
+        &.is-chapter {
+            stroke: $chapter;
+        }
+
+        &.is-hover {
+            @extend %smooth;
             stroke-width: 20px;
         }
     }
@@ -50,6 +65,10 @@ $strokeDasharray: 4;
         stroke: $primary;
         stroke-width: $strokeWidth;
         stroke-dasharray: $strokeDasharray;
+
+        &.is-chapter {
+            stroke: $chapter;
+        }
 
         &.pages {
             @extend .pages;
@@ -66,13 +85,17 @@ $strokeDasharray: 4;
         stroke-width: $strokeWidth;
         stroke-dasharray: $strokeDasharray;
 
-        .hover-first-mark & {
+        &.is-chapter {
+            stroke: $chapter;
+        }
+
+        .hover-mark & {
             stroke-dasharray: none;
         }
     }
 }
 
-.remove {
+svg[data-mode="remove"] {
 
     .square:hover,
     .polygon:hover,

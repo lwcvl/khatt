@@ -1,9 +1,10 @@
-<svg style="width: 100%" #canvas [attr.class]="mode" [ngClass]="{'hover-first-mark': hoverFirstMark}">
+<svg style="width: 100%" #canvas [attr.data-mode]="mode" [ngClass]="{'hover-mark': hoverMark}">
     <image xlink:href="assets/page.jpg" [attr.height]="height" [attr.width]="width" />
     <ng-container *ngFor="let shape of shapes">
         <rect *ngIf="shape.type === 'square'"
               [id]="shape.id"
               class="square"
+              [ngClass]="{'is-chapter': shape.isChapter}"
               [attr.x]="shape.x"
               [attr.y]="shape.y"
               [attr.width]="shape.width"
@@ -11,6 +12,7 @@
         <polygon *ngIf="shape.type === 'polygon'"
                  [id]="shape.id"
                  class="polygon"
+                 [ngClass]="{'is-chapter': shape.isChapter}"
                  [attr.points]="shape.points" />
         <line *ngIf="shape.type === 'pages'"
               [id]="shape.id"
@@ -28,14 +30,14 @@
               [attr.y2]="shape.y2" />
     </ng-container>
     <circle *ngFor="let mark of draftMarks"
-            [attr.class]="'is-draft ' + mark.className"
+            [ngClass]="'is-mark is-draft ' + mark.className + (isChapter ? ' is-chapter' : '')"
             [attr.cx]="mark.x"
             [attr.cy]="mark.y" r="5" />
     <polygon *ngIf="draftPoints"
-             class="is-draft polygon"
+             [ngClass]="'is-draft polygon ' + (isChapter ? 'is-chapter' : '')"
              [attr.points]="draftPoints" />
     <line *ngFor="let line of draftLines"
-          [attr.class]="'is-line is-draft ' + line.className"
+          [ngClass]="'is-line is-draft ' + line.className + (isChapter ? ' is-chapter' : '')"
           [attr.x1]="line.x1"
           [attr.y1]="line.y1"
           [attr.x2]="line.x2"

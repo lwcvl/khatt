@@ -14,6 +14,14 @@
         <div class="level-item">
             <div class="field has-addons">
                 <p class="control">
+                    <a class="button" title="Mark a _c_hapter" (click)="toggleChapter()"
+                       [ngClass]="{'is-active is-chapter': isChapter}">
+                        <span class="icon">
+                            <fa-icon [icon]="faBookmark"></fa-icon>
+                        </span>
+                    </a>
+                </p>
+                <p class="control">
                     <a class="button" title="Marks a _s_quare text container" (click)="toggleMode('square')"
                        [ngClass]="{'is-active is-dark': mode == 'square'}">
                         <span class="icon">
@@ -29,6 +37,10 @@
                         </span>
                     </a>
                 </p>
+            </div>
+        </div>
+        <div class="level-item">
+            <div class="field has-addons">
                 <p class="control">
                     <a class="button" title="Marks the page _d_ivision"
                        [ngClass]="{'is-active is-dark': mode == 'pages'}"
@@ -38,10 +50,6 @@
                         </span>
                     </a>
                 </p>
-            </div>
-        </div>
-        <div class="level-item">
-            <div class="field has-addons">
                 <p class="control">
                     <a class="button" title="Marks _l_ines within a text container"
                        [ngClass]="{'is-active is-dark': mode == 'lines'}" (click)="toggleMode('lines')">
@@ -110,4 +118,4 @@
         </div>
     </div>
 </div>
-<kht-page-marker [mode]="mode" (escape)="mode = undefined"></kht-page-marker>
+<kht-page-marker [isChapter]="isChapter" [mode]="mode" (escape)="mode = undefined"></kht-page-marker>
