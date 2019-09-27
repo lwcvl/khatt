@@ -27,21 +27,19 @@
                 <kht-hypo-editor #editor
                                  [tabindex]="offset"
                                  [dir]="dir"
-                                 (hypoChange)="hypoChange($event)">
+                                 (addTag)="labels.addTag()"
+                                 (hypoChange)="hypoChange($event)"
+                                 (toggleResearchNotes)="toggleResearchNotes()">
                 </kht-hypo-editor>
             </div>
         </div>
         <div class="level">
             <div class="level-left">
-                <div class="content has-text-centered has-text-white">
-                    <p>
-                        <em>Name of manuscript (Author name)</em> &middot; page 53/240 &middot; line 13/50
-                    </p>
-                </div>
+                <kht-line-labels #labels (blur)="editor.focus()"></kht-line-labels>
             </div>
             <div class="level-right">
                 <div class="level-item">
-                    <a class="button" (click)="toggleResearchNotes()" accesskey="r">
+                    <a class="button" (click)="toggleResearchNotes()">
                         <span class="icon">
                             <fa-icon [icon]="faStickyNote"></fa-icon>
                         </span>

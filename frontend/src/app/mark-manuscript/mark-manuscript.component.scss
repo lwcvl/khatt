@@ -5,7 +5,13 @@
     width: 5em;
 }
 
-.button.is-chapter {
+.button {
+    transition: background-color 0.2s ease-in-out,
+        border-color 0.2s ease-in-out,
+        color 0.2s ease-in-out;
+}
+
+.button.is-active.is-chapter {
     background: $chapter;
     border-color: darken($chapter, 20%);
     color: $white-bis;

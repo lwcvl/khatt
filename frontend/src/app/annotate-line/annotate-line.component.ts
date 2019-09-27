@@ -103,7 +103,9 @@ export class AnnotateLineComponent implements OnInit {
         this.backgroundSize = `${scale * this.width}px`;
         this.backgroundPosition = `${-scale * boundingBox.x1}px ${-scale * boundingBox.y1}px`;
         this.canvasHeight = Math.ceil(-scale * (boundingBox.y1 - boundingBox.y2));
-        this.canvas.nativeElement.setAttribute('viewBox', `${this.viewBox.x} ${this.viewBox.y} ${this.viewBox.width} ${this.viewBox.height}`);
+        this.canvas.nativeElement.setAttribute(
+            'viewBox',
+            `${this.viewBox.x} ${this.viewBox.y} ${this.viewBox.width} ${this.viewBox.height}`);
     }
 
     toggleResearchNotes() {

@@ -1,0 +1,20 @@
+<div class="field is-grouped is-grouped-multiline">
+    <div class="control">
+        <div class="tags has-addons">
+            <span class="tag is-dark">Name of manuscript</span>
+            <span class="tag is-black">Author name</span>
+        </div>
+    </div>
+    <div class="control">
+        <div class="tags has-addons">
+            <span class="tag is-dark">Page 53/240</span>
+            <span class="tag is-black">Line 13/50</span>
+        </div>
+    </div>
+    <kht-edit-label #editLabel class="control" *ngIf="adding" (cancel)="cancelAdding()" (delete)="cancelAdding()"></kht-edit-label>
+    <div class="control" *ngIf="!adding">
+        <button class="button is-small" (click)="addTag()">
+            Add&nbsp;<u>t</u>ag
+        </button>
+    </div>
+</div>

@@ -23,7 +23,10 @@
                 </p>
                 <p class="control">
                     <a class="button" title="Marks a _s_quare text container" (click)="toggleMode('square')"
-                       [ngClass]="{'is-active is-dark': mode == 'square'}">
+                       [ngClass]="{
+                           'is-active is-dark': mode == 'square',
+                           'is-chapter': isChapter
+                        }">
                         <span class="icon">
                             <fa-icon [icon]="faVectorSquare"></fa-icon>
                         </span>
@@ -31,7 +34,10 @@
                 </p>
                 <p class="control">
                     <a class="button" title="Marks an _i_rregular text container" (click)="toggleMode('polygon')"
-                       [ngClass]="{'is-active is-dark': mode == 'polygon'}">
+                       [ngClass]="{
+                            'is-active is-dark': mode == 'polygon',
+                            'is-chapter': isChapter
+                        }">
                         <span class="icon">
                             <fa-icon [icon]="faDrawPolygon"></fa-icon>
                         </span>

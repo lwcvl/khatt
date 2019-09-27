@@ -1,0 +1,4 @@
+<div class="tags has-addons">
+    <input #labelInput class="tag label-input" type="text" name="label" [(ngModel)]="label" placeholder="Text input" (keydown)="keydown($event)">
+    <a class="tag is-delete" (click)="onDelete()"></a>
+</div>

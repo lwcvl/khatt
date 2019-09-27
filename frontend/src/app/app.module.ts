@@ -23,6 +23,8 @@ import { EditManuscriptComponent } from './edit-manuscript/edit-manuscript.compo
 import { PageMarkerComponent } from './page-marker/page-marker.component';
 import { HypoEditorComponent } from './hypo-editor/hypo-editor.component';
 import { ManuscriptFormComponent } from './manuscript-form/manuscript-form.component';
+import { EditLabelComponent } from './edit-label/edit-label.component';
+import { LineLabelsComponent } from './line-labels/line-labels.component';
 
 @NgModule({
     declarations: [
@@ -40,6 +42,8 @@ import { ManuscriptFormComponent } from './manuscript-form/manuscript-form.compo
         PageMarkerComponent,
         HypoEditorComponent,
         ManuscriptFormComponent,
+        EditLabelComponent,
+        LineLabelsComponent,
     ],
     imports: [
         AppRoutingModule,

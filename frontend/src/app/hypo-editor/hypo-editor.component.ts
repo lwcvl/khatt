@@ -39,6 +39,12 @@ export class HypoEditorComponent implements AfterViewInit {
     @Output()
     hypoChange = new EventEmitter<boolean>();
 
+    @Output()
+    toggleResearchNotes = new EventEmitter();
+
+    @Output()
+    addTag = new EventEmitter();
+
     // is the current selection hypo?
     isHypo = false;
 
@@ -227,6 +233,18 @@ export class HypoEditorComponent implements AfterViewInit {
                 this.move('home', false);
                 this.move('end', true);
                 return false;
+            }
+        } else if (event.altKey) {
+            switch (event.key) {
+                case 'r':
+                    this.toggleResearchNotes.next();
+                    event.preventDefault();
+                    return false;
+
+                case 't':
+                    this.addTag.next();
+                    event.preventDefault();
+                    return false;
             }
         }
 
@@ -429,8 +447,12 @@ export class HypoEditorComponent implements AfterViewInit {
         this.cursorPosition.set(this.getCursorPosition());
     }
 
-    toggleComment() {
+    focus() {
         this.transcription.nativeElement.focus();
+    }
+
+    toggleComment() {
+        this.focus();
         const { forwards, flipped } = this.cursorPosition.forwards();
         const { startIndex, endIndex, endOffset } = this.parts.toggleHypo(forwards);
 
