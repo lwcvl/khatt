@@ -26,6 +26,8 @@ import { HypoEditorComponent } from './hypo-editor/hypo-editor.component';
 import { ManuscriptFormComponent } from './manuscript-form/manuscript-form.component';
 import { EditLabelComponent } from './edit-label/edit-label.component';
 import { LineLabelsComponent } from './line-labels/line-labels.component';
+import { MapChaptersComponent } from './map-chapters/map-chapters.component';
+import { MapBookChaptersComponent } from './map-book-chapters/map-book-chapters.component';
 
 @NgModule({
     declarations: [
@@ -45,7 +47,9 @@ import { LineLabelsComponent } from './line-labels/line-labels.component';
         HypoEditorComponent,
         ManuscriptFormComponent,
         EditLabelComponent,
-        LineLabelsComponent
+        LineLabelsComponent,
+        MapChaptersComponent,
+        MapBookChaptersComponent
     ],
     imports: [
         AppRoutingModule,

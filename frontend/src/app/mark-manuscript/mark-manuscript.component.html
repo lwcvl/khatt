@@ -58,7 +58,9 @@
                 </p>
                 <p class="control">
                     <a class="button" title="Marks _l_ines within a text container"
-                       [ngClass]="{'is-active is-dark': mode == 'lines'}" (click)="toggleMode('lines')">
+                       [attr.disabled]="!hasSquares || undefined"
+                       [ngClass]="{'is-active is-dark': mode == 'lines'}"
+                       (click)="toggleMode('lines')">
                         <span class="icon">
                             <fa-icon [icon]="faGripLines"></fa-icon>
                         </span>
@@ -66,6 +68,7 @@
                 </p>
                 <p class="control">
                     <a class="button" title="Marks _v_ertical lines within a text container"
+                       [attr.disabled]="!hasSquares || undefined"
                        [ngClass]="{'is-active is-dark': mode == 'vertical_lines'}"
                        (click)="toggleMode('vertical_lines')">
                         <span class="icon">
@@ -124,4 +127,4 @@
         </div>
     </div>
 </div>
-<kht-page-marker [isChapter]="isChapter" [mode]="mode" (escape)="mode = undefined"></kht-page-marker>
+<kht-page-marker [isChapter]="isChapter" [mode]="mode" (escape)="mode = undefined" (hasSquares)="hasSquares = $event"></kht-page-marker>

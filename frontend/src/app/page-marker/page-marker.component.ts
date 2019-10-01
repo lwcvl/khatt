@@ -48,6 +48,9 @@ export class PageMarkerComponent implements OnChanges, OnInit {
     @Output()
     escape = new EventEmitter();
 
+    @Output()
+    hasSquares = new EventEmitter<boolean>();
+
     dragStart: { x: number, y: number };
 
     draftBlank = true;
@@ -226,6 +229,7 @@ export class PageMarkerComponent implements OnChanges, OnInit {
     }
 
     private handlePointerEvent(x: number, y: number) {
+        const hasSquares = this.checkSquares();
         switch (this.mode) {
             case 'square':
                 switch (this.draftMarks.length) {
@@ -318,6 +322,11 @@ export class PageMarkerComponent implements OnChanges, OnInit {
                 }
                 break;
         }
+
+        const hasSquaresNow = this.checkSquares();
+        if (hasSquares !== hasSquaresNow) {
+            this.hasSquares.next(hasSquaresNow);
+        }
     }
 
     private getPointerPosition(event: MouseEvent) {
@@ -376,9 +385,17 @@ export class PageMarkerComponent implements OnChanges, OnInit {
         return `shape${this.shapeCounter++}`;
     }
 
+    private checkSquares() {
+        return this.shapes.find(shape => shape.type === 'square') !== undefined;
+    }
+
     private removeShape(shape: Shape) {
+        const hasSquares = this.checkSquares();
         this.shapes = this.shapes.filter(s => s !== shape &&
             (s.type !== 'text-line' || s.parent !== shape));
+        if (hasSquares !== this.checkSquares()) {
+            this.hasSquares.next(!hasSquares);
+        }
     }
 
     ngOnInit() {

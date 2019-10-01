@@ -33,6 +33,8 @@ export class MarkManuscriptComponent implements OnInit {
         esc: () => { this.mode = null; }
     };
 
+    hasSquares: boolean;
+
     faBookmark = faBookmark;
     faChevronLeft = faChevronLeft;
     faChevronRight = faChevronRight;
@@ -54,7 +56,6 @@ export class MarkManuscriptComponent implements OnInit {
             action();
         }
     }
-
     constructor() {
     }
 
