@@ -1,6 +1,7 @@
 import { Routes } from '@angular/router';
 
 import { AnnotateComponent } from '../annotate/annotate.component';
+import { AnnotateGroupedComponent } from '../annotate-grouped/annotate-grouped.component';
 import { BookComponent } from '../book/book.component';
 import { BooksComponent } from '../books/books.component';
 import { EditManuscriptComponent } from '../edit-manuscript/edit-manuscript.component';
@@ -14,19 +15,23 @@ const routes: Routes = [
         component: AnnotateComponent,
     },
     {
-        path: 'book',
-        component: BookComponent,
+        path: 'annotate/grouped',
+        component: AnnotateGroupedComponent,
     },
     {
         path: 'books',
         component: BooksComponent,
     },
     {
+        path: 'books/edit',
+        component: BookComponent,
+    },
+    {
         path: 'manuscripts',
         component: ManuscriptsComponent
     },
     {
-        path: 'edit-manuscript',
+        path: 'manuscripts/edit',
         component: EditManuscriptComponent
     },
     {

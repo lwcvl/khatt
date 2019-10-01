@@ -11,6 +11,7 @@ import { AppComponent } from './app.component';
 import { AppRoutingModule } from './app-routing/app-routing.module';
 
 import { AnnotateComponent } from './annotate/annotate.component';
+import { AnnotateGroupedComponent } from './annotate-grouped/annotate-grouped.component';
 import { AnnotateLineComponent } from './annotate-line/annotate-line.component';
 import { BookComponent } from './book/book.component';
 import { BooksComponent } from './books/books.component';
@@ -30,6 +31,7 @@ import { LineLabelsComponent } from './line-labels/line-labels.component';
     declarations: [
         AppComponent,
         AnnotateComponent,
+        AnnotateGroupedComponent,
         AnnotateLineComponent,
         BookComponent,
         BooksComponent,
@@ -43,7 +45,7 @@ import { LineLabelsComponent } from './line-labels/line-labels.component';
         HypoEditorComponent,
         ManuscriptFormComponent,
         EditLabelComponent,
-        LineLabelsComponent,
+        LineLabelsComponent
     ],
     imports: [
         AppRoutingModule,

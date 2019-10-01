@@ -23,6 +23,6 @@ export class BooksComponent {
     constructor(private router: Router) { }
 
     viewBook(book: ListType<BooksComponent['books']>) {
-        this.router.navigate(['/book']);
+        this.router.navigate(['/books/edit']);
     }
 }
