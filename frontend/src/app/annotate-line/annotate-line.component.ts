@@ -58,6 +58,7 @@ export class AnnotateLineComponent implements OnInit {
     @ViewChild('canvas', { static: true })
     canvas: ElementRef<SVGImageElement>;
 
+    isComplete: boolean;
     isHypo: boolean;
 
     constructor(private changeDetectorRef: ChangeDetectorRef) {

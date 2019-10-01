@@ -29,6 +29,7 @@
                                  [dir]="dir"
                                  (addLabel)="labels.add()"
                                  (hypoChange)="hypoChange($event)"
+                                 (toggleComplete)="isComplete=!isComplete"
                                  (toggleResearchNotes)="toggleResearchNotes()">
                 </kht-hypo-editor>
             </div>
@@ -39,6 +40,12 @@
             </div>
             <div class="column is-narrow">
                 <div class="buttons is-right">
+                    <label class="button">
+                        <span class="icon">
+                            <input type="checkbox" name="isComplete" [(ngModel)]="isComplete">
+                        </span>
+                        <span><u>C</u>omplete</span>
+                    </label>
                     <a class="button" (click)="toggleResearchNotes()">
                         <span class="icon">
                             <fa-icon [icon]="faStickyNote"></fa-icon>

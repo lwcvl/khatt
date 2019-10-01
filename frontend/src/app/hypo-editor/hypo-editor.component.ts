@@ -40,6 +40,9 @@ export class HypoEditorComponent implements AfterViewInit {
     hypoChange = new EventEmitter<boolean>();
 
     @Output()
+    toggleComplete = new EventEmitter();
+
+    @Output()
     toggleResearchNotes = new EventEmitter();
 
     @Output()
@@ -236,6 +239,11 @@ export class HypoEditorComponent implements AfterViewInit {
             }
         } else if (event.altKey) {
             switch (event.key) {
+                case 'c':
+                    this.toggleComplete.next();
+                    event.preventDefault();
+                    return false;
+
                 case 'r':
                     this.toggleResearchNotes.next();
                     event.preventDefault();
