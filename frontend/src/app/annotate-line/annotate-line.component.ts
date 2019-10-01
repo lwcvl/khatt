@@ -1,5 +1,6 @@
 import { ChangeDetectorRef, Component, OnInit, ViewChild, ElementRef, Input, HostBinding } from '@angular/core';
 import { faComment, faCommentSlash, faStickyNote } from '@fortawesome/free-solid-svg-icons';
+import { HypoEditorComponent } from '../hypo-editor/hypo-editor.component';
 
 const CONTAINER_WIDTH = 1344;
 const PADDING_LEFT = 50;
@@ -58,6 +59,9 @@ export class AnnotateLineComponent implements OnInit {
     @ViewChild('canvas', { static: true })
     canvas: ElementRef<SVGImageElement>;
 
+    @ViewChild('editor', { static: true })
+    editor: HypoEditorComponent;
+
     isComplete: boolean;
     isHypo: boolean;
 
@@ -112,8 +116,23 @@ export class AnnotateLineComponent implements OnInit {
     toggleResearchNotes() {
         if (this.researchNotesHeight === '0') {
             this.researchNotesHeight = `${this.researchNotes.nativeElement.offsetHeight}px`;
+            this.researchNotes.nativeElement.focus();
         } else {
             this.researchNotesHeight = '0';
         }
     }
+
+    researchNotesKeydown(event: KeyboardEvent) {
+        if (event.altKey) {
+            switch (event.key) {
+                case 'r':
+                    this.toggleResearchNotes();
+                    event.preventDefault();
+                    this.editor.focus();
+                    return false;
+            }
+        }
+        return true;
+    }
 }
+
