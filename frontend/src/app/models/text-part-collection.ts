@@ -233,6 +233,9 @@ export class TextPartCollection {
     *select(selection: ForwardTextPartSelection, skipEmpty = true): Iterable<TextPart> {
         let text;
         const first = this.itemsList[selection.startIndex];
+        if (!first) {
+            return;
+        }
         text = first.text.substring(
             selection.startOffset,
             selection.startIndex === selection.endIndex ? selection.endOffset : undefined);

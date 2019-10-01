@@ -43,7 +43,7 @@ export class HypoEditorComponent implements AfterViewInit {
     toggleResearchNotes = new EventEmitter();
 
     @Output()
-    addTag = new EventEmitter();
+    addLabel = new EventEmitter();
 
     // is the current selection hypo?
     isHypo = false;
@@ -241,8 +241,8 @@ export class HypoEditorComponent implements AfterViewInit {
                     event.preventDefault();
                     return false;
 
-                case 't':
-                    this.addTag.next();
+                case 'l':
+                    this.addLabel.next();
                     event.preventDefault();
                     return false;
             }

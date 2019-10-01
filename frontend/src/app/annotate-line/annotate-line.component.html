@@ -27,26 +27,24 @@
                 <kht-hypo-editor #editor
                                  [tabindex]="offset"
                                  [dir]="dir"
-                                 (addTag)="labels.addTag()"
+                                 (addLabel)="labels.add()"
                                  (hypoChange)="hypoChange($event)"
                                  (toggleResearchNotes)="toggleResearchNotes()">
                 </kht-hypo-editor>
             </div>
         </div>
-        <div class="level">
-            <div class="level-left">
+        <div class="columns">
+            <div class="column">
                 <kht-line-labels #labels (blur)="editor.focus()"></kht-line-labels>
             </div>
-            <div class="level-right">
-                <div class="level-item">
+            <div class="column is-narrow">
+                <div class="buttons is-right">
                     <a class="button" (click)="toggleResearchNotes()">
                         <span class="icon">
                             <fa-icon [icon]="faStickyNote"></fa-icon>
                         </span>
                         <span><u>R</u>esearch Notes</span>
                     </a>
-                </div>
-                <div class="level-item">
                     <button class="button is-black">Next Line</button>
                 </div>
             </div>

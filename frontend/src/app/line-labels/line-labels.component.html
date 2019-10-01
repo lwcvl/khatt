@@ -11,10 +11,24 @@
             <span class="tag is-black">Line 13/50</span>
         </div>
     </div>
-    <kht-edit-label #editLabel class="control" *ngIf="adding" (cancel)="cancelAdding()" (delete)="cancelAdding()"></kht-edit-label>
+    <ng-container *ngFor="let label of labels; let i = index">
+        <kht-edit-label class="control" [editing]="label.editing"
+                        [label]="label.text"
+                        (cancel)="cancel(i)"
+                        (commit)="commit($event, i)"
+                        (delete)="delete(i)"
+                        (edit)="edit(i)"></kht-edit-label>
+    </ng-container>
+    <kht-edit-label #editLabel class="control" *ngIf="adding" [editing]="true"
+                    (cancel)="cancelAdding()"
+                    (delete)="cancelAdding()"
+                    (commit)="commit($event)">
+    </kht-edit-label>
     <div class="control" *ngIf="!adding">
-        <button class="button is-small" (click)="addTag()">
-            Add&nbsp;<u>t</u>ag
-        </button>
+        <div class="tags">
+            <button class="tag add-tag" (click)="add()">
+                Add&nbsp;<u>l</u>abel
+            </button>
+        </div>
     </div>
 </div>
