@@ -1,6 +1,8 @@
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 
 import { ManuscriptFormComponent } from './manuscript-form.component';
+import { AutoCompleteModule } from 'primeng/autocomplete';
 
 describe('ManuscriptDetailsComponent', () => {
   let component: ManuscriptFormComponent;
@@ -8,7 +10,8 @@ describe('ManuscriptDetailsComponent', () => {
 
   beforeEach(async(() => {
     TestBed.configureTestingModule({
-      declarations: [ ManuscriptFormComponent ]
+      declarations: [ ManuscriptFormComponent ],
+      imports: [AutoCompleteModule, FormsModule, ReactiveFormsModule]
     })
     .compileComponents();
   }));

@@ -1,4 +1,5 @@
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
+import { FormsModule } from '@angular/forms';
 
 import { EditLabelComponent } from './edit-label.component';
 
@@ -8,7 +9,8 @@ describe('EditLabelComponent', () => {
 
     beforeEach(async(() => {
         TestBed.configureTestingModule({
-            declarations: [EditLabelComponent]
+            declarations: [EditLabelComponent],
+            imports: [FormsModule]
         })
             .compileComponents();
     }));
