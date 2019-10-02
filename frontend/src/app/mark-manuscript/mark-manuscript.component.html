@@ -60,7 +60,7 @@
                     <a class="button" title="Marks _l_ines within a text container"
                        [attr.disabled]="!hasSquares || undefined"
                        [ngClass]="{'is-active is-dark': mode == 'lines'}"
-                       (click)="toggleMode('lines')">
+                       (click)="hasSquares && toggleMode('lines')">
                         <span class="icon">
                             <fa-icon [icon]="faGripLines"></fa-icon>
                         </span>
@@ -70,7 +70,7 @@
                     <a class="button" title="Marks _v_ertical lines within a text container"
                        [attr.disabled]="!hasSquares || undefined"
                        [ngClass]="{'is-active is-dark': mode == 'vertical_lines'}"
-                       (click)="toggleMode('vertical_lines')">
+                       (click)="hasSquares && toggleMode('vertical_lines')">
                         <span class="icon">
                             <fa-icon [icon]="faGripLinesVertical"></fa-icon>
                         </span>

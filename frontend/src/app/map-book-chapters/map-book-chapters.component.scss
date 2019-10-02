@@ -1,5 +1,6 @@
 @import '../../colors';
 $drag-chapter-target-border: solid $primary 4px;
+$drag-hover: lighten($primary, 30%);
 
 .chapter-row {
     border-bottom: solid 1px $grey-light;
@@ -13,9 +14,7 @@ $drag-chapter-target-border: solid $primary 4px;
     }
 
     .manuscript-cell {
-        &.is-drag-hover {
-            padding-bottom: $size-3;
-        }
+        padding-bottom: $size-3;
 
         &.is-drag-hover-only {
             background: lighten($primary, 30%);
@@ -65,7 +64,7 @@ $drag-chapter-target-border: solid $primary 4px;
         }
 
         &.is-drag-hover:not(.is-dragging) {
-            background: lighten($primary, 30%);
+            background: $drag-hover;
             border-top: $drag-chapter-target-border;
             padding-top: calc(0.375em - 4px);
         }
@@ -78,5 +77,15 @@ $drag-chapter-target-border: solid $primary 4px;
                 padding-top: calc(0.375em - 5px);
             }
         }
+    }
+}
+
+.before-row,
+.after-row {
+    height: $block-spacing;
+    transition: height $speed $easing;
+
+    &.is-drag-hover {
+        background: $drag-hover;
     }
 }

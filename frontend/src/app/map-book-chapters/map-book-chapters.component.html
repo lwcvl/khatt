@@ -1,36 +1,60 @@
-<div class="chapter-row" *ngFor="let chapter of chapters">
+<div class="chapter-row">
     <div class="uniform-name">
-        <input class="input" [(ngModel)]="chapter.name" name="chapterName" />
     </div>
-    <ng-container *ngFor="let manuscript of chapter.manuscripts; let manuscriptIndex = index">
-        <div #cell
-             class="manuscript-cell"
-             [ngClass]="{
-                 'is-drag-hover': manuscript.dragHover,
+    <div class="manuscript-cell" *ngFor="let manuscript of manuscripts">
+        <a [routerLink]="['/manuscripts/edit']">{{manuscript.name}}</a>
+    </div>
+</div>
+<ng-container *ngFor="let chapter of chapters">
+    <div class="before-row"
+         [ngClass]="{
+             'is-drag-hover': chapter.id === currentBeforeChapterId
+            }"
+         [pDroppable]="dragManuscriptId"
+         (onDragEnter)="currentBeforeChapterId=chapter.id"
+         (onDragLeave)="currentBeforeChapterId=undefined"
+         (onDrop)="dropNewChapter($event, chapter)"></div>
+    <div class="chapter-row">
+        <div class="uniform-name">
+            <input class="input" [(ngModel)]="chapter.name" name="chapterName" />
+        </div>
+        <ng-container *ngFor="let manuscript of chapter.manuscripts; let manuscriptIndex = index">
+            <div #cell
+                 class="manuscript-cell"
+                 [ngClass]="{
                  'is-drag-hover-only': manuscript.dragHover && manuscript.dragHoverChapter === -1
                 }"
-             [pDroppable]="manuscript.id"
-             (onDragEnter)="dragEnter(cell, $event, manuscript, manuscriptIndex)"
-             (onDragLeave)="dragLeave(cell, $event, manuscript)"
-             (onDrop)="drop($event, manuscriptIndex, chapter.id)">
-            <div class="manuscript-chapter"
-                 [pDraggable]="manuscript.id"
                  [pDroppable]="manuscript.id"
-                 dragEffect="move"
-                 [ngClass]="{
+                 (onDragEnter)="dragEnter(cell, $event, manuscript, manuscriptIndex)"
+                 (onDragLeave)="dragLeave(cell, $event, manuscript)"
+                 (onDrop)="drop($event, manuscriptIndex, chapter.id)">
+                <div class="manuscript-chapter"
+                     [pDraggable]="manuscript.id"
+                     [pDroppable]="manuscript.id"
+                     dragEffect="move"
+                     [ngClass]="{
                      'is-dragging': dragChapterId == chapter.id &&
                         manuscriptIndex == dragManuscriptIndex &&
                         dragManuscriptChapter == manuscriptChapter,
                       'is-drag-hover': manuscript.dragHoverChapter === manuscriptChapterIndex
                     }"
-                 *ngFor="let manuscriptChapter of manuscript.chapters; let manuscriptChapterIndex = index"
-                 (onDrop)="drop($event, manuscriptIndex, chapter.id, manuscriptChapterIndex)"
-                 (onDragEnter)="dragEnter(cell, $event, manuscript, manuscriptIndex, manuscriptChapterIndex)"
-                 (onDragLeave)="dragLeave(cell, $event, manuscript, manuscriptChapterIndex)"
-                 (onDragStart)="isDragging=true;dragStart($event, chapter.id, manuscriptChapter, manuscriptIndex)"
-                 (onDragEnd)="dragEnd()">
-                {{manuscriptChapter}}
+                     *ngFor="let manuscriptChapter of manuscript.chapters; let manuscriptChapterIndex = index"
+                     (onDrop)="drop($event, manuscriptIndex, chapter.id, manuscriptChapterIndex)"
+                     (onDragEnter)="dragEnter(cell, $event, manuscript, manuscriptIndex, manuscriptChapterIndex)"
+                     (onDragLeave)="dragLeave(cell, $event, manuscript, manuscriptChapterIndex)"
+                     (onDragStart)="dragStart(chapter.id, manuscriptChapter, manuscriptIndex)"
+                     (onDragEnd)="dragEnd()">
+                    {{manuscriptChapter}}
+                </div>
             </div>
-        </div>
-    </ng-container>
-</div>
+        </ng-container>
+    </div>
+</ng-container>
+<div class="after-row"
+     [ngClass]="{
+         'is-drag-hover': 'final' === currentBeforeChapterId
+        }"
+     [pDroppable]="dragManuscriptId"
+     (onDragEnter)="currentBeforeChapterId='final'"
+     (onDragLeave)="currentBeforeChapterId=undefined"
+     (onDrop)="dropNewChapter($event)"></div>

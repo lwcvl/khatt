@@ -1,4 +1,5 @@
 import { Component, OnInit } from '@angular/core';
+import * as uuidv4 from 'uuid/v4';
 
 @Component({
     selector: 'kht-map-book-chapters',
@@ -6,9 +7,11 @@ import { Component, OnInit } from '@angular/core';
     styleUrls: ['./map-book-chapters.component.scss']
 })
 export class MapBookChaptersComponent implements OnInit {
-    private dragChapterId: string;
-    private dragManuscriptChapter: string;
-    private dragManuscriptIndex = -1;
+    currentBeforeChapterId: string;
+    dragChapterId: string;
+    dragManuscriptChapter: string;
+    dragManuscriptIndex = -1;
+    dragManuscriptId: string;
 
     private currentHoverCell: ManuscriptCell;
 
@@ -41,20 +44,27 @@ export class MapBookChaptersComponent implements OnInit {
             ]
         }
     ];
+    manuscripts: ManuscriptColumn[] = [
+        { id: '1', name: 'Manuscript 1' },
+        { id: '2', name: 'Manuscript 2' },
+        { id: '3', name: 'Manuscript 3' }
+    ];
 
     constructor() { }
 
     ngOnInit() {
     }
 
-    dragStart(event: DragEvent, chapterId: string, chapter: string, manuscriptIndex: number) {
+    dragStart(chapterId: string, chapter: string, manuscriptIndex: number) {
         this.dragChapterId = chapterId;
         this.dragManuscriptChapter = chapter;
         this.dragManuscriptIndex = manuscriptIndex;
+        this.dragManuscriptId = this.manuscripts[manuscriptIndex].id;
     }
 
     dragEnd() {
         this.dragManuscriptIndex = -1;
+        this.currentBeforeChapterId = undefined;
     }
 
     dragEnter(
@@ -128,7 +138,34 @@ export class MapBookChaptersComponent implements OnInit {
             if (manuscript === this.currentHoverCell) {
                 this.currentHoverCell = undefined;
             }
+
+            // check if source became empty: delete empty chapters
+            if (!sourceChapter.manuscripts.find(m => m.chapters.length > 0)) {
+                this.chapters.splice(this.chapters.indexOf(sourceChapter), 1);
+            }
         }
+    }
+
+    dropNewChapter(event: DragEvent, chapter?: ChapterRow) {
+        const newChapter: ChapterRow = {
+            id: uuidv4(),
+            manuscripts: this.manuscripts.map((manuscript, index) => ({
+                id: manuscript.id,
+                // we are hovering the new chapter's manuscript being created
+                dragHover: index === this.dragManuscriptIndex,
+                dragHoverChapter: -1,
+                chapters: []
+            })),
+            name: this.dragManuscriptChapter
+        };
+        if (chapter) {
+            this.chapters.splice(this.chapters.indexOf(chapter), 0, newChapter);
+        } else {
+            this.chapters.push(newChapter);
+        }
+
+        this.drop(event, this.dragManuscriptIndex, newChapter.id);
+        this.currentBeforeChapterId = undefined;
     }
 }
 
@@ -144,4 +181,9 @@ interface ManuscriptCell {
     dragHover: boolean;
     dragHoverChapter: number;
     chapters: string[];
+}
+
+interface ManuscriptColumn {
+    id: string;
+    name: string;
 }
