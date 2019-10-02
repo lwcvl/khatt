@@ -1,6 +1,10 @@
 @import '../../colors';
 $drag-chapter-target-border: solid $primary 4px;
-$drag-hover: lighten($primary, 30%);
+
+@mixin drag-hover {
+    background: lighten($primary, 30%);
+    box-shadow: 0 0 4px lighten($primary, 30%);
+}
 
 .chapter-row {
     border-bottom: solid 1px $grey-light;
@@ -15,9 +19,11 @@ $drag-hover: lighten($primary, 30%);
 
     .manuscript-cell {
         padding-bottom: $size-3;
+        transition: background-color $speed, $easing,
+            box-shadow $speed $easing;
 
         &.is-drag-hover-only {
-            background: lighten($primary, 30%);
+            @include drag-hover;
 
             .manuscript-chapter:last-child:not(.is-dragging) {
                 border-bottom: $drag-chapter-target-border;
@@ -28,6 +34,7 @@ $drag-hover: lighten($primary, 30%);
 
     .manuscript-chapter {
         background: $white-bis;
+        border-radius: $radius;
         // same padding as chapter name input field
         padding-bottom: calc(0.375em - 1px);
         padding-left: calc(0.625em - 1px);
@@ -36,7 +43,9 @@ $drag-hover: lighten($primary, 30%);
         border: solid 1px $border;
         border-radius: $radius;
         transition: border $speed $easing,
-            padding $speed $easing;
+            padding $speed $easing,
+            background-color $speed $easing,
+            box-shadow $speed $easing;
 
         &:hover {
             border-color: $border-hover;
@@ -61,10 +70,11 @@ $drag-hover: lighten($primary, 30%);
             background: $grey-darker;
             border-color: $grey-darker;
             color: $white-bis;
+            transition: none;
         }
 
         &.is-drag-hover:not(.is-dragging) {
-            background: $drag-hover;
+            @include drag-hover;
             border-top: $drag-chapter-target-border;
             padding-top: calc(0.375em - 4px);
         }
@@ -82,10 +92,12 @@ $drag-hover: lighten($primary, 30%);
 
 .before-row,
 .after-row {
+    border-radius: 0 0 $radius $radius;
     height: $block-spacing;
-    transition: height $speed $easing;
+    transition: background-color $speed $easing,
+        box-shadow $speed $easing;
 
     &.is-drag-hover {
-        background: $drag-hover;
+        @include drag-hover;
     }
 }
