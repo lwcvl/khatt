@@ -1,1 +1,36 @@
-<p>map-book-chapters works!</p>
+<div class="chapter-row" *ngFor="let chapter of chapters">
+    <div class="uniform-name">
+        <input class="input" [(ngModel)]="chapter.name" name="chapterName" />
+    </div>
+    <ng-container *ngFor="let manuscript of chapter.manuscripts; let manuscriptIndex = index">
+        <div #cell
+             class="manuscript-cell"
+             [ngClass]="{
+                 'is-drag-hover': manuscript.dragHover,
+                 'is-drag-hover-only': manuscript.dragHover && manuscript.dragHoverChapter === -1
+                }"
+             [pDroppable]="manuscript.id"
+             (onDragEnter)="dragEnter(cell, $event, manuscript, manuscriptIndex)"
+             (onDragLeave)="dragLeave(cell, $event, manuscript)"
+             (onDrop)="drop($event, manuscriptIndex, chapter.id)">
+            <div class="manuscript-chapter"
+                 [pDraggable]="manuscript.id"
+                 [pDroppable]="manuscript.id"
+                 dragEffect="move"
+                 [ngClass]="{
+                     'is-dragging': dragChapterId == chapter.id &&
+                        manuscriptIndex == dragManuscriptIndex &&
+                        dragManuscriptChapter == manuscriptChapter,
+                      'is-drag-hover': manuscript.dragHoverChapter === manuscriptChapterIndex
+                    }"
+                 *ngFor="let manuscriptChapter of manuscript.chapters; let manuscriptChapterIndex = index"
+                 (onDrop)="drop($event, manuscriptIndex, chapter.id, manuscriptChapterIndex)"
+                 (onDragEnter)="dragEnter(cell, $event, manuscript, manuscriptIndex, manuscriptChapterIndex)"
+                 (onDragLeave)="dragLeave(cell, $event, manuscript, manuscriptChapterIndex)"
+                 (onDragStart)="isDragging=true;dragStart($event, chapter.id, manuscriptChapter, manuscriptIndex)"
+                 (onDragEnd)="dragEnd()">
+                {{manuscriptChapter}}
+            </div>
+        </div>
+    </ng-container>
+</div>

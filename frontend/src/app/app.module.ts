@@ -6,6 +6,7 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { AutoCompleteModule } from 'primeng/autocomplete';
+import { DragDropModule } from 'primeng/dragdrop';
 
 import { AppComponent } from './app.component';
 import { AppRoutingModule } from './app-routing/app-routing.module';
@@ -59,7 +60,8 @@ import { MapBookChaptersComponent } from './map-book-chapters/map-book-chapters.
         ReactiveFormsModule,
         BrowserAnimationsModule,
         FontAwesomeModule,
-        AutoCompleteModule
+        AutoCompleteModule,
+        DragDropModule
     ],
     providers: [],
     bootstrap: [AppComponent]

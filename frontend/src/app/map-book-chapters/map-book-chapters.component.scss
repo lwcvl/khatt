@@ -1,0 +1,82 @@
+@import '../../colors';
+$drag-chapter-target-border: solid $primary 4px;
+
+.chapter-row {
+    border-bottom: solid 1px $grey-light;
+    display: flex;
+
+    .uniform-name,
+    .manuscript-cell {
+        width: 300px;
+        padding: $size-7;
+        transition: padding-bottom $speed $easing;
+    }
+
+    .manuscript-cell {
+        &.is-drag-hover {
+            padding-bottom: $size-3;
+        }
+
+        &.is-drag-hover-only {
+            background: lighten($primary, 30%);
+
+            .manuscript-chapter:last-child:not(.is-dragging) {
+                border-bottom: $drag-chapter-target-border;
+                padding-bottom: calc(0.375em - 4px);
+            }
+        }
+    }
+
+    .manuscript-chapter {
+        background: $white-bis;
+        // same padding as chapter name input field
+        padding-bottom: calc(0.375em - 1px);
+        padding-left: calc(0.625em - 1px);
+        padding-right: calc(0.625em - 1px);
+        padding-top: calc(0.375em - 1px);
+        border: solid 1px $border;
+        border-radius: $radius;
+        transition: border $speed $easing,
+            padding $speed $easing;
+
+        &:hover {
+            border-color: $border-hover;
+        }
+
+        &:first-child {
+            border-bottom-left-radius: 0;
+            border-bottom-right-radius: 0;
+        }
+
+        &:last-child {
+            border-top-left-radius: 0;
+            border-top-right-radius: 0;
+        }
+
+        &.is-dragging,
+        &:only-child {
+            border-radius: $radius !important;
+        }
+
+        &.is-dragging {
+            background: $grey-darker;
+            border-color: $grey-darker;
+            color: $white-bis;
+        }
+
+        &.is-drag-hover:not(.is-dragging) {
+            background: lighten($primary, 30%);
+            border-top: $drag-chapter-target-border;
+            padding-top: calc(0.375em - 4px);
+        }
+
+        +.manuscript-chapter {
+            border-top-width: 0px;
+
+            &.is-drag-hover:not(.is-dragging) {
+                border-top: $drag-chapter-target-border;
+                padding-top: calc(0.375em - 5px);
+            }
+        }
+    }
+}
