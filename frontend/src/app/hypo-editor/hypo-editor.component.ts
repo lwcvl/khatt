@@ -427,7 +427,6 @@ export class HypoEditorComponent implements AfterViewInit {
             return;
         }
 
-        // const currLength = this.parts.length;
         this.replaceParts([], selection);
     }
 
