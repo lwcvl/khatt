@@ -1,5 +1,6 @@
 import { BrowserModule } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+import { HttpClientModule, HttpClientXsrfModule } from '@angular/common/http';
 import { NgModule } from '@angular/core';
 import { RouterModule } from '@angular/router';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
@@ -9,7 +10,7 @@ import { AutoCompleteModule } from 'primeng/autocomplete';
 import { DragDropModule } from 'primeng/dragdrop';
 
 import { AppComponent } from './app.component';
-import { AppRoutingModule } from './app-routing/app-routing.module';
+import { AppRoutingModule } from './app-routing.module';
 
 import { AnnotateComponent } from './annotate/annotate.component';
 import { AnnotateGroupedComponent } from './annotate-grouped/annotate-grouped.component';
@@ -19,6 +20,7 @@ import { BooksComponent } from './books/books.component';
 import { EditingComponent } from './editing/editing.component';
 import { ManuscriptsComponent } from './manuscripts/manuscripts.component';
 import { MarkManuscriptComponent } from './mark-manuscript/mark-manuscript.component';
+import { FooterComponent } from './footer/footer.component';
 import { MenuComponent } from './menu/menu.component';
 import { UploadComponent } from './upload/upload.component';
 import { EditManuscriptComponent } from './edit-manuscript/edit-manuscript.component';
@@ -41,6 +43,7 @@ import { MapBookChaptersComponent } from './map-book-chapters/map-book-chapters.
         EditingComponent,
         MarkManuscriptComponent,
         ManuscriptsComponent,
+        FooterComponent,
         MenuComponent,
         UploadComponent,
         EditManuscriptComponent,
@@ -54,14 +57,19 @@ import { MapBookChaptersComponent } from './map-book-chapters/map-book-chapters.
     ],
     imports: [
         AppRoutingModule,
+        AutoCompleteModule,
+        DragDropModule,
         BrowserModule,
         RouterModule,
         FormsModule,
         ReactiveFormsModule,
         BrowserAnimationsModule,
         FontAwesomeModule,
-        AutoCompleteModule,
-        DragDropModule
+        HttpClientModule,
+        HttpClientXsrfModule.withOptions({
+            cookieName: 'csrftoken',
+            headerName: 'X-CSRFToken'
+        })
     ],
     providers: [],
     bootstrap: [AppComponent]

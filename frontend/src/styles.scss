@@ -1,4 +1,4 @@
-@import 'colors';
+@import 'variables';
 @import '~bulma/bulma';
 @import 'primeicons/primeicons.css';
 @import 'primeng/resources/themes/nova-light/theme.css';
@@ -6,4 +6,26 @@
 
 table.is-clickable tbody tr {
     cursor: pointer;
+}
+
+@media print {
+
+    .is-hidden-print,
+    .is-hidden-print * {
+        display: none !important;
+    }
+
+    .is-print-paddingless {
+        padding: 0 !important;
+    }
+
+    .ui-table .ui-table-thead,
+    .ui-table .ui-table-tbody,
+    .ui-table .ui-table-tfoot {
+
+        >tr>th,
+        >tr>td {
+            border: solid 1px $dark !important;
+        }
+    }
 }

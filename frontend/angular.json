@@ -4,15 +4,15 @@
     "newProjectRoot": "projects",
     "projects": {
         "khatt": {
-            "root": "",
-            "sourceRoot": "src",
             "projectType": "application",
-            "prefix": "kht",
             "schematics": {
                 "@schematics/angular:component": {
                     "style": "scss"
                 }
             },
+            "root": "",
+            "sourceRoot": "src",
+            "prefix": "kht",
             "architect": {
                 "build": {
                     "builder": "@angular-devkit/build-angular:browser",
@@ -21,7 +21,8 @@
                         "index": "src/index.html",
                         "main": "src/main.ts",
                         "polyfills": "src/polyfills.ts",
-                        "tsConfig": "src/tsconfig.app.json",
+                        "tsConfig": "tsconfig.app.json",
+                        "aot": false,
                         "assets": [
                             "src/favicon.ico",
                             "src/assets"
@@ -30,7 +31,7 @@
                             "src/styles.scss"
                         ],
                         "scripts": [],
-                        "es5BrowserSupport": true
+                        "deployUrl": "/static/"
                     },
                     "configurations": {
                         "production": {
@@ -54,6 +55,11 @@
                                     "type": "initial",
                                     "maximumWarning": "2mb",
                                     "maximumError": "5mb"
+                                },
+                                {
+                                    "type": "anyComponentStyle",
+                                    "maximumWarning": "6kb",
+                                    "maximumError": "10kb"
                                 }
                             ],
                             "outputPath": "dist"
@@ -79,10 +85,15 @@
                                     "type": "initial",
                                     "maximumWarning": "2mb",
                                     "maximumError": "5mb"
+                                },
+                                {
+                                    "type": "anyComponentStyle",
+                                    "maximumWarning": "6kb",
+                                    "maximumError": "10kb"
                                 }
                             ],
                             "outputPath": "dist/en",
-                            "i18nFile": "src/locale/messages.en.xlf",
+                            "i18nFile": "locale/messages.en.xlf",
                             "i18nFormat": "xlf",
                             "i18nLocale": "en",
                             "i18nMissingTranslation": "error"
@@ -108,10 +119,15 @@
                                     "type": "initial",
                                     "maximumWarning": "2mb",
                                     "maximumError": "5mb"
+                                },
+                                {
+                                    "type": "anyComponentStyle",
+                                    "maximumWarning": "6kb",
+                                    "maximumError": "10kb"
                                 }
                             ],
                             "outputPath": "dist/nl",
-                            "i18nFile": "src/locale/messages.nl.xlf",
+                            "i18nFile": "locale/messages.nl.xlf",
                             "i18nFormat": "xlf",
                             "i18nLocale": "nl",
                             "i18nMissingTranslation": "error"
@@ -137,10 +153,15 @@
                                     "type": "initial",
                                     "maximumWarning": "2mb",
                                     "maximumError": "5mb"
+                                },
+                                {
+                                    "type": "anyComponentStyle",
+                                    "maximumWarning": "6kb",
+                                    "maximumError": "10kb"
                                 }
                             ],
                             "outputPath": "dist/ar",
-                            "i18nFile": "src/locale/messages.ar.xlf",
+                            "i18nFile": "locale/messages.ar.xlf",
                             "i18nFormat": "xlf",
                             "i18nLocale": "ar",
                             "i18nMissingTranslation": "error"
@@ -150,7 +171,8 @@
                 "serve": {
                     "builder": "@angular-devkit/build-angular:dev-server",
                     "options": {
-                        "browserTarget": "khatt:build"
+                        "browserTarget": "khatt:build",
+                        "deployUrl": "/"
                     },
                     "configurations": {
                         "production": {
@@ -178,24 +200,24 @@
                     "options": {
                         "main": "src/test.ts",
                         "polyfills": "src/polyfills.ts",
-                        "tsConfig": "src/tsconfig.spec.json",
-                        "karmaConfig": "src/karma.conf.js",
-                        "styles": [
-                            "src/styles.scss"
-                        ],
-                        "scripts": [],
+                        "tsConfig": "tsconfig.spec.json",
+                        "karmaConfig": "karma.conf.js",
                         "assets": [
                             "src/favicon.ico",
                             "src/assets"
-                        ]
+                        ],
+                        "styles": [
+                            "src/styles.scss"
+                        ],
+                        "scripts": []
                     }
                 },
                 "lint": {
                     "builder": "@angular-devkit/build-angular:tslint",
                     "options": {
                         "tsConfig": [
-                            "src/tsconfig.app.json",
-                            "src/tsconfig.spec.json"
+                            "tsconfig.app.json",
+                            "tsconfig.spec.json"
                         ],
                         "exclude": [
                             "**/node_modules/**"
