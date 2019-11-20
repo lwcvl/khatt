@@ -3,61 +3,80 @@
         <rect x="0" y="0" [attr.width]="width" [attr.height]="height" fill="white" />
         <polygon [attr.points]="maskPoints" fill="black" />
     </mask>
-    <rect x="0" y="0" [attr.width]="width" [attr.height]="height" [attr.mask]="'url(#' + maskId + ')'" class="mask" />
+    <rect x="0" y="0" [attr.width]="width" [attr.height]="height" [attr.mask]="'url(#' + maskId + ')'"
+          class="mask" />
 </svg>
-<footer class="footer">
-    <div class="form">
-        <div class="field">
-            <div class="control has-text-right">
-                <button class="button is-black">De voorgaande getranscribeerde regel</button>
-            </div>
+<div [ngClass]="{'modal is-active': showContext}">
+    <div *ngIf="showContext" class="modal-background"></div>
+    <div [ngClass]="{'context-view': showContext}">
+        <div class="page-view" *ngIf="showContext">
+            <kht-page-marker [shapes]="[shape]" (escape)="showContext = false"></kht-page-marker>
         </div>
-        <div class="field has-addons">
-            <div class="control">
-                <a class="button is-inverted hypo-toggle"
-                   [ngClass]="{'is-danger': !isHypo}"
-                   (click)="editor.toggleComment()"
-                   title="Switch between hypotext (red and bold) and hypertext (black) using ctrl+h (⌘+h)">
-                    <span class="icon">
-                        <fa-icon [icon]="faComment"></fa-icon>
-                    </span>
-                </a>
-            </div>
-            <div class="control is-expanded">
-                <kht-hypo-editor #editor
-                                 [tabindex]="offset"
-                                 [dir]="dir"
-                                 (addLabel)="labels.add()"
-                                 (hypoChange)="hypoChange($event)"
-                                 (toggleComplete)="isComplete=!isComplete"
-                                 (toggleResearchNotes)="toggleResearchNotes()">
-                </kht-hypo-editor>
-            </div>
-        </div>
-        <div class="columns">
-            <div class="column">
-                <kht-line-labels #labels (blur)="editor.focus()"></kht-line-labels>
-            </div>
-            <div class="column is-narrow">
-                <div class="buttons is-right">
-                    <label class="button">
-                        <span class="icon">
-                            <input type="checkbox" name="isComplete" [(ngModel)]="isComplete">
-                        </span>
-                        <span><u>C</u>omplete</span>
-                    </label>
-                    <a class="button" (click)="toggleResearchNotes()">
-                        <span class="icon">
-                            <fa-icon [icon]="faStickyNote"></fa-icon>
-                        </span>
-                        <span><u>R</u>esearch Notes</span>
-                    </a>
-                    <button class="button is-black">Next Line</button>
+        <div class="line-entry">
+            <footer class="footer">
+                <div class="form">
+                    <div class="field">
+                        <div class="control has-text-right">
+                            <button class="button is-black">De voorgaande getranscribeerde regel</button>
+                        </div>
+                    </div>
+                    <div class="field has-addons">
+                        <div class="control">
+                            <a class="button is-inverted hypo-toggle"
+                            [ngClass]="{'is-danger': !isHypo}"
+                            (click)="editor.toggleComment()"
+                            title="Switch between hypotext (red and bold) and hypertext (black) using ctrl+h (⌘+h)">
+                                <span class="icon">
+                                    <fa-icon [icon]="faComment"></fa-icon>
+                                </span>
+                            </a>
+                        </div>
+                        <div class="control is-expanded">
+                            <kht-hypo-editor #editor
+                                            [tabindex]="offset"
+                                            [dir]="dir"
+                                            (addLabel)="labels.add()"
+                                            (hypoChange)="hypoChange($event)"
+                                            (toggleComplete)="isComplete=!isComplete"
+                                            (toggleResearchNotes)="toggleResearchNotes()"
+                                            (toggleShowContext)="toggleShowContext()">
+                            </kht-hypo-editor>
+                        </div>
+                    </div>
+                    <div class="columns">
+                        <div class="column">
+                            <kht-line-labels #labels (blur)="editor.focus()"></kht-line-labels>
+                        </div>
+                        <div class="column is-narrow">
+                            <div class="buttons is-right">
+                                <a class="button" (click)="toggleShowContext()">
+                                    <span class="icon">
+                                        <fa-icon [icon]="faStickyNote"></fa-icon>
+                                    </span>
+                                    <span>Show Conte<u>x</u>t</span>
+                                </a>
+                                <label class="button">
+                                    <span class="icon">
+                                        <input type="checkbox" name="isComplete" [(ngModel)]="isComplete">
+                                    </span>
+                                    <span><u>C</u>omplete</span>
+                                </label>
+                                <a class="button" (click)="toggleResearchNotes()">
+                                    <span class="icon">
+                                        <fa-icon [icon]="faStickyNote"></fa-icon>
+                                    </span>
+                                    <span><u>R</u>esearch Notes</span>
+                                </a>
+                                <button class="button is-black">Next Line</button>
+                            </div>
+                        </div>
+                    </div>
                 </div>
+            </footer>
+            <div class="research-notes" [style.height]="researchNotesHeight">
+                <textarea #researchNotes class="textarea" placeholder="Research notes about this line"
+                        (keydown)="researchNotesKeydown($event)"></textarea>
             </div>
         </div>
     </div>
-</footer>
-<div class="research-notes" [style.height]="researchNotesHeight">
-    <textarea #researchNotes class="textarea" placeholder="Research notes about this line" (keydown)="researchNotesKeydown($event)"></textarea>
 </div>

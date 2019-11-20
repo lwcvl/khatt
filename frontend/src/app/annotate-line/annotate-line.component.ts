@@ -1,6 +1,7 @@
 import { ChangeDetectorRef, Component, OnInit, ViewChild, ElementRef, Input, HostBinding } from '@angular/core';
 import { faComment, faCommentSlash, faStickyNote } from '@fortawesome/free-solid-svg-icons';
 import { HypoEditorComponent } from '../hypo-editor/hypo-editor.component';
+import { Rectangle } from '../models/shapes';
 
 const CONTAINER_WIDTH = 1344;
 const PADDING_LEFT = 50;
@@ -29,13 +30,16 @@ export class AnnotateLineComponent implements OnInit {
 
     viewBox: { x: number, y: number, width: number, height: number };
 
+    showContext = false;
+
     @ViewChild('researchNotes', { static: true })
     researchNotes: ElementRef<HTMLTextAreaElement>;
 
     researchNotesHeight = '0';
 
+    // TODO: other shapes
     @Input()
-    shape: { x: number, y: number }[];
+    shape: Rectangle;
 
     @Input()
     offset = 0;
@@ -74,10 +78,26 @@ export class AnnotateLineComponent implements OnInit {
     }
 
     ngOnInit() {
-        this.maskPoints = this.shape.map(h => `${h.x},${h.y}`).join(' ');
+        const points = [{
+            x: this.shape.x,
+            y: this.shape.y
+        },
+        {
+            x: this.shape.x + this.shape.width,
+            y: this.shape.y
+        },
+        {
+            x: this.shape.x + this.shape.width,
+            y: this.shape.y + this.shape.height
+        },
+        {
+            x: this.shape.x,
+            y: this.shape.y + this.shape.height
+        }];
+        this.maskPoints = points.map(h => `${h.x},${h.y}`).join(' ');
 
         const boundingBox = { x1: this.width, y1: this.height, x2: 0, y2: 0 };
-        for (const point of this.shape) {
+        for (const point of points) {
             if (point.x < boundingBox.x1) {
                 boundingBox.x1 = point.x;
             }
@@ -111,6 +131,10 @@ export class AnnotateLineComponent implements OnInit {
         this.canvas.nativeElement.setAttribute(
             'viewBox',
             `${this.viewBox.x} ${this.viewBox.y} ${this.viewBox.width} ${this.viewBox.height}`);
+    }
+
+    toggleShowContext() {
+        this.showContext = !this.showContext;
     }
 
     toggleResearchNotes() {

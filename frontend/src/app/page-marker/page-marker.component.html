@@ -1,9 +1,9 @@
-<svg style="width: 100%" #canvas [attr.data-mode]="mode" [ngClass]="{'hover-mark': hoverMark}">
+<svg class="canvas" #canvas [attr.data-mode]="mode" [ngClass]="{'hover-mark': hoverMark}">
     <image xlink:href="assets/page.jpg" [attr.height]="height" [attr.width]="width" />
     <ng-container *ngFor="let shape of shapes">
-        <rect *ngIf="shape.type === 'square'"
+        <rect *ngIf="shape.type === 'rectangle'"
               [id]="shape.id"
-              class="square"
+              class="rectangle"
               [ngClass]="{'is-chapter': shape.isChapter}"
               [attr.x]="shape.x"
               [attr.y]="shape.y"

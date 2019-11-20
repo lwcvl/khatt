@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { faChevronLeft, faChevronRight, faPencilAlt } from '@fortawesome/free-solid-svg-icons';
+import { Shape } from '../models/shapes';
 
 @Component({
     selector: 'kht-annotate-grouped',
@@ -19,17 +20,25 @@ export class AnnotateGroupedComponent implements OnInit {
         0: 1,
         1: 2
     };
-    highlightShapes = [
-        [
-            { x: 867, y: 109 },
-            { x: 1428, y: 109 },
-            { x: 1428, y: 151 },
-            { x: 867, y: 151 }],
-        [
-            { x: 861, y: 485 },
-            { x: 1410, y: 485 },
-            { x: 1410, y: 533 },
-            { x: 861, y: 533 }]];
+    highlightShapes: Shape[] = [
+        {
+            id: '1',
+            type: 'rectangle',
+            x: 867,
+            y: 109,
+            width: 561,
+            height: 42,
+            isChapter: false
+        },
+        {
+            id: '2',
+            type: 'rectangle',
+            x: 861,
+            y: 485,
+            width: 549,
+            height: 48,
+            isChapter: false
+        }];
 
     constructor() { }
 

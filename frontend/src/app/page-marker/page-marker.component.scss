@@ -11,7 +11,13 @@ $strokeDasharray: 4;
     transition: all 0.2s;
 }
 
-.square,
+.canvas {
+    width: 100%;
+    height: 100%;
+    display: flex
+}
+
+.rectangle,
 .polygon {
     @extend %smooth;
     fill: rgba($primary, 0.5);
@@ -97,7 +103,7 @@ $strokeDasharray: 4;
 
 svg[data-mode="remove"] {
 
-    .square:hover,
+    .rectangle:hover,
     .polygon:hover,
     .pages:hover,
     .text-line:hover {

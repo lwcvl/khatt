@@ -22,9 +22,9 @@
                     </a>
                 </p>
                 <p class="control">
-                    <a class="button" title="Marks a _s_quare text container" (click)="toggleMode('square')"
+                    <a class="button" title="Marks a _s_quare text container" (click)="toggleMode('rectangle')"
                        [ngClass]="{
-                           'is-active is-dark': mode == 'square',
+                           'is-active is-dark': mode == 'rectangle',
                            'is-chapter': isChapter
                         }">
                         <span class="icon">
@@ -58,9 +58,9 @@
                 </p>
                 <p class="control">
                     <a class="button" title="Marks _l_ines within a text container"
-                       [attr.disabled]="!hasSquares || undefined"
+                       [attr.disabled]="!hasRectangles || undefined"
                        [ngClass]="{'is-active is-dark': mode == 'lines'}"
-                       (click)="hasSquares && toggleMode('lines')">
+                       (click)="hasRectangles && toggleMode('lines')">
                         <span class="icon">
                             <fa-icon [icon]="faGripLines"></fa-icon>
                         </span>
@@ -68,9 +68,9 @@
                 </p>
                 <p class="control">
                     <a class="button" title="Marks _v_ertical lines within a text container"
-                       [attr.disabled]="!hasSquares || undefined"
+                       [attr.disabled]="!hasRectangles || undefined"
                        [ngClass]="{'is-active is-dark': mode == 'vertical_lines'}"
-                       (click)="hasSquares && toggleMode('vertical_lines')">
+                       (click)="hasRectangles && toggleMode('vertical_lines')">
                         <span class="icon">
                             <fa-icon [icon]="faGripLinesVertical"></fa-icon>
                         </span>
@@ -127,4 +127,4 @@
         </div>
     </div>
 </div>
-<kht-page-marker [isChapter]="isChapter" [mode]="mode" (escape)="mode = undefined" (hasSquares)="hasSquares = $event"></kht-page-marker>
+<kht-page-marker [isChapter]="isChapter" [mode]="mode" [(shapes)]="shapes" (escape)="mode = undefined" (hasRectangles)="hasRectangles = $event"></kht-page-marker>

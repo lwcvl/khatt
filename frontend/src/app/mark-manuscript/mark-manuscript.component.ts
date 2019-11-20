@@ -13,6 +13,7 @@ import {
 } from '@fortawesome/free-solid-svg-icons';
 
 import { MarkMode } from '../models/mark-mode';
+import { Shape } from '../models/shapes';
 
 @Component({
     selector: 'kht-mark-manuscript',
@@ -24,7 +25,7 @@ export class MarkManuscriptComponent implements OnInit {
         c: () => this.toggleChapter(),
         p: () => {/* previous page */ },
         n: () => {/* next page */ },
-        s: () => this.toggleMode('square'),
+        s: () => this.toggleMode('rectangle'),
         i: () => this.toggleMode('polygon'),
         l: () => this.toggleMode('lines'),
         d: () => this.toggleMode('pages'),
@@ -33,7 +34,7 @@ export class MarkManuscriptComponent implements OnInit {
         esc: () => { this.mode = null; }
     };
 
-    hasSquares: boolean;
+    hasRectangles: boolean;
 
     faBookmark = faBookmark;
     faChevronLeft = faChevronLeft;
@@ -49,6 +50,7 @@ export class MarkManuscriptComponent implements OnInit {
     isChapter = false;
     mode: MarkMode | null = null;
 
+    shapes: Shape[] = [];
     @HostListener('document:keypress', ['$event'])
     handleKeyboardEvent(event: KeyboardEvent) {
         const action = this.shortcuts[event.key];
@@ -64,14 +66,14 @@ export class MarkManuscriptComponent implements OnInit {
 
     toggleChapter() {
         this.isChapter = !this.isChapter;
-        if (!['square', 'polygon'].includes(this.mode)) {
-            this.mode = 'square';
+        if (!['rectangle', 'polygon'].includes(this.mode)) {
+            this.mode = 'rectangle';
         }
     }
 
     toggleMode(mode: MarkMode) {
         this.mode = this.mode === mode ? null : mode;
-        if (!['square', 'polygon'].includes(this.mode)) {
+        if (!['rectangle', 'polygon'].includes(this.mode)) {
             this.isChapter = false;
         }
     }

@@ -35,3 +35,43 @@ $maskBackground: rgba(black, 0.5);
         border-top-right-radius: 0;
     }
 }
+
+// fullscreen mode when showing context
+.context-view {
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 100vh;
+    width: 100vw;
+
+    .page-view {
+        flex: 1;
+
+        kht-page-marker {
+            display: flex;
+            flex: 1;
+            flex-direction: column;
+        }
+    }
+
+    .line-entry {
+        background: rgba(255, 255, 255, 50%);
+        align-self: flex-end;
+        width: 100vw;
+
+        footer {
+            padding: 20px;
+            padding-right: 40px;
+        }
+    }
+
+    .page-view,
+    .line-entry {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+    }
+}
