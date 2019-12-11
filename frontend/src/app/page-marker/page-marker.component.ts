@@ -55,9 +55,6 @@ export class PageMarkerComponent implements OnChanges, OnInit {
     @Output()
     shapesChange = new EventEmitter<Shape[]>();
 
-    @Output()
-    hasRectangles = new EventEmitter<boolean>();
-
     dragStart: { x: number, y: number };
 
     draftBlank = true;
@@ -234,7 +231,6 @@ export class PageMarkerComponent implements OnChanges, OnInit {
     }
 
     private handlePointerEvent(x: number, y: number) {
-        const hasRectangles = this.checkRectangles();
         switch (this.mode) {
             case 'rectangle':
                 switch (this.draftMarks.length) {
@@ -335,11 +331,6 @@ export class PageMarkerComponent implements OnChanges, OnInit {
                 }
                 break;
         }
-
-        const hasRectanglesNow = this.checkRectangles();
-        if (hasRectangles !== hasRectanglesNow) {
-            this.hasRectangles.next(hasRectanglesNow);
-        }
     }
 
     private getPointerPosition(event: MouseEvent) {
@@ -367,7 +358,8 @@ export class PageMarkerComponent implements OnChanges, OnInit {
                 case 'rectangle':
                     if (x >= shape.x && y >= shape.y &&
                         x < (shape.x + shape.width) &&
-                        y < (shape.y + shape.height)) {
+                        y < (shape.y + shape.height) &&
+                        this.checkLineDirection(shape, vertical)) {
                         this.currentTextContainer = shape;
                         return vertical ? {
                             className,
@@ -389,6 +381,19 @@ export class PageMarkerComponent implements OnChanges, OnInit {
         this.currentTextContainer = undefined;
     }
 
+    private checkLineDirection(parent: Rectangle, vertical: boolean) {
+        for (const shape of this.shapes) {
+            if (shape.type === 'text-line' && shape.parent === parent) {
+                if ((shape.x1 === shape.x2) !== vertical) {
+                    // misalignment!
+                    return false;
+                }
+            }
+        }
+
+        return true;
+    }
+
     private distance(a: { x: number, y: number }, b: { x: number, y: number }) {
         const distance = Math.abs(a.x - b.x) + Math.abs(a.y - b.y);
         return distance;
@@ -398,17 +403,10 @@ export class PageMarkerComponent implements OnChanges, OnInit {
         return `shape${this.shapeCounter++}`;
     }
 
-    private checkRectangles() {
-        return this.shapes.find(shape => shape.type === 'rectangle') !== undefined;
-    }
 
     private removeShape(shape: Shape) {
-        const hasRectangles = this.checkRectangles();
         this.shapesChange.next(this.shapes.filter(s => s !== shape &&
             (s.type !== 'text-line' || s.parent !== shape)));
-        if (hasRectangles !== this.checkRectangles()) {
-            this.hasRectangles.next(!hasRectangles);
-        }
     }
 
     ngOnInit() {

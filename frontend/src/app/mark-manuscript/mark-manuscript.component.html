@@ -127,4 +127,4 @@
         </div>
     </div>
 </div>
-<kht-page-marker [isChapter]="isChapter" [mode]="mode" [(shapes)]="shapes" (escape)="mode = undefined" (hasRectangles)="hasRectangles = $event"></kht-page-marker>
+<kht-page-marker [isChapter]="isChapter" [mode]="mode" [shapes]="shapes" (shapesChange)="shapesChange($event)" (escape)="mode = undefined"></kht-page-marker>
