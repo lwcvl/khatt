@@ -104,6 +104,7 @@ class Aside(models.Model):
     label = models.CharField(max_length=50)
     bounding_box = JSONField()
     hypo_text = JSONField()
+    complete = models.BooleanField(default=False)
 
 
 class Author(models.Model):
