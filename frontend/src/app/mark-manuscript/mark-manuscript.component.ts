@@ -58,7 +58,13 @@ export class MarkManuscriptComponent implements OnInit {
             action();
         }
     }
+
     constructor() {
+    }
+
+    shapesChange(shapes: Shape[]) {
+        this.shapes = shapes;
+        this.hasRectangles = shapes.find(shape => shape.type === 'rectangle') !== undefined;
     }
 
     ngOnInit() {
