@@ -1,24 +1,24 @@
 import { Component, OnInit } from '@angular/core';
 import { FormControl } from '@angular/forms';
 
+import { Restangular } from 'ngx-restangular';
+
 @Component({
     selector: 'kht-manuscript-form',
     templateUrl: './manuscript-form.component.html',
     styleUrls: ['./manuscript-form.component.scss']
 })
 export class ManuscriptFormComponent implements OnInit {
-    available = [
-        'A book',
-        'Some book title',
-        'Yet another book title'
-    ];
+    available: any[];
 
     results: string[];
     book = new FormControl('');
 
-    constructor() { }
+    constructor(private restangular: Restangular) { }
 
     ngOnInit() {
+        this.available = this.restangular.all('books');
+        console.log(this.available);
     }
 
     search(event: { query: string }) {

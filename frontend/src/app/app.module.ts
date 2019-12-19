@@ -9,6 +9,9 @@ import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { AutoCompleteModule } from 'primeng/autocomplete';
 import { DragDropModule } from 'primeng/dragdrop';
 
+import { RestangularModule, Restangular } from 'ngx-restangular';
+
+
 import { AppComponent } from './app.component';
 import { AppRoutingModule } from './app-routing.module';
 
@@ -31,6 +34,13 @@ import { EditLabelComponent } from './edit-label/edit-label.component';
 import { LineLabelsComponent } from './line-labels/line-labels.component';
 import { MapChaptersComponent } from './map-chapters/map-chapters.component';
 import { MapBookChaptersComponent } from './map-book-chapters/map-book-chapters.component';
+
+
+export function RestangularConfigFactory (RestangularProvider) {
+    RestangularProvider.setBaseUrl('localhost:8000/api');
+    // RestangularProvider.setDefaultHeaders({Authorization: 'Bearer UDXPx-Xko0w4BRKajozCVy20X11MRZs1'});
+  }
+
 
 @NgModule({
     declarations: [
@@ -69,7 +79,8 @@ import { MapBookChaptersComponent } from './map-book-chapters/map-book-chapters.
         HttpClientXsrfModule.withOptions({
             cookieName: 'csrftoken',
             headerName: 'X-CSRFToken'
-        })
+        }),
+        RestangularModule.forRoot(RestangularConfigFactory),
     ],
     providers: [],
     bootstrap: [AppComponent]

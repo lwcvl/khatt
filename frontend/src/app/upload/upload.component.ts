@@ -19,4 +19,8 @@ export class UploadComponent implements OnInit {
         const files = fileInput.files;
         this.filename = files ? files[0].name : null;
     }
+
+    uploadManuscript() {
+        this.filename = 'bla';
+    }
 }

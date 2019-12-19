@@ -9,6 +9,12 @@ As these can be rectangles or polygons, these are saved as JSON,
 using the GeoJSON specification.
 '''
 
+LEFT_TO_RIGHT = 'ltr'
+RIGHT_TO_LEFT = 'rtl'
+DIRECTION_CHOICES = [
+    (LEFT_TO_RIGHT, 'Left-to-right'),
+    (RIGHT_TO_LEFT, 'Right-to-left'),
+]
 
 class Book(models.Model):
     ''' A book is the virtual text, of which
@@ -24,12 +30,6 @@ class Manuscript(models.Model):
     '''
     filepath = models.FileField()
     editor = models.ForeignKey('Editor', on_delete=models.PROTECT)
-    LEFT_TO_RIGHT = 'ltr'
-    RIGHT_TO_LEFT = 'rtl'
-    DIRECTION_CHOICES = [
-        (LEFT_TO_RIGHT, 'Left-to-right'),
-        (RIGHT_TO_LEFT, 'Right-to-left'),
-    ]
     book = models.ForeignKey('Book', on_delete=models.CASCADE)
     title = models.CharField(max_length=400)
     date = models.CharField(max_length=50)
