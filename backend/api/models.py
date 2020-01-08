@@ -23,6 +23,9 @@ class Book(models.Model):
     title = models.CharField(max_length=400)
     author = models.ForeignKey('Author', on_delete=models.PROTECT)
 
+    def __str__(self):
+        return self.title
+
 
 class Manuscript(models.Model):
     ''' A manuscript is the physical form of a book
@@ -110,6 +113,9 @@ class Aside(models.Model):
 class Author(models.Model):
     ''' The author of the book.'''
     name = models.CharField(max_length=100)
+
+    def __str__(self):
+        return self.name
 
 
 class Editor(models.Model):

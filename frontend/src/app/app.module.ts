@@ -37,7 +37,7 @@ import { MapBookChaptersComponent } from './map-book-chapters/map-book-chapters.
 
 
 export function RestangularConfigFactory (RestangularProvider) {
-    RestangularProvider.setBaseUrl('localhost:8000/api');
+    RestangularProvider.setBaseUrl('/api');
     // RestangularProvider.setDefaultHeaders({Authorization: 'Bearer UDXPx-Xko0w4BRKajozCVy20X11MRZs1'});
   }
 

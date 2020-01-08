@@ -1,8 +1,8 @@
 from rest_framework import serializers
-from backend.api.models import Book, Manuscript, Page
+from .models import Book, Manuscript, Page
 
 
-class BookSerializer(serializers.Serializer):
+class BookSerializer(serializers.ModelSerializer):
     author = serializers.StringRelatedField()
 
     class Meta:
@@ -10,7 +10,7 @@ class BookSerializer(serializers.Serializer):
         fields = ['title', 'author']
 
 
-class ManuscriptSerializer(serializers.Serializer):
+class ManuscriptSerializer(serializers.ModelSerializer):
     editor = serializers.StringRelatedField()
     book = serializers.StringRelatedField()
 

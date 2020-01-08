@@ -17,8 +17,12 @@ export class ManuscriptFormComponent implements OnInit {
     constructor(private restangular: Restangular) { }
 
     ngOnInit() {
-        this.available = this.restangular.all('books');
-        console.log(this.available);
+        let books;
+        // trailing slash is needed to make sure the route is understood by django
+        books = this.restangular.all('books/');
+        books.getList().subscribe(bookList => {
+            this.available = bookList.map(book => book.title);
+        });
     }
 
     search(event: { query: string }) {
