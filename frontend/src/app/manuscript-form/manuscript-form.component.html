@@ -1,4 +1,5 @@
-<form>
+<h1 class="title">Upload a New Manuscript</h1>
+<form [formGroup]="manuscriptForm">
     <div class="field is-horizontal">
         <div class="field-label is-normal">
             <label class="label">Book</label>
@@ -6,7 +7,7 @@
         <div class="field-body">
             <div class="field">
                 <p class="control">
-                    <p-autoComplete [formControl]="book" [suggestions]="results" (completeMethod)="search($event)"
+                    <p-autoComplete formControlName="book" [suggestions]="results" (completeMethod)="search($event)"
                                     [dropdown]="true"></p-autoComplete>
                 </p>
             </div>
@@ -19,7 +20,7 @@
         <div class="field-body">
             <div class="field">
                 <p class="control">
-                    <input class="input" type="text">
+                    <input class="input" type="text" formControlName="title">
                 </p>
             </div>
         </div>
@@ -31,7 +32,7 @@
         <div class="field-body">
             <div class="field">
                 <p class="control">
-                    <input class="input" type="text">
+                    <input class="input" type="text" formControlName="date">
                 </p>
             </div>
         </div>
@@ -44,11 +45,11 @@
             <div class="field is-narrow">
                 <div class="control">
                     <label class="radio">
-                        <input type="radio" name="textDirection">
+                        <input type="radio" value="rtl" name="textDirection" formControlName="textDirection">
                         Right-to-left
                     </label>
                     <label class="radio">
-                        <input type="radio" name="textDirection">
+                        <input type="radio" value="ltr" name="textDirection" formControlName="textDirection">
                         Left-to-right
                     </label>
                 </div>
@@ -63,16 +64,21 @@
             <div class="field is-narrow">
                 <div class="control">
                     <label class="radio">
-                        <input type="radio" name="pageDirection">
+                        <input type="radio" value="rtl" name="pageDirection" formControlName="pageDirection">
                         Right-to-left
                     </label>
                     <label class="radio">
-                        <input type="radio" name="pageDirection">
+                        <input type="radio" value="ltr" name="pageDirection" formControlName="pageDirection">
                         Left-to-right
                     </label>
                 </div>
             </div>
         </div>
     </div>
-    <ng-content></ng-content>
+    <kht-upload [manuscriptForm]="manuscriptForm"></kht-upload>
+    <div class="field is-grouped">
+        <div class="control">
+            <button type="submit" class="button is-primary" (click)="uploadManuscript()">Upload</button>
+        </div>
+    </div>
 </form>

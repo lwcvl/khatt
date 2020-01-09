@@ -1,6 +1,4 @@
-<h1 class="title">Upload a New Manuscript</h1>
-<kht-manuscript-form>
-    <div class="field is-horizontal">
+    <div class="field is-horizontal" [formGroup]="manuscriptForm">
         <div class="field-label is-normal">
             <label class="label">File</label>
         </div>
@@ -12,8 +10,9 @@
                                type="file"
                                name="manuscript"
                                (change)="detectFilename(fileInput)"
-                               accept=".pdf"
-                               #fileInput>
+                               accept=".pdf,.jpg,.jpeg"
+                               #fileInput
+                               formControlName="filename">
                         <span class="file-cta">
                             <span class="file-icon">
                                 <fa-icon [icon]="faUpload"></fa-icon>
@@ -30,9 +29,3 @@
             </div>
         </div>
     </div>
-    <div class="field is-grouped">
-        <div class="control">
-            <button type="submit" class="button is-primary" (click)="uploadManuscript()">Upload</button>
-        </div>
-    </div>
-</kht-manuscript-form>
