@@ -15,12 +15,6 @@ class BookViewSet(viewsets.ModelViewSet):
     serializer_class = BookSerializer
 
 
-# class UploadManuscriptView(APIView):
-#     parser_classes = [FormParser, MultiPartParser]
-#     def post(self, request):
-#         if request.data.get('filepath'):
-#             return Response({'success': True})
-
 class ManuscriptViewSet(viewsets.ModelViewSet):
     queryset = Manuscript.objects.all()
     serializer_class = ManuscriptSerializer
