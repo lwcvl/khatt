@@ -23,16 +23,13 @@ class Book(models.Model):
     title = models.CharField(max_length=400)
     author = models.ForeignKey('Author', on_delete=models.PROTECT)
 
-    def __str__(self):
-        return self.title
-
 
 class Manuscript(models.Model):
     ''' A manuscript is the physical form of a book
     We have a scan of this manuscript, for which annotations are made.
     '''
-    filepath = models.FileField()
-    editor = models.ForeignKey('Editor', on_delete=models.PROTECT)
+    filepath = models.FileField(upload_to='manuscript_images/')
+    editor = models.ForeignKey('Editor', on_delete=models.PROTECT, blank=True, null=True)
     book = models.ForeignKey('Book', on_delete=models.CASCADE)
     title = models.CharField(max_length=400)
     date = models.CharField(max_length=50)

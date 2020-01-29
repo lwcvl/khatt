@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Book, Manuscript, Page
+from .models import Book, Editor, Manuscript, Page
 
 
 class BookSerializer(serializers.ModelSerializer):
@@ -11,8 +11,13 @@ class BookSerializer(serializers.ModelSerializer):
 
 
 class ManuscriptSerializer(serializers.ModelSerializer):
-    editor = serializers.StringRelatedField()
-    book = serializers.StringRelatedField()
+    editor = serializers.SlugRelatedField(
+        queryset=Editor.objects.all(), 
+        slug_field="name",
+        allow_null=True)
+    book = serializers.SlugRelatedField(
+        queryset=Book.objects.all(),
+        slug_field="title")
 
     class Meta:
         model = Manuscript

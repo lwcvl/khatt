@@ -1,6 +1,6 @@
 import { BrowserModule } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
-import { HttpClientModule, HttpClientXsrfModule } from '@angular/common/http';
+import { HttpClientModule, HttpClientXsrfModule, HttpXsrfTokenExtractor } from '@angular/common/http';
 import { NgModule } from '@angular/core';
 import { RouterModule } from '@angular/router';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
@@ -35,11 +35,18 @@ import { LineLabelsComponent } from './line-labels/line-labels.component';
 import { MapChaptersComponent } from './map-chapters/map-chapters.component';
 import { MapBookChaptersComponent } from './map-book-chapters/map-book-chapters.component';
 
-
-export function RestangularConfigFactory (RestangularProvider) {
+export function RestangularConfigFactory(RestangularProvider) {
     RestangularProvider.setBaseUrl('/api');
-    // RestangularProvider.setDefaultHeaders({Authorization: 'Bearer UDXPx-Xko0w4BRKajozCVy20X11MRZs1'});
-  }
+    RestangularProvider.addFullRequestInterceptor((element, operation, path, url, headers, params) => {
+        const token = decodeURIComponent(document.cookie);
+        if (token) {
+            const csrf = token.split(';').filter(item => item.trim().startsWith('csrf'))[0].split('=')[1];
+            return {
+              headers: Object.assign(headers, {'X-CSRFToken': csrf}),
+            };
+        }
+    });
+    }
 
 
 @NgModule({
@@ -82,7 +89,8 @@ export function RestangularConfigFactory (RestangularProvider) {
         }),
         RestangularModule.forRoot(RestangularConfigFactory),
     ],
-    providers: [],
+    providers: [
+    ],
     bootstrap: [AppComponent]
 })
 export class AppModule { }

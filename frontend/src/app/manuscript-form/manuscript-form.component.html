@@ -20,7 +20,19 @@
         <div class="field-body">
             <div class="field">
                 <p class="control">
-                    <input class="input" type="text" formControlName="title">
+                    <input class="input" type="text" formControlName="title" required>
+                </p>
+            </div>
+        </div>
+    </div>
+    <div class="field is-horizontal">
+        <div class="field-label is-normal">
+            <label class="label">Editor</label>
+        </div>
+        <div class="field-body">
+            <div class="field">
+                <p class="control">
+                    <input class="input" type="text" formControlName="editor">
                 </p>
             </div>
         </div>
@@ -32,7 +44,7 @@
         <div class="field-body">
             <div class="field">
                 <p class="control">
-                    <input class="input" type="text" formControlName="date">
+                    <input class="input" type="text" formControlName="date" required>
                 </p>
             </div>
         </div>
@@ -45,11 +57,11 @@
             <div class="field is-narrow">
                 <div class="control">
                     <label class="radio">
-                        <input type="radio" value="rtl" name="textDirection" formControlName="textDirection">
+                        <input type="radio" value="rtl" name="text_direction" formControlName="text_direction">
                         Right-to-left
                     </label>
                     <label class="radio">
-                        <input type="radio" value="ltr" name="textDirection" formControlName="textDirection">
+                        <input type="radio" value="ltr" name="text_direction" formControlName="text_direction">
                         Left-to-right
                     </label>
                 </div>
@@ -64,11 +76,11 @@
             <div class="field is-narrow">
                 <div class="control">
                     <label class="radio">
-                        <input type="radio" value="rtl" name="pageDirection" formControlName="pageDirection">
+                        <input type="radio" value="rtl" name="page_direction" formControlName="page_direction">
                         Right-to-left
                     </label>
                     <label class="radio">
-                        <input type="radio" value="ltr" name="pageDirection" formControlName="pageDirection">
+                        <input type="radio" value="ltr" name="page_direction" formControlName="page_direction">
                         Left-to-right
                     </label>
                 </div>
@@ -78,7 +90,7 @@
     <kht-upload [manuscriptForm]="manuscriptForm"></kht-upload>
     <div class="field is-grouped">
         <div class="control">
-            <button type="submit" class="button is-primary" (click)="uploadManuscript()">Upload</button>
+            <button type="submit" class="button is-primary" (click)="uploadManuscript()" [disabled]="!manuscriptForm.valid">Upload</button>
         </div>
     </div>
 </form>

@@ -14,14 +14,17 @@ export class UploadComponent implements OnInit {
     manuscript: any;
     @Input() manuscriptForm: FormGroup;
 
-    constructor(private restangular: Restangular) { }
+    constructor() { }
 
-    ngOnInit() {
-        this.manuscript = this.restangular.all('manuscripts/');
-    }
+    ngOnInit() {}
 
     detectFilename(fileInput: HTMLInputElement) {
         const files = fileInput.files;
         this.filename = files ? files[0].name : null;
+        if (files) {
+            this.manuscriptForm.patchValue({
+                filepath: files[0]
+            });
+        }
     }
 }
