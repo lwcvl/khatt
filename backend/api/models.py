@@ -59,7 +59,7 @@ class Page(models.Model):
 class Chapter(models.Model):
     ''' A chapter break as indicated in a manuscript.
     We save the text, the bounding box, and also mappings
-    to a chapter in another manuscript, correspond to this chapter.
+    to a chapter in another manuscript, corresponding to this chapter.
     '''
     manuscript = models.ForeignKey('Manuscript', on_delete=models.CASCADE)
     title_text = models.CharField(max_length=100)
