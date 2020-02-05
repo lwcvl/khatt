@@ -27,10 +27,20 @@ class Book(models.Model):
 class Manuscript(models.Model):
     ''' A manuscript is the physical form of a book
     We have a scan of this manuscript, for which annotations are made.
+    Fields:
+    - filepath of the manuscript scan
+    - editor of the book (can be None)
+    - book of which the manuscript is a rendition
+    - current page (irt file) on which the manuscript is being marked (0 by default)
+    - title of the manuscript
+    - date of the manuscript
+    - text_direction
+    - page_direction
     '''
     filepath = models.FileField(upload_to='manuscript_images/')
     editor = models.ForeignKey('Editor', on_delete=models.PROTECT, blank=True, null=True)
     book = models.ForeignKey('Book', on_delete=models.CASCADE)
+    current_page = models.IntegerField(default=0)
     title = models.CharField(max_length=400)
     date = models.CharField(max_length=50)
     text_direction = models.CharField(
@@ -52,7 +62,13 @@ class Page(models.Model):
     '''
     manuscript = models.ForeignKey('Manuscript', on_delete=models.CASCADE)
     file_page_number = models.IntegerField()
-    manuscript_page_number = models.IntegerField()
+
+
+class TextField(models.Model):
+    ''' A text field occurs on a given page in a manuscript.
+    Within it, lines are marked.
+    '''
+    page = models.ForeignKey('Page', on_delete=models.CASCADE)
     bounding_box = JSONField()
 
 

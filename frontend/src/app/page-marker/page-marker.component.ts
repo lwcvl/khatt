@@ -12,6 +12,7 @@ import {
 } from '@angular/core';
 import { MarkMode } from '../models/mark-mode';
 import { Shape, Line, Mark, Rectangle, Polygon, TextLine } from '../models/shapes';
+import { Restangular } from 'ngx-restangular';
 
 const markClassNames = {
     dragging: 'is-dragging',
@@ -31,7 +32,7 @@ const POLYGON_SNAP = 50;
 })
 export class PageMarkerComponent implements OnChanges, OnInit {
 
-    constructor() {
+    constructor(private restangular: Restangular) {
     }
 
     width = 1609;
@@ -410,6 +411,9 @@ export class PageMarkerComponent implements OnChanges, OnInit {
     }
 
     ngOnInit() {
+        this.restangular.one('manuscripts', 5).get().subscribe( object =>  {
+            console.log(object);
+        });
         this.canvas.nativeElement.setAttribute('viewBox', `0 0 ${this.width} ${this.height}`);
     }
 

@@ -84,13 +84,9 @@ class AsideSerializerShort(serializers.ModelSerializer):
         fields = ['id', 'complete']
 
 
-# class PageSerializer(serializers.Serializer):
-#     manuscript = serializers.StringRelatedField()
-#     file_page_number = serializers.IntegerField()
-#     manuscript_page_number = serializers.IntegerField()
-#     bounding_box = serializers.JSONField()
+class PageSerializer(serializers.ModelSerializer):
+    manuscript = serializers.PrimaryKeyRelatedField(read_only=True)
 
-#     def create(self, validated_data):
-#         p = Page(manuscript=validated_data.manuscript, 
-#                  tagline='All the latest Beatles news.')
-#         return Page.objects.save(p)
+    class Meta:
+        model: Page
+        fields = '__all__'

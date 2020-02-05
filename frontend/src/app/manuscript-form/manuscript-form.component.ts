@@ -18,11 +18,11 @@ export class ManuscriptFormComponent implements OnInit {
 
     ngOnInit() {
         // trailing slash is needed to make sure the route is understood by django
-        const books = this.restangular.all('books/');
+        const books = this.restangular.all('books');
         books.getList().subscribe(bookList => {
             this.available = bookList.map(book => book.title);
         });
-        this.manuscripts = this.restangular.all('manuscripts/');
+        this.manuscripts = this.restangular.all('manuscripts');
 
         this.manuscriptForm = this.fb.group({
             book: ['', Validators.required],

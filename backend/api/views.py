@@ -3,8 +3,8 @@ from rest_framework.parsers import FormParser, MultiPartParser, JSONParser
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from .models import Book, Manuscript
-from .serializers import BookSerializer, ManuscriptSerializer
+from .models import Book, Manuscript, Page
+from .serializers import BookSerializer, ManuscriptSerializer, PageSerializer
 
 
 class BookViewSet(viewsets.ModelViewSet):
@@ -18,3 +18,8 @@ class BookViewSet(viewsets.ModelViewSet):
 class ManuscriptViewSet(viewsets.ModelViewSet):
     queryset = Manuscript.objects.all()
     serializer_class = ManuscriptSerializer
+
+
+class PageViewSet(viewsets.ModelViewSet):
+    queryset = Page.objects.all()
+    serializer_class = PageSerializer
