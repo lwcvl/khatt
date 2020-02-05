@@ -2,11 +2,26 @@ from rest_framework import serializers
 from .models import AnnotatedLine, Aside, Book, Chapter, Editor, Manuscript, Page
 
 
+class EditorSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Editor
+        fields = ['name']
+        
+
+class BookSerializer(serializers.ModelSerializer):
+    author = serializers.StringRelatedField()
+
+    class Meta:
+        model = Book
+        fields = ['title', 'author']
+
+
 class ManuscriptSerializer(serializers.ModelSerializer):
-    editor = serializers.SlugRelatedField(
-        queryset=Editor.objects.all(), 
-        slug_field="name",
-        allow_null=True)
+    # editor = serializers.SlugRelatedField(
+    #     queryset=Editor.objects.all(), 
+    #     slug_field="name",
+    #     allow_null=True)
+    editor = EditorSerializer()
     book = serializers.SlugRelatedField(
         queryset=Book.objects.all(),
         slug_field="title")
