@@ -9,6 +9,12 @@ As these can be rectangles or polygons, these are saved as JSON,
 using the GeoJSON specification.
 '''
 
+LEFT_TO_RIGHT = 'ltr'
+RIGHT_TO_LEFT = 'rtl'
+DIRECTION_CHOICES = [
+    (LEFT_TO_RIGHT, 'Left-to-right'),
+    (RIGHT_TO_LEFT, 'Right-to-left'),
+]
 
 class Book(models.Model):
     ''' A book is the virtual text, of which
@@ -22,14 +28,8 @@ class Manuscript(models.Model):
     ''' A manuscript is the physical form of a book
     We have a scan of this manuscript, for which annotations are made.
     '''
-    filepath = models.FileField()
-    editor = models.ForeignKey('Editor', on_delete=models.PROTECT)
-    LEFT_TO_RIGHT = 'ltr'
-    RIGHT_TO_LEFT = 'rtl'
-    DIRECTION_CHOICES = [
-        (LEFT_TO_RIGHT, 'Left-to-right'),
-        (RIGHT_TO_LEFT, 'Right-to-left'),
-    ]
+    filepath = models.FileField(upload_to='manuscript_images/')
+    editor = models.ForeignKey('Editor', on_delete=models.PROTECT, blank=True, null=True)
     book = models.ForeignKey('Book', on_delete=models.CASCADE)
     title = models.CharField(max_length=400)
     date = models.CharField(max_length=50)
@@ -104,11 +104,15 @@ class Aside(models.Model):
     label = models.CharField(max_length=50)
     bounding_box = JSONField()
     hypo_text = JSONField()
+    complete = models.BooleanField(default=False)
 
 
 class Author(models.Model):
     ''' The author of the book.'''
     name = models.CharField(max_length=100)
+
+    def __str__(self):
+        return self.name
 
 
 class Editor(models.Model):

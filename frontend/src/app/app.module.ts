@@ -9,6 +9,9 @@ import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { AutoCompleteModule } from 'primeng/autocomplete';
 import { DragDropModule } from 'primeng/dragdrop';
 
+import { RestangularModule } from 'ngx-restangular';
+
+
 import { AppComponent } from './app.component';
 import { AppRoutingModule } from './app-routing.module';
 
@@ -31,6 +34,20 @@ import { EditLabelComponent } from './edit-label/edit-label.component';
 import { LineLabelsComponent } from './line-labels/line-labels.component';
 import { MapChaptersComponent } from './map-chapters/map-chapters.component';
 import { MapBookChaptersComponent } from './map-book-chapters/map-book-chapters.component';
+
+export function RestangularConfigFactory(RestangularProvider) {
+    RestangularProvider.setBaseUrl('/api');
+    RestangularProvider.addFullRequestInterceptor((element, operation, path, url, headers, params) => {
+        const token = decodeURIComponent(document.cookie);
+        if (token) {
+            const csrf = token.split(';').filter(item => item.trim().startsWith('csrf'))[0].split('=')[1];
+            return {
+              headers: Object.assign(headers, {'X-CSRFToken': csrf}),
+            };
+        }
+    });
+    }
+
 
 @NgModule({
     declarations: [
@@ -69,9 +86,11 @@ import { MapBookChaptersComponent } from './map-book-chapters/map-book-chapters.
         HttpClientXsrfModule.withOptions({
             cookieName: 'csrftoken',
             headerName: 'X-CSRFToken'
-        })
+        }),
+        RestangularModule.forRoot(RestangularConfigFactory),
     ],
-    providers: [],
+    providers: [
+    ],
     bootstrap: [AppComponent]
 })
 export class AppModule { }
