@@ -40,7 +40,7 @@ export function RestangularConfigFactory(RestangularProvider) {
     RestangularProvider.addFullRequestInterceptor((element, operation, path, url, headers, params) => {
         const token = decodeURIComponent(document.cookie);
         if (token) {
-            const csrf = token.split(';').filter(item => item.trim().startsWith('csrf'))[0].split('=')[1];
+            const csrf = token.split(';').filter(item => item.trim().startsWith('csrft'))[0].split('=')[1];
             return {
               headers: Object.assign(headers, {'X-CSRFToken': csrf}),
             };

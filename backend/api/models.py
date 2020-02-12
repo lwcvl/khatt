@@ -56,9 +56,10 @@ class Manuscript(models.Model):
 
 
 class Page(models.Model):
-    ''' A page in a manuscript is the position in the digital file
-    where a page is located. Usually, each page of the scan contains
-    two pages of the manuscript.
+    ''' 
+    A page in a manuscript is the position in the digital file
+    where a page is located.
+    A page may also be associated with a chapter.
     '''
     manuscript = models.ForeignKey('Manuscript', on_delete=models.CASCADE)
     file_page_number = models.IntegerField()
@@ -66,9 +67,11 @@ class Page(models.Model):
 
 class TextField(models.Model):
     ''' A text field occurs on a given page in a manuscript.
-    Within it, lines are marked.
+    It may be assigned to a given chapter.
+    Within the text field, lines are marked.
     '''
     page = models.ForeignKey('Page', on_delete=models.CASCADE)
+    chapter = models.ForeignKey('Chapter', on_delete=models.PROTECT, blank=True, null=True)
     bounding_box = JSONField()
 
 
@@ -80,7 +83,8 @@ class Chapter(models.Model):
     manuscript = models.ForeignKey('Manuscript', on_delete=models.CASCADE)
     title_text = models.CharField(max_length=100)
     bounding_box = JSONField()
-    same_as = models.ForeignKey('self', on_delete=models.PROTECT)
+    same_as = models.ForeignKey('self', related_name='corresponding', 
+        on_delete=models.PROTECT, blank=True, null=True)
 
 
 class AnnotatedLine(models.Model):
@@ -94,15 +98,17 @@ class AnnotatedLine(models.Model):
     - optional hypotext.
     '''
     annotator = models.ForeignKey(get_user_model(), on_delete=models.PROTECT)
-    page = models.ForeignKey('Page', on_delete=models.CASCADE)
-    chapter = models.ForeignKey('Chapter', on_delete=models.CASCADE)
-    text = models.CharField(max_length=800)
-    label = models.CharField(max_length=50)
-    previous_line = models.OneToOneField('self', related_name="previous", on_delete=models.PROTECT)
-    next_line = models.OneToOneField('self', related_name="next", on_delete=models.PROTECT)
+    text_field = models.ForeignKey('TextField', on_delete=models.CASCADE, null=True)
+    text = models.CharField(max_length=800, default='')
+    label = models.CharField(max_length=50, default='')
+    previous_line = models.OneToOneField('self', related_name="previous", on_delete=models.PROTECT,
+        blank=True, null=True)
+    next_line = models.OneToOneField('self', related_name="next", on_delete=models.PROTECT,
+        blank=True, null=True)
     bounding_box = JSONField()
-    hypo_text = JSONField()
-    same_as = models.ForeignKey('self', on_delete=models.PROTECT)
+    hypo_text = JSONField(blank=True, null=True)
+    same_as = models.ForeignKey('self', related_name="corresponding", on_delete=models.PROTECT,
+        blank=True, null=True)
     complete = models.BooleanField(default=False)
 
 
@@ -114,12 +120,12 @@ class Aside(models.Model):
     or same_as relationships.
     '''
     page = models.ForeignKey('Page', on_delete=models.PROTECT)
-    chapter = models.ForeignKey('Chapter', on_delete=models.PROTECT)
+    text_field = models.ForeignKey('TextField', on_delete=models.CASCADE, null=True)
     annotator = models.ForeignKey(get_user_model(), on_delete=models.PROTECT)
-    text = models.CharField(max_length=800)
-    label = models.CharField(max_length=50)
+    text = models.CharField(max_length=800, default='')
+    label = models.CharField(max_length=50, default='')
     bounding_box = JSONField()
-    hypo_text = JSONField()
+    hypo_text = JSONField(blank=True, null=True)
     complete = models.BooleanField(default=False)
 
 
