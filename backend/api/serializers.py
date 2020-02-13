@@ -15,6 +15,17 @@ class BookSerializer(serializers.ModelSerializer):
         model = Book
         fields = ['title', 'author']
 
+    
+    def to_representation(self, instance):
+        manuscripts = instance.manuscript_set
+        manuscripts_serialized = ManuscriptSerializer(manuscripts, many=True).data
+        return {
+            'id': instance.id,
+            'title': instance.title,
+            'author': instance.author,
+            'manuscripts': manuscripts_serialized
+        }
+
 
 class ManuscriptSerializer(serializers.ModelSerializer):
     editor = serializers.SlugRelatedField(
@@ -34,6 +45,11 @@ class ManuscriptSerializer(serializers.ModelSerializer):
     def to_representation(self, instance):
         chapters = instance.chapter_set
         chapters_serialized = ChapterSerializerShort(chapters, many=True).data
+        relevant_page = instance.page_set.get(file_page_number=instance.current_page)
+        text_fields = relevant_page.textfield_set
+        # annotated_lines = [tf.annotated_line_set for tf in text_fields]
+        print(text_fields)
+
         return {
             'id': instance.id,
             'title': instance.title,
@@ -46,7 +62,7 @@ class ManuscriptSerializer(serializers.ModelSerializer):
 class ManuscriptSerializerShort(serializers.ModelSerializer):
     class Meta:
         model = Manuscript
-        fields = ['title']
+        fields = ['id', 'title']
 
 
 class BookSerializer(serializers.ModelSerializer):

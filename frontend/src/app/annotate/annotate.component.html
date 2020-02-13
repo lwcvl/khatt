@@ -13,9 +13,9 @@
         <tr *ngFor="let book of books">
             <td>{{book.title}}</td>
             <td>{{book.author}}</td>
-            <td><a [routerLink]="['/annotate/grouped']">{{book.chapters}}</a></td>
-            <td><a [routerLink]="['/annotate/grouped']">{{book.lines}}</a></td>
-            <td><a [routerLink]="['/annotate/grouped']">{{book.asides}}</a></td>
+            <td><a [routerLink]="['/annotate/grouped, book.id']">{{book.chapters}}</a></td>
+            <td><a [routerLink]="['/annotate/grouped, book.id']">{{book.lines}}</a></td>
+            <td><a [routerLink]="['/annotate/grouped, book.id']">{{book.asides}}</a></td>
         </tr>
     </tbody>
 </table>

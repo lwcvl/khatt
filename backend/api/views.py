@@ -12,7 +12,7 @@ from rest_framework.views import APIView
 from wsgiref.util import FileWrapper
 
 from .models import AnnotatedLine, Book, Editor, Manuscript, Page, TextField
-from .serializers import AnnotatedLineCreateSerializer, AnnotatedLineRetrieveSerializer, BookSerializer, ManuscriptSerializer, PageSerializer, TextFieldSerializer
+from .serializers import AnnotatedLineSerializer, BookSerializer, ManuscriptSerializer, PageSerializer, TextFieldSerializer
 
 
 class BookViewSet(viewsets.ModelViewSet):
@@ -48,14 +48,10 @@ class PageViewSet(viewsets.ModelViewSet):
 
 class AnnotatedLineViewSet(viewsets.ModelViewSet):
     queryset = AnnotatedLine.objects.all()
-
-    def retrieve(self, request, pk=None):
-        line = AnnotatedLine.objects.get_object_or_404(pk)
-        serializer = AnnotatedLineRetrieveSerializer(line)
-        return Response(serializer.data)
+    serializer_class = AnnotatedLineSerializer
 
     def perform_create(self, serializer):
-        serializer = AnnotatedLineCreateSerializer
+        serializer = self.serializer_class
         serializer.save(annotator=self.request.user)
 
 
