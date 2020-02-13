@@ -26,7 +26,7 @@ export class BooksComponent implements OnInit {
     constructor(private router: Router, private restangular: Restangular) { }
 
     ngOnInit() {
-        const books = this.restangular.all('books/');
+        const books = this.restangular.all('books');
         books.getList().subscribe(bookList => {
             this.books = bookList;
         });

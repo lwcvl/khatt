@@ -106,10 +106,10 @@ export class MarkManuscriptComponent implements OnInit {
             Math.min.apply(Math, lines[0].parent.marks.map( point => point.y));
         lines.sort( (a, b) => a.y1 - b.y1 );
         const firstline = {
-            x1: lines[0].x1,
-            x2: lines[0].x2,
-            y1: top,
-            y2: lines[0].y1
+            x: lines[0].x1,
+            y: lines[0].y1,
+            width: lines[0].x2 - lines[0].x1,
+            height: lines[0].y1 - top
         };
         annotatedLines.post({
             text_field: textFieldID,
@@ -121,10 +121,10 @@ export class MarkManuscriptComponent implements OnInit {
                     annotatedLines.post({
                         text_field: textFieldID,
                         bounding_box: {
-                            x1: line.x1,
-                            x2: line.x2,
-                            y1: lines[index - 1].y1 - line.y1,
-                            y2: line.y1
+                            x: line.x1,
+                            y: line.y1,
+                            width: line.x2 - line.x1,
+                            height: line.y1 - lines[index - 1].y1
                         }
                     });
                 }
@@ -135,10 +135,10 @@ export class MarkManuscriptComponent implements OnInit {
             Math.min.apply(Math, lines[0].parent.marks.map( point => point.x));
         lines.sort( (a, b) => a.x1 - b.x1 );
         const firstline = {
-            x1: left,
-            x2: lines[0].x1,
-            y1: lines[0].y1,
-            y2: lines[0].y2
+            x: lines[0].x1,
+            y: lines[0].y1,
+            width: lines[0].x1 - left,
+            height: lines[0].y2 - lines[0].y1
         };
         annotatedLines.post({
             text_field: textFieldID,
@@ -150,10 +150,10 @@ export class MarkManuscriptComponent implements OnInit {
                     annotatedLines.post({
                         text_field: textFieldID,
                         bounding_box: {
-                            x1: lines[index - 1].x1 - line.x1,
-                            x2: line.x2,
-                            y1: line.y1,
-                            y2: line.y2
+                            x: line.x1,
+                            y: line.y1,
+                            width: line.x1 - lines[index - 1].x1,
+                            height: line.y2 - line.y1
                         }
                     });
                 }

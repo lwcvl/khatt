@@ -1,4 +1,5 @@
 import { Component, OnInit } from '@angular/core';
+import { Restangular } from 'ngx-restangular';
 
 @Component({
     selector: 'kht-annotate',
@@ -20,9 +21,10 @@ export class AnnotateComponent implements OnInit {
         asides: '66/346'
     }];
 
-    constructor() { }
+    constructor(private restangular: Restangular) { }
 
     ngOnInit() {
+        
     }
 
 }

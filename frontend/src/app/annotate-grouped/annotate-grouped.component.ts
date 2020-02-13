@@ -1,6 +1,10 @@
 import { Component, OnInit } from '@angular/core';
+import { ActivatedRoute, ParamMap, Router } from '@angular/router';
+import { switchMap } from 'rxjs/operators';
 import { faChevronLeft, faChevronRight, faPencilAlt } from '@fortawesome/free-solid-svg-icons';
 import { Shape } from '../models/shapes';
+import { Restangular } from 'ngx-restangular';
+
 
 @Component({
     selector: 'kht-annotate-grouped',
@@ -40,9 +44,23 @@ export class AnnotateGroupedComponent implements OnInit {
             isChapter: false
         }];
 
-    constructor() { }
+    constructor(private restangular: Restangular,
+                private activatedRoute: ActivatedRoute,
+                private router: Router) { }
 
     ngOnInit() {
+        this.activatedRoute.paramMap.subscribe( params => {
+            console.log(params.get('book'));
+        });
+        const annotatedLines = this.restangular.all('annotated_lines');
+        annotatedLines.getList().subscribe( allLines => {
+            this.highlightShapes = allLines;
+            // we'll need information about which page should be loaded;
+            // which manuscript it should be loaded from;
+            // the x-y-width-height of the line
+            // isChapter is false for annotatedLines
+            // type is rectangle
+        });
     }
 
     updateCount(index: number, count: number) {

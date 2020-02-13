@@ -17,7 +17,7 @@ const routes: Routes = [
         component: AnnotateComponent,
     },
     {
-        path: 'annotate/grouped',
+        path: 'annotate/grouped/:book',
         component: AnnotateGroupedComponent,
     },
     {
