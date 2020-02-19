@@ -42,7 +42,8 @@ class PageViewSet(viewsets.ModelViewSet):
         page = data['file_page_number']
         man = get_object_or_404(Manuscript.objects.all(), pk=data['manuscript'])
         filepath = ManuscriptSerializer(man).data['filepath']
-        response = HttpResponse(FileWrapper(filepath), content_type='image/jpg')
+        with open(filepath, 'rb') as f:
+            response = HttpResponse(FileWrapper(f), content_type='image/jpg')
         return response
 
 
@@ -51,7 +52,6 @@ class AnnotatedLineViewSet(viewsets.ModelViewSet):
     serializer_class = AnnotatedLineSerializer
 
     def perform_create(self, serializer):
-        serializer = self.serializer_class
         serializer.save(annotator=self.request.user)
 
 

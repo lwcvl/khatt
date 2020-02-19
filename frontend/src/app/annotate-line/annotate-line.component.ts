@@ -39,7 +39,7 @@ export class AnnotateLineComponent implements OnInit {
 
     // TODO: other shapes
     @Input()
-    shape: Rectangle;
+    shape: {path: string, highlight: Rectangle};
 
     @Input()
     offset = 0;
@@ -51,8 +51,8 @@ export class AnnotateLineComponent implements OnInit {
     @HostBinding('class')
     class = 'box is-paddingless';
 
-    @HostBinding('style.background-image')
-    backgroundImage = 'url(\'assets/page.jpg\')';
+    // @HostBinding('style.background-image')
+    // backgroundImage = 'url(\'assets/page.jpg\')';
 
     @HostBinding('style.background-position')
     backgroundPosition = '0 0';
@@ -79,20 +79,20 @@ export class AnnotateLineComponent implements OnInit {
 
     ngOnInit() {
         const points = [{
-            x: this.shape.x,
-            y: this.shape.y
+            x: this.shape.highlight.x,
+            y: this.shape.highlight.y
         },
         {
-            x: this.shape.x + this.shape.width,
-            y: this.shape.y
+            x: this.shape.highlight.x + this.shape.highlight.width,
+            y: this.shape.highlight.y
         },
         {
-            x: this.shape.x + this.shape.width,
-            y: this.shape.y + this.shape.height
+            x: this.shape.highlight.x + this.shape.highlight.width,
+            y: this.shape.highlight.y + this.shape.highlight.height
         },
         {
-            x: this.shape.x,
-            y: this.shape.y + this.shape.height
+            x: this.shape.highlight.x,
+            y: this.shape.highlight.y + this.shape.highlight.height
         }];
         this.maskPoints = points.map(h => `${h.x},${h.y}`).join(' ');
 

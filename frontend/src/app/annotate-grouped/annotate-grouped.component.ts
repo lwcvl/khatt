@@ -24,25 +24,11 @@ export class AnnotateGroupedComponent implements OnInit {
         0: 1,
         1: 2
     };
-    highlightShapes: Shape[] = [
-        {
-            id: '1',
-            type: 'rectangle',
-            x: 867,
-            y: 109,
-            width: 561,
-            height: 42,
-            isChapter: false
-        },
-        {
-            id: '2',
-            type: 'rectangle',
-            x: 861,
-            y: 485,
-            width: 549,
-            height: 48,
-            isChapter: false
-        }];
+    highlightShapes: { 
+        path: string,
+        highlight: Shape
+    } [] = [];
+    bookID: number;
 
     constructor(private restangular: Restangular,
                 private activatedRoute: ActivatedRoute,
@@ -50,16 +36,23 @@ export class AnnotateGroupedComponent implements OnInit {
 
     ngOnInit() {
         this.activatedRoute.paramMap.subscribe( params => {
-            console.log(params.get('book'));
+            this.bookID = Number(params.get('book'));
         });
-        const annotatedLines = this.restangular.all('annotated_lines');
-        annotatedLines.getList().subscribe( allLines => {
-            this.highlightShapes = allLines;
-            // we'll need information about which page should be loaded;
-            // which manuscript it should be loaded from;
-            // the x-y-width-height of the line
-            // isChapter is false for annotatedLines
-            // type is rectangle
+        this.restangular.one('books', this.bookID).get().subscribe( book => {
+            book.manuscripts.forEach( manuscript => {
+                if (manuscript.annotated_lines.length > 0 ) {
+                    let lineID = Number(manuscript.annotated_lines.find(line => !line.complete).id);
+                    this.restangular.one('annotated_lines', lineID).get().subscribe( line => {
+                        let highlightShape = line.bounding_box;
+                        console.log(line.text_field)
+                        highlightShape['type'] = 'rectangle';
+                        highlightShape['isChapter'] = false;                  
+                        this.highlightShapes.push(
+                            {path: manuscript.filepath,
+                            highlight: highlightShape});
+                    });
+                }
+            });
         });
     }
 

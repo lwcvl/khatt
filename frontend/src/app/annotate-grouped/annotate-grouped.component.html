@@ -34,7 +34,7 @@
         </div>
     </div>
 </div>
-<kht-annotate-line *ngFor="let shape of highlightShapes; let i = index"
+<kht-annotate-line [style.background]="'url(/api/pages/1/)'" *ngFor="let shape of highlightShapes; let i = index"
                    [offset]="offsets[i]"
                    [shape]="shape"
                    (count)="updateCount(i, $event)"></kht-annotate-line>

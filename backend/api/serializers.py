@@ -1,5 +1,13 @@
+from itertools import chain
+
 from rest_framework import serializers
-from .models import AnnotatedLine, Aside, Book, Chapter, Editor, Manuscript, Page, TextField
+from .models import AnnotatedLine, Aside, Author, Book, Chapter, Editor, Manuscript, Page, TextField
+
+
+class AuthorSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Author
+        fields = ['name']
 
 
 class EditorSerializer(serializers.ModelSerializer):
@@ -22,7 +30,7 @@ class BookSerializer(serializers.ModelSerializer):
         return {
             'id': instance.id,
             'title': instance.title,
-            'author': instance.author,
+            'author': instance.author.name,
             'manuscripts': manuscripts_serialized
         }
 
@@ -46,16 +54,18 @@ class ManuscriptSerializer(serializers.ModelSerializer):
         chapters = instance.chapter_set
         chapters_serialized = ChapterSerializerShort(chapters, many=True).data
         relevant_page = instance.page_set.get(file_page_number=instance.current_page)
-        text_fields = relevant_page.textfield_set
-        # annotated_lines = [tf.annotated_line_set for tf in text_fields]
-        print(text_fields)
+        text_fields = relevant_page.textfield_set.all()
+        annotated_lines = [tf.annotatedline_set.all() for tf in text_fields]
+        annotated_serialized = AnnotatedLineSerializerShort(list(chain(*annotated_lines)), many=True).data
 
         return {
             'id': instance.id,
             'title': instance.title,
-            'filepath': instance.filepath,
+            'filepath': str(instance.filepath),
             'editor': instance.editor,
-            'chapters': chapters_serialized
+            'chapters': chapters_serialized,
+            'current_page': instance.current_page,
+            'annotated_lines': annotated_serialized
         }
 
 
@@ -63,23 +73,6 @@ class ManuscriptSerializerShort(serializers.ModelSerializer):
     class Meta:
         model = Manuscript
         fields = ['id', 'title']
-
-
-class BookSerializer(serializers.ModelSerializer):
-    author = serializers.StringRelatedField()
-
-    class Meta:
-        model = Book
-        fields = ['title', 'author']
-
-    def to_representation(self, instance):
-        manuscripts = instance.manuscript_set.all()
-        manuscripts_serialized = ManuscriptSerializerShort(manuscripts, many=True).data
-        return {
-            'title': instance.title,
-            'author': instance.author.name,
-            'manuscripts': manuscripts_serialized
-        }
 
 
 class ChapterSerializerShort(serializers.ModelSerializer):
