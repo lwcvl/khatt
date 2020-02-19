@@ -31,7 +31,8 @@ class Manuscript(models.Model):
     - filepath of the manuscript scan
     - editor of the book (can be None)
     - book of which the manuscript is a rendition
-    - current page (irt file) on which the manuscript is being marked (0 by default)
+    - page (wrt file) on which the manuscript was last marked
+    - page (wrt file) on which the manuscript was last annotated
     - title of the manuscript
     - date of the manuscript
     - text_direction
@@ -40,7 +41,8 @@ class Manuscript(models.Model):
     filepath = models.FileField(upload_to='manuscript_images/')
     editor = models.ForeignKey('Editor', on_delete=models.PROTECT, blank=True, null=True)
     book = models.ForeignKey('Book', on_delete=models.CASCADE)
-    current_page = models.IntegerField(default=0)
+    currently_marking = models.IntegerField(default=0)
+    currently_annotating = models.IntegerField(default=0)
     title = models.CharField(max_length=400)
     date = models.CharField(max_length=50)
     text_direction = models.CharField(
@@ -55,77 +57,68 @@ class Manuscript(models.Model):
     )
 
 
-class Page(models.Model):
-    ''' 
-    A page in a manuscript is the position in the digital file
-    where a page is located.
-    A page may also be associated with a chapter.
-    '''
-    manuscript = models.ForeignKey('Manuscript', on_delete=models.CASCADE)
-    file_page_number = models.IntegerField()
-
-
 class TextField(models.Model):
     ''' A text field occurs on a given page in a manuscript.
     It may be assigned to a given chapter.
     Within the text field, lines are marked.
     '''
-    page = models.ForeignKey('Page', on_delete=models.CASCADE)
-    chapter = models.ForeignKey('Chapter', on_delete=models.PROTECT, blank=True, null=True)
+    manuscript = models.ForeignKey('Manuscript', on_delete=models.PROTECT)
+    page = models.IntegerField()
     bounding_box = JSONField()
 
 
 class Chapter(models.Model):
     ''' A chapter break as indicated in a manuscript.
     We save the text, the bounding box, and also mappings
-    to a chapter in another manuscript, corresponding to this chapter.
+    to chapters in another manuscript, corresponding to this chapter.
     '''
-    manuscript = models.ForeignKey('Manuscript', on_delete=models.CASCADE)
-    title_text = models.CharField(max_length=100)
-    bounding_box = JSONField()
+    annotation = models.OneToOneField('Annotation', on_delete=models.CASCADE)
     same_as = models.ForeignKey('self', related_name='corresponding', 
         on_delete=models.PROTECT, blank=True, null=True)
 
 
 class AnnotatedLine(models.Model):
-    ''' A line in a manuscript. We register
-    - which user transcribed it,
-    - the page on which the line occurs
-    - the chapter it's associated to,
-    - annotated text
-    - optional labels
-    - the previous and next lines
-    - optional hypotext.
+    ''' A line in a manuscript.
+    It is an annotation within a text field,
+    and also registers the previous and next lines,
+    as well as (optional) hypotext.
     '''
-    annotator = models.ForeignKey(get_user_model(), on_delete=models.PROTECT)
-    text_field = models.ForeignKey('TextField', on_delete=models.CASCADE, null=True)
-    text = models.CharField(max_length=800, default='')
-    label = models.CharField(max_length=50, default='')
+    annotation = models.OneToOneField('Annotation', on_delete=models.CASCADE)
+    text_field = models.ForeignKey('TextField', on_delete=models.PROTECT, null=True)
     previous_line = models.OneToOneField('self', related_name="previous", on_delete=models.PROTECT,
         blank=True, null=True)
     next_line = models.OneToOneField('self', related_name="next", on_delete=models.PROTECT,
         blank=True, null=True)
-    bounding_box = JSONField()
     hypo_text = JSONField(blank=True, null=True)
-    same_as = models.ForeignKey('self', related_name="corresponding", on_delete=models.PROTECT,
-        blank=True, null=True)
-    complete = models.BooleanField(default=False)
 
 
 class Aside(models.Model):
-    ''' An aside in a manuscript.
-    Similar to the AnnotatedLine model.
-    As the asides are usually isolated comments, 
-    there is no notion of previous / next,
-    or same_as relationships.
     '''
-    page = models.ForeignKey('Page', on_delete=models.PROTECT)
-    text_field = models.ForeignKey('TextField', on_delete=models.CASCADE, null=True)
+    An aside is an annotation
+    We extend to be able to separate asides, lines and chapters.
+    '''
+    annotation = models.OneToOneField('Annotation', on_delete=models.CASCADE)
+
+
+class Annotation(models.Model):
+    '''
+    An annotation, which tracks
+    - the page number in the file on which the annotation is marked
+    - which user transcribed it,
+    - the chapter it's associated to,
+    - annotated text
+    - optional labels
+    - the previous and next lines
+    - optional hypotext
+    - optional research notes
+    '''
+    manuscript = models.ForeignKey('Manuscript', on_delete=models.PROTECT)
+    page = models.IntegerField(default=0)
     annotator = models.ForeignKey(get_user_model(), on_delete=models.PROTECT)
     text = models.CharField(max_length=800, default='')
     label = models.CharField(max_length=50, default='')
+    research_note = models.CharField(max_length=800, default='')
     bounding_box = JSONField()
-    hypo_text = JSONField(blank=True, null=True)
     complete = models.BooleanField(default=False)
 
 

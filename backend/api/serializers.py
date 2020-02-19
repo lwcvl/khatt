@@ -1,7 +1,7 @@
 from itertools import chain
 
 from rest_framework import serializers
-from .models import AnnotatedLine, Aside, Author, Book, Chapter, Editor, Manuscript, Page, TextField
+from .models import Annotation, AnnotatedLine, Aside, Author, Book, Chapter, Editor, Manuscript, TextField
 
 
 class AuthorSerializer(serializers.ModelSerializer):
@@ -40,32 +40,32 @@ class ManuscriptSerializer(serializers.ModelSerializer):
         queryset=Editor.objects.all(), 
         slug_field="name",
         allow_null=True)
-    # editor = EditorSerializer()
     book = serializers.SlugRelatedField(
         queryset=Book.objects.all(),
         slug_field="title")
 
     class Meta:
         model = Manuscript
-        fields = ['filepath', 'editor', 'book', 
+        fields = ['editor', 'book', 
                   'title', 'date', 'text_direction', 'page_direction']
     
     def to_representation(self, instance):
+        lines = instance.annotatedline_set
+        lines_serialized = AnnotationSerializerShort(lines, many=True).data
         chapters = instance.chapter_set
-        chapters_serialized = ChapterSerializerShort(chapters, many=True).data
-        relevant_page = instance.page_set.get(file_page_number=instance.current_page)
-        text_fields = relevant_page.textfield_set.all()
-        annotated_lines = [tf.annotatedline_set.all() for tf in text_fields]
-        annotated_serialized = AnnotatedLineSerializerShort(list(chain(*annotated_lines)), many=True).data
+        chapters_serialized = AnnotationSerializerShort(chapters, many=True).data
+        asides = instance.aside_set
+        asides_serialized = AnnotationSerializerShort(asides, many=True).data
 
         return {
             'id': instance.id,
             'title': instance.title,
-            'filepath': str(instance.filepath),
             'editor': instance.editor,
+            'currently_marking': instance.currently_marking,
+            'currently_annotating': instance.currently_annotating,
+            'annotated_lines': lines_serialized,
             'chapters': chapters_serialized,
-            'current_page': instance.current_page,
-            'annotated_lines': annotated_serialized
+            'asides': asides_serialized
         }
 
 
@@ -75,68 +75,42 @@ class ManuscriptSerializerShort(serializers.ModelSerializer):
         fields = ['id', 'title']
 
 
-class ChapterSerializerShort(serializers.ModelSerializer):
-    ''' Serialize the id, as well as the annotated lines and asides
-    associated with a chapter.
-    '''
-    class Meta:
-        model = Chapter
-        fields = ['id', 'annotated_line_set', 'aside_set']
-
-    def to_representation(self, instance):
-        lines_serialized = AnnotatedLineSerializerShort(
-            instance.annotated_line_set, many=True
-        ).data
-        asides_serialized = AsideSerializerShort(
-            instance.aside_set, many=True
-        ).data
-        return {
-            'id': instance.id,
-            'annotated_line_set': lines_serialized,
-            'aside_set': asides_serialized
-        }
-
-
-class AnnotatedLineSerializer(serializers.ModelSerializer):
+class AnnotationSerializer(serializers.ModelSerializer):
     annotator = serializers.PrimaryKeyRelatedField(
         read_only=True
     )
-    text_field = serializers.PrimaryKeyRelatedField(queryset=TextField.objects.all())
 
     class Meta:
         model = AnnotatedLine
-        fields = ['annotator', 'text_field', 'bounding_box']
+        fields = ['annotator', 'bounding_box']
 
 
-class AnnotatedLineSerializerShort(serializers.ModelSerializer):
-    ''' Serialize the id of an annotated line,
-    and whether its annotation is complete.
+class AnnotationSerializerShort(serializers.ModelSerializer):
+    ''' Serialize the id of an annotation,
+    and whether it is complete.
     '''
+    class Meta:
+        model = Annotation
+        fields = ['id', 'complete']
+
+
+
+class AnnotatedLineSerializer(serializers.ModelSerializer):
+    ''' Serialize an annotated line, extending the annotation model.
+    '''
+    annotation = AnnotationSerializer()
+    
     class Meta:
         model = AnnotatedLine
         fields = ['id', 'complete']
-
-
-class AsideSerializerShort(serializers.ModelSerializer):
-    ''' Serialize the id of an aside,
-    and whether its annotation is complete.
-    '''
-    class Meta:
-        model = Aside
-        fields = ['id', 'complete']
-
-
-class PageSerializer(serializers.ModelSerializer):
-    manuscript = serializers.PrimaryKeyRelatedField(read_only=True)
-
-    class Meta:
-        model = Page
-        fields = ['manuscript', 'file_page_number']
+    
+    def create(self, validated_data):
+        annotation_data = validated_data.pop('annotation')
+        annotation = Annotation.objects.create(annotation_data)
+        AnnotatedLine.objects.create(validated_data, annotation=annotation)
 
 
 class TextFieldSerializer(serializers.ModelSerializer):
-    page = serializers.PrimaryKeyRelatedField(queryset=Page.objects.all())
-    
     class Meta:
         model = TextField
         fields = ['id', 'page', 'bounding_box']

@@ -28,7 +28,6 @@ from api import views
 api_router = routers.DefaultRouter()  # register viewsets with this router
 api_router.register(r'books', views.BookViewSet)
 api_router.register(r'manuscripts', views.ManuscriptViewSet)
-api_router.register(r'pages', views.PageViewSet)
 api_router.register(r'annotated_lines', views.AnnotatedLineViewSet)
 api_router.register(r'text_fields', views.TextFieldViewSet)
 
