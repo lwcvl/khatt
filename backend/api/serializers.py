@@ -46,15 +46,15 @@ class ManuscriptSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Manuscript
-        fields = ['editor', 'book', 
+        fields = ['editor', 'book', 'filepath',
                   'title', 'date', 'text_direction', 'page_direction']
     
     def to_representation(self, instance):
-        lines = instance.annotatedline_set
+        lines = AnnotatedLine.objects.filter(annotation__manuscript=instance.id)
         lines_serialized = AnnotationSerializerShort(lines, many=True).data
-        chapters = instance.chapter_set
+        chapters = Chapter.objects.filter(annotation__manuscript=instance.id)
         chapters_serialized = AnnotationSerializerShort(chapters, many=True).data
-        asides = instance.aside_set
+        asides = Aside.objects.filter(annotation__manuscript=instance.id)
         asides_serialized = AnnotationSerializerShort(asides, many=True).data
 
         return {

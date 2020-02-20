@@ -17,6 +17,7 @@ import { MarkMode } from '../models/mark-mode';
 import { TextLine, Shape } from '../models/shapes';
 import { text } from '@fortawesome/fontawesome-svg-core';
 import { pbkdf2 } from 'crypto';
+import { ActivatedRoute } from '@angular/router';
 
 @Component({
     selector: 'kht-mark-manuscript',
@@ -53,6 +54,10 @@ export class MarkManuscriptComponent implements OnInit {
     isChapter = false;
     mode: MarkMode | null = null;
 
+    private manuscriptID: number;
+    public title: string;
+    public scanUrl: string;
+
     shapes: Shape[] = [];
     @HostListener('document:keypress', ['$event'])
     handleKeyboardEvent(event: KeyboardEvent) {
@@ -62,7 +67,7 @@ export class MarkManuscriptComponent implements OnInit {
         }
     }
 
-    constructor(private restangular: Restangular) {
+    constructor(private activatedRoute: ActivatedRoute, private restangular: Restangular) {
     }
 
     shapesChange(shapes: Shape[]) {
@@ -71,6 +76,13 @@ export class MarkManuscriptComponent implements OnInit {
     }
 
     ngOnInit() {
+        this.activatedRoute.paramMap.subscribe( params => {
+            this.manuscriptID = Number(params.get('manuscript'));
+        });       
+        this.restangular.one('manuscripts', this.manuscriptID).get().subscribe( manuscript => {
+            this.title = manuscript.title;
+            this.scanUrl = '/api/manuscripts/' + this.manuscriptID.toString() + '/scan/' + manuscript.currently_marking.toString() + '/';
+        });
     }
 
     toggleChapter() {
@@ -92,7 +104,7 @@ export class MarkManuscriptComponent implements OnInit {
         if (lines) {
             const textFields = this.restangular.all('text_fields');
             textFields.post({
-                page: 1, // TODO: change this to actual value!
+                manuscript_id: this.manuscriptID,
                 bounding_box: lines[0].parent
             }).subscribe(response => this.saveLines(lines, response.id));
         }

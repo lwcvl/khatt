@@ -11,17 +11,6 @@ import { Restangular } from 'ngx-restangular';
 })
 export class BooksComponent implements OnInit {
     books: any[];
-    // readonly books = [{
-    //     title: 'Some book name',
-    //     author: 'Arthur the Author',
-    //     manuscripts: 6,
-    //     annotatedLines: '332/4532'
-    // }, {
-    //     title: 'Another book name',
-    //     author: 'Another Author',
-    //     manuscripts: 3,
-    //     annotatedLines: '233/2354'
-    // }];
 
     constructor(private router: Router, private restangular: Restangular) { }
 
@@ -33,6 +22,6 @@ export class BooksComponent implements OnInit {
     }
 
     viewBook(book: ListType<BooksComponent['books']>) {
-        this.router.navigate(['/books/edit']);
+        this.router.navigate(['/books/edit', book.id]);
     }
 }

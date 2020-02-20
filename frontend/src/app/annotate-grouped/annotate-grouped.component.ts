@@ -1,6 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { ActivatedRoute, ParamMap, Router } from '@angular/router';
-import { switchMap } from 'rxjs/operators';
+import { ActivatedRoute } from '@angular/router';
 import { faChevronLeft, faChevronRight, faPencilAlt } from '@fortawesome/free-solid-svg-icons';
 import { Shape } from '../models/shapes';
 import { Restangular } from 'ngx-restangular';
@@ -31,8 +30,7 @@ export class AnnotateGroupedComponent implements OnInit {
     bookID: number;
 
     constructor(private restangular: Restangular,
-                private activatedRoute: ActivatedRoute,
-                private router: Router) { }
+                private activatedRoute: ActivatedRoute) { }
 
     ngOnInit() {
         this.activatedRoute.paramMap.subscribe( params => {

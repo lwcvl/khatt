@@ -30,13 +30,12 @@ class ManuscriptViewSet(viewsets.ModelViewSet):
     queryset = Manuscript.objects.all()
     serializer_class = ManuscriptSerializer
 
-    @action(detail=True, methods=['get'])
-    def scan(self, request, pk=None):
+    @action(detail=True, methods=['get'], url_path='scan/(?P<page_no>\d+)', url_name='scan')
+    def scan(self, request, page_no, pk=None):
         # To do: adjust this function such that it retrieves
-        # one page from a multiple-page pdf document
-        filepath = self.get_object()['filepath']
-        with open(filepath, 'rb') as f:
-            response = HttpResponse(FileWrapper(f), content_type='image/jpg')
+        # page_no from a multiple-page pdf document
+        filepath = self.get_object().filepath
+        response = HttpResponse(FileWrapper(filepath), content_type='image/jpg')
         return response
     
     @action(detail=True, methods=['get'])

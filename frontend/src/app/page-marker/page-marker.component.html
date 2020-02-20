@@ -1,5 +1,5 @@
 <svg class="canvas" #canvas [attr.data-mode]="mode" [ngClass]="{'hover-mark': hoverMark}">
-    <image xlink:href="api/manuscript/1/scan/1/" [attr.height]="height" [attr.width]="width" />
+    <image [attr.height]="height" [attr.width]="width" />
     <ng-container *ngFor="let shape of shapes">
         <rect *ngIf="shape.type === 'rectangle'"
               [id]="shape.id"

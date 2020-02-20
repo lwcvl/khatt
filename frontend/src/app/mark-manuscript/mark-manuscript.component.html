@@ -92,7 +92,7 @@
         </div>
     </div>
     <div class="level-item">
-        <h1 class="title">Title of the Manuscript</h1>
+        <h1 class="title">{{title}}</h1>
         <a class="button is-text" [routerLink]="['/manuscripts/edit']">
             <span class="icon">
                 <fa-icon [icon]="faPencilAlt"></fa-icon>
@@ -127,4 +127,4 @@
         </div>
     </div>
 </div>
-<kht-page-marker [isChapter]="isChapter" [mode]="mode" [shapes]="shapes" (shapesChange)="shapesChange($event)" (escape)="mode = undefined"></kht-page-marker>
+<kht-page-marker *ngIf="scanUrl" [scanUrl]="scanUrl" [isChapter]="isChapter" [mode]="mode" [shapes]="shapes" (shapesChange)="shapesChange($event)" (escape)="mode = undefined"></kht-page-marker>

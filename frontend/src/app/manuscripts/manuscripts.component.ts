@@ -1,6 +1,7 @@
-import { Component } from '@angular/core';
+import { Component, Input } from '@angular/core';
 import { Router } from '@angular/router';
 import { ListType } from '../lib';
+import { iif } from 'rxjs';
 
 @Component({
     selector: 'kht-manuscripts',
@@ -8,23 +9,23 @@ import { ListType } from '../lib';
     styleUrls: ['./manuscripts.component.scss']
 })
 export class ManuscriptsComponent {
-    readonly manuscripts = [{
-        title: 'Some manuscript name',
-        author: 'Arthur the Author',
-        manuscripts: 6,
-        annotatedLines: '332/4532'
-    }, {
-        title: 'Another manuscript name',
-        author: 'Another Author',
-        manuscripts: 3,
-        annotatedLines: '233/2354'
-    }];
-
+    @Input() manuscripts: any[] = [];
+    annotatedLines: string;
 
     constructor(private router: Router) { }
 
+    ngOnInit() {
+        this.manuscripts.forEach( (manuscript, index) => {
+            if (manuscript.annotated_lines.length > 0 ) {
+                this.manuscripts[index].annotated_lines = manuscript.annotated_lines.filter( line => line.complete ).length.toString() / manuscript.annotated_lines.length.toString()
+            }
+            else this.manuscripts[index].annotated_lines = 0;
+        })
+    }
+
+
     markManuscript(manuscript: ListType<ManuscriptsComponent['manuscripts']>) {
-        this.router.navigate(['/mark-manuscript']);
+        this.router.navigate(['/mark-manuscript', manuscript.id]);
     }
 
 }

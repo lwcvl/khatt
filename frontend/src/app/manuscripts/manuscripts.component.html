@@ -2,17 +2,15 @@
     <thead>
         <tr>
             <th>Title</th>
-            <th>Author</th>
-            <th>Manuscripts</th>
+            <th>Editor</th>
             <th>Annotated Lines</th>
         </tr>
     </thead>
     <tbody>
         <tr *ngFor="let manuscript of manuscripts" (click)="markManuscript(manuscript)">
             <td>{{manuscript.title}}</td>
-            <td>{{manuscript.author}}</td>
-            <td>{{manuscript.manuscripts}}</td>
-            <td>{{manuscript.annotatedLines}}</td>
+            <td>{{manuscript.editor}}</td>
+            <td>{{manuscript.annotated_lines}}</td>
         </tr>
     </tbody>
 </table>
