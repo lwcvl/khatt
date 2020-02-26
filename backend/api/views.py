@@ -51,19 +51,6 @@ class AnnotationViewSet(viewsets.ModelViewSet):
     queryset = Annotation.objects.all()
     serializer_class = AnnotationSerializer
 
-    def list(self, request):
-        annotations = self.serializer_class(self.queryset, many=True)
-        return Response(annotations.data)
-
-    def retrieve(self, request, pk=None):
-        annotation = get_object_or_404(self.queryset, pk=pk)
-        annotation_serialized = self.serializer_class(annotation).data
-        return Response(annotation_serialized)
-
-    def update(self, request, pk=None):
-        queryset = Annotation.objects.all()
-        annotation = get_object_or_404(queryset, pk=pk)
-
 
 class AnnotatedLineViewSet(viewsets.ModelViewSet):
     queryset = AnnotatedLine.objects.all()
