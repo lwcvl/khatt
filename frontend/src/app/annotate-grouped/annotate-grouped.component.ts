@@ -36,22 +36,21 @@ export class AnnotateGroupedComponent implements OnInit {
         this.activatedRoute.paramMap.subscribe( params => {
             this.bookID = Number(params.get('book'));
         });
-        this.restangular.one('books', this.bookID).getList('manuscripts').subscribe( response => {
-            console.log(response);
-            // book.manuscripts.forEach( manuscript => {
-                // if (manuscript.annotated_lines.length > 0 ) {
-                //     let lineID = Number(manuscript.annotated_lines.find(line => !line.complete).id);
-                    // this.restangular.one('annotated_lines', lineID).get().subscribe( line => {
-                    //     let highlightShape = line.bounding_box;
-                    //     console.log(line.text_field)
-                    //     highlightShape['type'] = 'rectangle';
-                    //     highlightShape['isChapter'] = false;                  
-                    //     this.highlightShapes.push(
-                    //         {path: manuscript.filepath,
-                    //         highlight: highlightShape});
-                    // });
-        //         }
-        //     });
+        this.restangular.one('books', this.bookID).get().subscribe(book => {
+            book.manuscripts.forEach( manuscript => {
+                if (manuscript.annotated_lines.length > 0 ) {
+                    let lineID = Number(manuscript.annotated_lines.find(line => !line.complete).id);
+                    this.restangular.one('annotated_lines', lineID).get().subscribe( line => {
+                        let highlightShape = line.bounding_box;
+                        highlightShape['type'] = 'rectangle';
+                        highlightShape['isChapter'] = false;                  
+                        this.highlightShapes.push(
+                            {path: manuscript.filepath,
+                            highlight: highlightShape});
+                    });
+                }
+                console.log(this.highlightShapes);
+            });
         });
     }
 

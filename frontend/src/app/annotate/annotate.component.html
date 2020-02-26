@@ -14,7 +14,7 @@
             <td>{{book.title}}</td>
             <td>{{book.author}}</td>
             <td><a [routerLink]="['/annotate/grouped', book.id]">{{chapters}}</a></td>
-            <td><a [routerLink]="['/annotate/grouped', book.id]">{{lines}}</a></td>
+            <td><a [routerLink]="['/annotate/grouped', book.id]">{{book.lines}}</a></td>
             <td><a [routerLink]="['/annotate/grouped', book.id]">{{asides}}</a></td>
         </tr>
     </tbody>

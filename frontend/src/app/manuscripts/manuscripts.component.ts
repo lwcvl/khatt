@@ -17,7 +17,7 @@ export class ManuscriptsComponent {
     ngOnInit() {
         this.manuscripts.forEach( (manuscript, index) => {
             if (manuscript.annotated_lines.length > 0 ) {
-                this.manuscripts[index].annotated_lines = manuscript.annotated_lines.filter( line => line.complete ).length.toString() / manuscript.annotated_lines.length.toString()
+                this.manuscripts[index].annotated_lines = manuscript.annotated_lines.filter( line => line.complete ).length.toString() + "/" + manuscript.annotated_lines.length.toString()
             }
             else this.manuscripts[index].annotated_lines = 0;
         })

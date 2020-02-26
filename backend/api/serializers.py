@@ -51,11 +51,11 @@ class ManuscriptSerializer(serializers.ModelSerializer):
     
     def to_representation(self, instance):
         lines = AnnotatedLine.objects.filter(annotation__manuscript=instance.id)
-        lines_serialized = AnnotationSerializerShort(lines, many=True).data
+        lines_serialized = AnnotationSerializerShort([line.annotation for line in lines], many=True).data
         chapters = Chapter.objects.filter(annotation__manuscript=instance.id)
-        chapters_serialized = AnnotationSerializerShort(chapters, many=True).data
+        chapters_serialized = AnnotationSerializerShort([chapter.annotation for chapter in chapters], many=True).data
         asides = Aside.objects.filter(annotation__manuscript=instance.id)
-        asides_serialized = AnnotationSerializerShort(asides, many=True).data
+        asides_serialized = AnnotationSerializerShort([aside.annotation for aside in asides], many=True).data
 
         return {
             'id': instance.id,
@@ -98,19 +98,21 @@ class AnnotationSerializerShort(serializers.ModelSerializer):
 class AnnotatedLineSerializer(serializers.ModelSerializer):
     ''' Serialize an annotated line, extending the annotation model.
     '''
-    annotation = AnnotationSerializer()
-    
     class Meta:
         model = AnnotatedLine
-        fields = ['id', 'complete']
+        fields = ['annotation', 'text_field']
+        depth = 1
     
     def create(self, validated_data):
         annotation_data = validated_data.pop('annotation')
-        annotation = Annotation.objects.create(annotation_data)
-        AnnotatedLine.objects.create(validated_data, annotation=annotation)
+        annotation = Annotation.objects.create(**annotation_data)
+        text_field = TextField.objects.get(pk=validated_data['text_field'])
+        AnnotatedLine.objects.create(annotation=annotation, text_field=text_field)
 
 
 class TextFieldSerializer(serializers.ModelSerializer):
+    manuscript = serializers.PrimaryKeyRelatedField(queryset=Manuscript.objects.all())
+    
     class Meta:
         model = TextField
-        fields = ['id', 'page', 'bounding_box']
+        fields = ['id', 'manuscript', 'page', 'bounding_box']

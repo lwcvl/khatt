@@ -1,11 +1,11 @@
 <ng-container *ngIf="book">
-<h1 class="title">Book &ldquo;{{book.title}}&rdquo;</h1>
-<table class="table">
-    <tr>
-        <th>Author</th>
-        <td>{{book.author}}</td>
-    </tr>
-</table>
+    <h1 class="title">Book &ldquo;{{book.title}}&rdquo;</h1>
+    <table class="table">
+        <tr>
+            <th>Author</th>
+            <td>{{book.author}}</td>
+        </tr>
+    </table>
 </ng-container>
 <h2 class="subtitle">Manuscripts</h2>
 <kht-manuscripts *ngIf="manuscripts" [manuscripts]="manuscripts"></kht-manuscripts>

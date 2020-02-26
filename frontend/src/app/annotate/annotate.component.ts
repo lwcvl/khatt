@@ -31,9 +31,10 @@ export class AnnotateComponent implements OnInit {
         const books = this.restangular.all('books');
         books.getList().subscribe( bookList => {
             this.books = bookList;
-            console.log(this.books);
-            const lines = this.books.map( book => book.manuscripts.map( man => man.annotated_lines )).flat(2);
-            this.lines = lines.filter(line => line.complete).length.toString() + "/" + lines.length.toString()
+            this.books.forEach( (book, index) => {
+                const lines = book.manuscripts.map( man => man.annotated_lines).flat(1);
+                this.books[index]['lines'] = lines.filter(line => line.complete).length.toString() + "/" + lines.length.toString();
+            });
         });
     }
 
