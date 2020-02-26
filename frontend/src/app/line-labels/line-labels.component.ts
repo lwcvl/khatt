@@ -60,10 +60,7 @@ export class LineLabelsComponent implements OnInit, AfterViewChecked {
 
     commit(text: string, index: number = -1) {
         text = text.trim();
-        this.restangular.one('annotations', this.annotation.id).get().subscribe( ann => {
-            ann.label = text;
-            ann.put();
-        });
+        this.restangular.one('annotations', this.annotation.id).patch({label: text});
         if (index >= 0) {
             const labels = [...this.labels];
             labels[index] = { text, original: text, editing: false };
