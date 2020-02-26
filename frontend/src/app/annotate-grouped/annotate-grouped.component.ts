@@ -24,10 +24,14 @@ export class AnnotateGroupedComponent implements OnInit {
         1: 2
     };
     highlightShapes: { 
+        manuscript: any,
         path: string,
+        annotatedLine: any,
         highlight: Shape
     } [] = [];
     bookID: number;
+
+    book: any;
 
     constructor(private restangular: Restangular,
                 private activatedRoute: ActivatedRoute) { }
@@ -37,19 +41,24 @@ export class AnnotateGroupedComponent implements OnInit {
             this.bookID = Number(params.get('book'));
         });
         this.restangular.one('books', this.bookID).get().subscribe(book => {
+            this.book = book;
             book.manuscripts.forEach( manuscript => {
                 if (manuscript.annotated_lines.length > 0 ) {
-                    let lineID = Number(manuscript.annotated_lines.find(line => !line.complete).id);
+                    let lineID = Math.min.apply(Math, manuscript.annotated_lines.filter(line => !line.complete).map(line => Number(line.id)));
                     this.restangular.one('annotated_lines', lineID).get().subscribe( line => {
-                        let highlightShape = line.bounding_box;
+                        let highlightShape = line.annotation.bounding_box;
                         highlightShape['type'] = 'rectangle';
-                        highlightShape['isChapter'] = false;                  
+                        highlightShape['isChapter'] = false;
+                        let url = '/api/manuscripts/' + manuscript.id.toString() + '/scan/' + line.annotation.page.toString() + '/'         
                         this.highlightShapes.push(
-                            {path: manuscript.filepath,
-                            highlight: highlightShape});
+                            {
+                                manuscript: manuscript,
+                                path: url,
+                                annotatedLine: line,
+                                highlight: highlightShape
+                            });
                     });
                 }
-                console.log(this.highlightShapes);
             });
         });
     }

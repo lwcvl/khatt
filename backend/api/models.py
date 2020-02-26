@@ -67,6 +67,28 @@ class TextField(models.Model):
     bounding_box = JSONField()
 
 
+class Annotation(models.Model):
+    '''
+    An annotation, which tracks
+    - the page number in the file on which the annotation is marked
+    - which user transcribed it,
+    - the chapter it's associated to,
+    - annotated text
+    - optional labels
+    - the previous and next lines
+    - optional hypotext
+    - optional research notes
+    '''
+    manuscript = models.ForeignKey('Manuscript', on_delete=models.PROTECT)
+    page = models.IntegerField(default=0)
+    annotator = models.ForeignKey(get_user_model(), on_delete=models.PROTECT)
+    text = models.CharField(max_length=800, default='')
+    label = models.CharField(max_length=50, default='')
+    research_note = models.CharField(max_length=800, default='')
+    bounding_box = JSONField()
+    complete = models.BooleanField(default=False)
+
+
 class Chapter(models.Model):
     ''' A chapter break as indicated in a manuscript.
     We save the text, the bounding box, and also mappings
@@ -98,28 +120,6 @@ class Aside(models.Model):
     We extend to be able to separate asides, lines and chapters.
     '''
     annotation = models.OneToOneField('Annotation', on_delete=models.CASCADE)
-
-
-class Annotation(models.Model):
-    '''
-    An annotation, which tracks
-    - the page number in the file on which the annotation is marked
-    - which user transcribed it,
-    - the chapter it's associated to,
-    - annotated text
-    - optional labels
-    - the previous and next lines
-    - optional hypotext
-    - optional research notes
-    '''
-    manuscript = models.ForeignKey('Manuscript', on_delete=models.PROTECT)
-    page = models.IntegerField(default=0)
-    annotator = models.ForeignKey(get_user_model(), on_delete=models.PROTECT)
-    text = models.CharField(max_length=800, default='')
-    label = models.CharField(max_length=50, default='')
-    research_note = models.CharField(max_length=800, default='')
-    bounding_box = JSONField()
-    complete = models.BooleanField(default=False)
 
 
 class Author(models.Model):

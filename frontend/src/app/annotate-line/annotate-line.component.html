@@ -10,7 +10,7 @@
     <div *ngIf="showContext" class="modal-background"></div>
     <div [ngClass]="{'context-view': showContext}">
         <div class="page-view" *ngIf="showContext">
-            <kht-page-marker [shapes]="[shape]" (escape)="showContext = false"></kht-page-marker>
+            <kht-page-marker [shapes]="[shape.highlight]" [scanUrl]="shape.path" (escape)="showContext = false"></kht-page-marker>
         </div>
         <div class="line-entry">
             <footer class="footer">
@@ -45,7 +45,7 @@
                     </div>
                     <div class="columns">
                         <div class="column">
-                            <kht-line-labels #labels (blur)="editor.focus()"></kht-line-labels>
+                            <kht-line-labels #labels [annotation]="shape.annotatedLine.annotation" [manuscript]=shape.manuscript (blur)="editor.focus()"></kht-line-labels>
                         </div>
                         <div class="column is-narrow">
                             <div class="buttons is-right">

@@ -39,7 +39,7 @@ export class AnnotateLineComponent implements OnInit {
 
     // TODO: other shapes
     @Input()
-    shape: {path: string, highlight: Rectangle};
+    shape: {manuscript: any, path: string, annotatedLine: any, highlight: Rectangle};
 
     @Input()
     offset = 0;
@@ -124,7 +124,8 @@ export class AnnotateLineComponent implements OnInit {
             height: boundingBox.y2 - boundingBox.y1
         };
 
-        const scale = CONTAINER_WIDTH / (boundingBox.x2 - boundingBox.x1);
+        //const scale = CONTAINER_WIDTH / (boundingBox.x2 - boundingBox.x1);
+        const scale = 2.3;
         this.backgroundSize = `${scale * this.width}px`;
         this.backgroundPosition = `${-scale * boundingBox.x1}px ${-scale * boundingBox.y1}px`;
         this.canvasHeight = Math.ceil(-scale * (boundingBox.y1 - boundingBox.y2));

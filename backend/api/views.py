@@ -11,8 +11,8 @@ from rest_framework.decorators import action
 
 from wsgiref.util import FileWrapper
 
-from .models import AnnotatedLine, Book, Editor, Manuscript, TextField
-from .serializers import AnnotatedLineSerializer, BookSerializer, ManuscriptSerializer, TextFieldSerializer
+from .models import Annotation, AnnotatedLine, Book, Editor, Manuscript, TextField
+from .serializers import AnnotationSerializer, AnnotatedLineSerializer, BookSerializer, ManuscriptSerializer, TextFieldSerializer
 
 
 class BookViewSet(viewsets.ModelViewSet):
@@ -45,6 +45,24 @@ class ManuscriptViewSet(viewsets.ModelViewSet):
         chapters = manuscript.chapter_set.filter(page=pk)
         asides = manuscript.aside_set.filter(page=pk)
         return Response(data={'annotated_lines': lines})
+
+
+class AnnotationViewSet(viewsets.ModelViewSet):
+    queryset = Annotation.objects.all()
+    serializer_class = AnnotationSerializer
+
+    def list(self, request):
+        annotations = self.serializer_class(self.queryset, many=True)
+        return Response(annotations.data)
+
+    def retrieve(self, request, pk=None):
+        annotation = get_object_or_404(self.queryset, pk=pk)
+        annotation_serialized = self.serializer_class(annotation).data
+        return Response(annotation_serialized)
+
+    def update(self, request, pk=None):
+        queryset = Annotation.objects.all()
+        annotation = get_object_or_404(queryset, pk=pk)
 
 
 class AnnotatedLineViewSet(viewsets.ModelViewSet):

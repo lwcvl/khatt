@@ -82,7 +82,19 @@ class AnnotationSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = AnnotatedLine
-        fields = ['annotator', 'bounding_box']
+        fields = ['annotator', 'bounding_box', 'label', 'text', 'research_note']
+    
+    def to_representation(self, instance):
+        return {
+            'id': instance.id,
+            'bounding_box': instance.bounding_box,
+            'label': instance.label,
+            'text': instance.text,
+            'research_note': instance.research_note
+        }
+
+    def update(self, validated_data):
+        print("in update")
 
 
 class AnnotationSerializerShort(serializers.ModelSerializer):
