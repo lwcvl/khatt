@@ -59,6 +59,12 @@ class AnnotatedLineViewSet(viewsets.ModelViewSet):
     def perform_create(self, serializer):
         self.request.data['annotation']['annotator'] = self.request.user
         serializer.create(validated_data=self.request.data)
+    
+    def retrieve(self, request, pk=None):
+        queryset = AnnotatedLine.objects.all()
+        line = get_object_or_404(queryset, annotation__id=pk)
+        line_serialized = self.serializer_class(line).data
+        return Response(line_serialized)
 
 
 class TextFieldViewSet(viewsets.ModelViewSet):
