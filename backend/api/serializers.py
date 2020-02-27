@@ -82,7 +82,7 @@ class AnnotationSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Annotation
-        fields = ['annotator', 'bounding_box', 'label', 'text', 'research_note']
+        fields = ['annotator', 'bounding_box', 'complete', 'label', 'text', 'research_note']
 
 
 class AnnotationSerializerShort(serializers.ModelSerializer):

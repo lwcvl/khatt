@@ -2,6 +2,7 @@ import { ChangeDetectorRef, Component, OnInit, ViewChild, ElementRef, Input, Hos
 import { faComment, faCommentSlash, faStickyNote } from '@fortawesome/free-solid-svg-icons';
 import { HypoEditorComponent } from '../hypo-editor/hypo-editor.component';
 import { Rectangle } from '../models/shapes';
+import { Restangular } from 'ngx-restangular';
 
 const CONTAINER_WIDTH = 1344;
 const PADDING_LEFT = 50;
@@ -69,7 +70,11 @@ export class AnnotateLineComponent implements OnInit {
     isComplete: boolean;
     isHypo: boolean;
 
-    constructor(private changeDetectorRef: ChangeDetectorRef) {
+    public researchNoteText: string;
+
+    constructor(
+        private changeDetectorRef: ChangeDetectorRef,
+        private restangular: Restangular) {
     }
 
     hypoChange(isHypo: boolean) {
@@ -144,10 +149,13 @@ export class AnnotateLineComponent implements OnInit {
             this.researchNotes.nativeElement.focus();
         } else {
             this.researchNotesHeight = '0';
+            const annID = this.shape.annotatedLine.annotation.id;
+            this.restangular.one('annotations', annID).patch({research_note: this.researchNoteText});
         }
     }
 
     researchNotesKeydown(event: KeyboardEvent) {
+        const keycode = event.which || event.keyCode;
         if (event.altKey) {
             switch (event.key) {
                 case 'r':
@@ -158,6 +166,20 @@ export class AnnotateLineComponent implements OnInit {
             }
         }
         return true;
+    }
+
+    moveNext() {
+        this.saveComplete()
+    }
+
+    movePrevious() {
+        this.saveComplete()
+    }
+
+    saveComplete() {
+        this.restangular.one('annotations', this.shape.annotatedLine.annotation.id).patch({
+            complete: this.isComplete
+        });
     }
 }
 
