@@ -22,6 +22,15 @@ class BookViewSet(viewsets.ModelViewSet):
     queryset = Book.objects.all()
     serializer_class = BookSerializer
 
+    def create(self, request):
+        serializer = self.get_serializer(data=request.data)
+        if serializer.is_valid():
+            self.perform_create(serializer)
+            return Response(status=201)
+        else:
+            return Response(serializer.errors, status=400)
+
+
 
 class ManuscriptViewSet(viewsets.ModelViewSet):
     '''
@@ -29,6 +38,15 @@ class ManuscriptViewSet(viewsets.ModelViewSet):
     '''
     queryset = Manuscript.objects.all()
     serializer_class = ManuscriptSerializer
+    
+    def create(self, request):
+        request.data['editor.name'] = request.data['editor']
+        serializer = self.get_serializer(data=request.data)
+        if serializer.is_valid():
+            self.perform_create(serializer)
+            return Response(status=201)
+        else:
+            return Response(serializer.errors, status=400)
 
     @action(detail=True, methods=['get'], url_path='scan/(?P<page_no>\d+)', url_name='scan')
     def scan(self, request, page_no, pk=None):

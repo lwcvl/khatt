@@ -17,12 +17,11 @@ class EditorSerializer(serializers.ModelSerializer):
         
 
 class BookSerializer(serializers.ModelSerializer):
-    author = serializers.StringRelatedField()
+    author = AuthorSerializer()
 
     class Meta:
         model = Book
         fields = ['title', 'author']
-
     
     def to_representation(self, instance):
         manuscripts = instance.manuscript_set
@@ -33,21 +32,27 @@ class BookSerializer(serializers.ModelSerializer):
             'author': instance.author.name,
             'manuscripts': manuscripts_serialized
         }
+    
+    def create(self, validated_data):
+        author_data = validated_data.pop('author')
+        try:
+            author = Author.objects.get(name=author_data['name'])
+        except Exception:
+            author = Author.objects.create(**author_data)
+        return Book.objects.create(author=author, **validated_data)
 
 
 class ManuscriptSerializer(serializers.ModelSerializer):
-    editor = serializers.SlugRelatedField(
-        queryset=Editor.objects.all(), 
-        slug_field="name",
-        allow_null=True)
+    editor = EditorSerializer()
     book = serializers.SlugRelatedField(
         queryset=Book.objects.all(),
         slug_field="title")
 
     class Meta:
         model = Manuscript
-        fields = ['editor', 'book', 'filepath',
-                  'title', 'date', 'text_direction', 'page_direction']
+        fields = ['book', 'title', 'editor', 'filepath',
+                   'date', 'text_direction', 'page_direction']
+        validators = []
     
     def to_representation(self, instance):
         lines = AnnotatedLine.objects.filter(annotation__manuscript=instance.id)
@@ -56,23 +61,26 @@ class ManuscriptSerializer(serializers.ModelSerializer):
         chapters_serialized = AnnotationSerializerShort([chapter.annotation for chapter in chapters], many=True).data
         asides = Aside.objects.filter(annotation__manuscript=instance.id)
         asides_serialized = AnnotationSerializerShort([aside.annotation for aside in asides], many=True).data
+        editor_serialized = EditorSerializer(instance.editor).data['name']
 
         return {
             'id': instance.id,
             'title': instance.title,
-            'editor': instance.editor,
+            'editor': editor_serialized,
             'currently_marking': instance.currently_marking,
             'currently_annotating': instance.currently_annotating,
             'annotated_lines': lines_serialized,
             'chapters': chapters_serialized,
             'asides': asides_serialized
         }
-
-
-class ManuscriptSerializerShort(serializers.ModelSerializer):
-    class Meta:
-        model = Manuscript
-        fields = ['id', 'title']
+    
+    def create(self, validated_data):
+        editor_data = validated_data.pop('editor')
+        try:
+            editor = Editor.objects.get(name=editor_data['name'])
+        except Exception:
+            editor = Editor.objects.create(**editor_data)
+        return Manuscript.objects.create(editor=editor, **validated_data)
 
 
 class AnnotationSerializer(serializers.ModelSerializer):
@@ -107,7 +115,7 @@ class AnnotatedLineSerializer(serializers.ModelSerializer):
         annotation_data = validated_data.pop('annotation')
         annotation = Annotation.objects.create(**annotation_data)
         text_field = TextField.objects.get(pk=validated_data['text_field'])
-        AnnotatedLine.objects.create(annotation=annotation, text_field=text_field)
+        return AnnotatedLine.objects.create(annotation=annotation, text_field=text_field)
 
 
 class TextFieldSerializer(serializers.ModelSerializer):

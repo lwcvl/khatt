@@ -41,8 +41,8 @@ class Manuscript(models.Model):
     filepath = models.FileField(upload_to='manuscript_images/')
     editor = models.ForeignKey('Editor', on_delete=models.PROTECT, blank=True, null=True)
     book = models.ForeignKey('Book', on_delete=models.CASCADE)
-    currently_marking = models.IntegerField(default=0)
-    currently_annotating = models.IntegerField(default=0)
+    currently_marking = models.IntegerField(default=1)
+    currently_annotating = models.IntegerField(default=1)
     title = models.CharField(max_length=400)
     date = models.CharField(max_length=50)
     text_direction = models.CharField(
@@ -125,9 +125,6 @@ class Aside(models.Model):
 class Author(models.Model):
     ''' The author of the book.'''
     name = models.CharField(max_length=100)
-
-    def __str__(self):
-        return self.name
 
 
 class Editor(models.Model):
