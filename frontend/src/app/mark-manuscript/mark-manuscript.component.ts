@@ -79,7 +79,7 @@ export class MarkManuscriptComponent implements OnInit {
     ngOnInit() {
         this.activatedRoute.paramMap.subscribe( params => {
             this.manuscriptID = Number(params.get('manuscript'));
-        });       
+        });
         this.restangular.one('manuscripts', this.manuscriptID).get().subscribe( manuscript => {
             this.title = manuscript.title;
             this.page = Number(manuscript.currently_marking);
@@ -105,7 +105,6 @@ export class MarkManuscriptComponent implements OnInit {
         const lines = this.shapes.filter( shape => shape.type === 'text-line') as TextLine[];
         if (lines) {
             const textFields = this.restangular.all('text_fields');
-            console.log(lines[0].parent);
             textFields.post({
                 manuscript: this.manuscriptID,
                 page: this.page,
@@ -116,13 +115,13 @@ export class MarkManuscriptComponent implements OnInit {
 
     saveLines(lines, textFieldID) {
         const annotatedLines = this.restangular.all('annotated_lines');
-        let request = {
+        const request = {
             text_field: textFieldID,
             annotation: {
                 manuscript_id: this.manuscriptID,
                 bounding_box: {}
             }
-        }
+        };
         if ( lines[0].y1 === lines[0].y2 ) {
             // horizontal line
             const top = lines[0].parent.type === 'rectangle' ? lines[0].parent.y :
@@ -144,7 +143,7 @@ export class MarkManuscriptComponent implements OnInit {
                             y: line.y1,
                             width: line.x2 - line.x1,
                             height: line.y1 - lines[index - 1].y1
-                        }
+                        };
                         annotatedLines.post(request);
                     }
                 });
@@ -169,7 +168,7 @@ export class MarkManuscriptComponent implements OnInit {
                             y: line.y1,
                             width: line.x1 - lines[index - 1].x1,
                             height: line.y2 - line.y1
-                        }
+                        };
                         annotatedLines.post(request);
                     }
                 });

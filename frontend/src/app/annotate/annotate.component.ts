@@ -19,7 +19,7 @@ export class AnnotateComponent implements OnInit {
             this.books = bookList;
             this.books.forEach( (book, index) => {
                 const lines = book.manuscripts.map( man => man.annotated_lines).flat(1);
-                this.books[index]['lines'] = lines.filter(line => line.complete).length.toString() + "/" + lines.length.toString();
+                this.books[index].lines = lines.filter(line => line.complete).length.toString() + '/' + lines.length.toString();
             });
         });
     }

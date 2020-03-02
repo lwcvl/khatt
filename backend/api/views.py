@@ -74,6 +74,13 @@ class AnnotatedLineViewSet(viewsets.ModelViewSet):
     queryset = AnnotatedLine.objects.all()
     serializer_class = AnnotatedLineSerializer
 
+    def create(self, request):
+        serializer = self.get_serializer(data=request.data)
+        if not serializer.is_valid(raise_exception=False):
+            return Response({'Error': 'Object not valid'}, status=400)
+        self.perform_create(serializer)
+        return Response()
+
     def perform_create(self, serializer):
         self.request.data['annotation']['annotator'] = self.request.user
         serializer.create(validated_data=self.request.data)

@@ -108,7 +108,7 @@ class AnnotatedLineSerializer(serializers.ModelSerializer):
     '''
     class Meta:
         model = AnnotatedLine
-        fields = ['annotation', 'text_field']
+        fields = ['id', 'annotation', 'text_field']
         depth = 1
     
     def create(self, validated_data):

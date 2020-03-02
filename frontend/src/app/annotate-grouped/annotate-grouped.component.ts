@@ -44,12 +44,14 @@ export class AnnotateGroupedComponent implements OnInit {
             this.book = book;
             book.manuscripts.forEach( manuscript => {
                 if (manuscript.annotated_lines.length > 0 ) {
-                    let lineID = Math.min.apply(Math, manuscript.annotated_lines.filter(line => !line.complete).map(line => Number(line.id)));
+                    const lineID = Math.min.apply(
+                        Math, manuscript.annotated_lines.filter(line => !line.complete).map(line => Number(line.id))
+                    );
                     this.restangular.one('annotated_lines', lineID).get().subscribe( line => {
-                        let highlightShape = line.annotation.bounding_box;
-                        highlightShape['type'] = 'rectangle';
-                        highlightShape['isChapter'] = false;
-                        let url = '/api/manuscripts/' + manuscript.id.toString() + '/scan/' + line.annotation.page.toString() + '/'         
+                        const highlightShape = line.annotation.bounding_box;
+                        highlightShape.type = 'rectangle';
+                        highlightShape.isChapter = false;
+                        const url = '/api/manuscripts/' + manuscript.id.toString() + '/scan/' + line.annotation.page.toString() + '/';       
                         this.highlightShapes.push(
                             {
                                 manuscript: manuscript,
