@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { FormGroup, FormBuilder, Validators } from '@angular/forms';
 
 import { Restangular } from 'ngx-restangular';
+import { Router } from '@angular/router';
 
 @Component({
     selector: 'kht-manuscript-form',
@@ -14,7 +15,10 @@ export class ManuscriptFormComponent implements OnInit {
     manuscriptForm: FormGroup;
     manuscripts: Restangular;
 
-    constructor(private restangular: Restangular, private fb: FormBuilder) { }
+    constructor(private fb: FormBuilder,
+        private restangular: Restangular,
+        private router: Router
+    ) { }
 
     ngOnInit() {
         // trailing slash is needed to make sure the route is understood by django
@@ -47,5 +51,6 @@ export class ManuscriptFormComponent implements OnInit {
             myFormData.append(key, this.manuscriptForm.value[key]);
         }
         this.manuscripts.post(myFormData);
+        this.router.navigate(['/books']);
     }
 }

@@ -78,12 +78,12 @@ class AnnotatedLineViewSet(viewsets.ModelViewSet):
         serializer = self.get_serializer(data=request.data)
         if not serializer.is_valid(raise_exception=False):
             return Response({'Error': 'Object not valid'}, status=400)
-        self.perform_create(serializer)
+        item = self.perform_create(serializer)
         return Response()
 
     def perform_create(self, serializer):
         self.request.data['annotation']['annotator'] = self.request.user
-        serializer.create(validated_data=self.request.data)
+        return serializer.create(validated_data=self.request.data)
     
     def retrieve(self, request, pk=None):
         queryset = AnnotatedLine.objects.all()
