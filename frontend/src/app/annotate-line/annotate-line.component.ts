@@ -3,6 +3,7 @@ import { faComment, faCommentSlash, faStickyNote } from '@fortawesome/free-solid
 import { HypoEditorComponent } from '../hypo-editor/hypo-editor.component';
 import { Rectangle } from '../models/shapes';
 import { Restangular } from 'ngx-restangular';
+import { DomSanitizer, SafeStyle } from '@angular/platform-browser';
 
 const CONTAINER_WIDTH = 1344;
 const PADDING_LEFT = 50;
@@ -52,15 +53,6 @@ export class AnnotateLineComponent implements OnInit {
     @HostBinding('class')
     class = 'box is-paddingless';
 
-    // @HostBinding('style.background-image')
-    // backgroundImage = 'url(\'assets/page.jpg\')';
-
-    @HostBinding('style.background-position')
-    backgroundPosition = '0 0';
-
-    @HostBinding('style.background-size')
-    backgroundSize = `${this.width}px`;
-
     @ViewChild('canvas', { static: true })
     canvas: ElementRef<SVGImageElement>;
 
@@ -83,6 +75,9 @@ export class AnnotateLineComponent implements OnInit {
     }
 
     ngOnInit() {
+        this.canvas.nativeElement.setAttribute('viewBox', `0 0 ${this.width} ${this.height}`);
+        this.canvas.nativeElement.children[0].setAttributeNS(null, 'href', this.shape.path);
+
         const points = [{
             x: this.shape.highlight.x,
             y: this.shape.highlight.y
@@ -129,10 +124,7 @@ export class AnnotateLineComponent implements OnInit {
             height: boundingBox.y2 - boundingBox.y1
         };
 
-        //const scale = CONTAINER_WIDTH / (boundingBox.x2 - boundingBox.x1);
-        const scale = 2.3;
-        this.backgroundSize = `${scale * this.width}px`;
-        this.backgroundPosition = `${-scale * boundingBox.x1}px ${-scale * boundingBox.y1}px`;
+        const scale = CONTAINER_WIDTH / (boundingBox.x2 - boundingBox.x1);
         this.canvasHeight = Math.ceil(-scale * (boundingBox.y1 - boundingBox.y2));
         this.canvas.nativeElement.setAttribute(
             'viewBox',
@@ -169,11 +161,11 @@ export class AnnotateLineComponent implements OnInit {
     }
 
     moveNext() {
-        this.saveComplete()
+        this.saveComplete();
     }
 
     movePrevious() {
-        this.saveComplete()
+        this.saveComplete();
     }
 
     saveComplete() {

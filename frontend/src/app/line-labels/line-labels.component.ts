@@ -25,7 +25,6 @@ export class LineLabelsComponent implements OnInit, AfterViewChecked {
     constructor(private restangular: Restangular) { }
 
     ngOnInit() {
-        console.log(this.annotation);
         this.completed = this.manuscript.annotated_lines.filter(line => line.completed).length;
     }
 

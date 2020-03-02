@@ -32,13 +32,11 @@ const POLYGON_SNAP = 50;
 })
 export class PageMarkerComponent implements OnChanges, OnInit {
 
-    constructor(private sanitizer: DomSanitizer) {
+    constructor() {
     }
 
     width = 1609;
     height = 1075;
-
-    image: SafeStyle;
 
     @ViewChild('canvas', { static: true })
     canvas: ElementRef<SVGImageElement>;
@@ -52,7 +50,7 @@ export class PageMarkerComponent implements OnChanges, OnInit {
     @Input()
     shapes: Readonly<Shape[]> = [];
 
-    @Input('scanUrl') scanUrl: string;
+    @Input() scanUrl: string;
 
     @Output()
     escape = new EventEmitter();
@@ -416,7 +414,6 @@ export class PageMarkerComponent implements OnChanges, OnInit {
 
     ngOnInit() {
         this.canvas.nativeElement.setAttribute('viewBox', `0 0 ${this.width} ${this.height}`);
-        this.image = this.sanitizer.bypassSecurityTrustStyle(this.scanUrl);
         this.canvas.nativeElement.children[0].setAttributeNS(null, 'href', this.scanUrl);
     }
 
