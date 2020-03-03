@@ -77,7 +77,7 @@ class AnnotatedLineViewSet(viewsets.ModelViewSet):
     def create(self, request):
         serializer = self.get_serializer(data=request.data)
         if not serializer.is_valid(raise_exception=False):
-            return Response({'Error': 'Object not valid'}, status=400)
+            return Response(serializer.errors, status=400)
         item = self.perform_create(serializer)
         return Response()
 
