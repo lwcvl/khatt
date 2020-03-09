@@ -101,27 +101,24 @@ export class MarkManuscriptComponent implements OnInit {
         }
     }
 
-    saveShapes() {
+    async saveShapes() {
         const lines = this.shapes.filter( shape => shape.type === 'text-line') as TextLine[];
         if (lines) {
-            const textFields = this.restangular.all('text_fields');
-            textFields.post({
-                manuscript: this.manuscriptID,
-                page: this.page,
-                bounding_box: lines[0].parent
-            }).subscribe(response => this.saveLines(lines, response.created));
+            const newLines = await this.saveLines(lines);
+            this.updatePreviousNext(newLines);
         }
     }
 
-    saveLines(lines, textFieldID) {
-        const annotatedLines = this.restangular.all('annotated_lines');
-        const request = {
-            text_field: textFieldID,
-            annotation: {
-                manuscript_id: this.manuscriptID,
-                bounding_box: {}
-            }
+    async saveLines(lines) {
+        const getRequest = () => {
+            return {
+                annotation: {
+                    manuscript: this.manuscriptID,
+                    bounding_box: {}
+                }
+            };
         };
+        let requests = [];
         if ( lines[0].y1 === lines[0].y2 ) {
             // horizontal line
             const top = lines[0].parent.type === 'rectangle' ? lines[0].parent.y :
@@ -133,21 +130,20 @@ export class MarkManuscriptComponent implements OnInit {
                 width: lines[0].x2 - lines[0].x1,
                 height: lines[0].y1 - top
             };
-            request.annotation.bounding_box = firstline;
-            annotatedLines.post(request);
-            if (lines.length > 1) {
-                lines.forEach( (line, index) => {
-                    if (index > 0) {
-                        request.annotation.bounding_box = {
-                            x: line.x1,
-                            y: line.y1,
-                            width: line.x2 - line.x1,
-                            height: line.y1 - lines[index - 1].y1
-                        };
-                        annotatedLines.post(request);
-                    }
-                });
-            }
+            requests = lines.map((line, index) => {
+                const finalRequest = getRequest();
+                if (index === 0) {
+                    finalRequest.annotation.bounding_box = firstline;
+                } else {
+                    finalRequest.annotation.bounding_box = {
+                        x: line.x1,
+                        y: line.y1,
+                        width: line.x2 - line.x1,
+                        height: line.y1 - lines[index - 1].y1
+                    };
+                }
+                return finalRequest;
+            });
         } else {
             const left = lines[0].parent.type === 'rectangle' ? lines[0].parent.x :
                 Math.min.apply(Math, lines[0].parent.marks.map( point => point.x));
@@ -158,20 +154,56 @@ export class MarkManuscriptComponent implements OnInit {
                 width: lines[0].x1 - left,
                 height: lines[0].y2 - lines[0].y1
             };
-            request.annotation.bounding_box = firstline;
-            annotatedLines.post(request);
-            if (lines.length > 1) {
-                lines.forEach( (line, index) => {
-                    if (index > 0) {
-                        request.annotation.bounding_box = {
-                            x: line.x1,
-                            y: line.y1,
-                            width: line.x1 - lines[index - 1].x1,
-                            height: line.y2 - line.y1
-                        };
-                        annotatedLines.post(request);
-                    }
+            requests = lines.map( (line, index) => {
+                const finalRequest = getRequest();
+                if (index === 0) {
+                    finalRequest.annotation.bounding_box = firstline;
+                } else {
+                    finalRequest.annotation.bounding_box = {
+                        x: line.x1,
+                        y: line.y1,
+                        width: line.x1 - lines[index - 1].x1,
+                        height: line.y2 - line.y1
+                    };
+                }
+                return finalRequest;
+            });
+        }
+        const getLinePromise = (req) => {
+            const annotatedLines = this.restangular.all('annotated_lines');
+            return annotatedLines.post(req).toPromise();
+        };
+        const linePromises = requests.map(req => getLinePromise(req));
+        return Promise.all(linePromises).then(response => response).catch( err => {
+            console.log(err);
+        });
+    }
+
+    updatePreviousNext(lines) {
+        // to do: logic to update wrt lines which weren't saved now but earlier
+        // i.e.: check correct manuscript and page
+        // check co-ordinates of annotation on the page
+        // depending on left-to-right or right-to-left, determine order
+        this.restangular.one('manuscripts', this.manuscriptID).patch({currently_annotating: lines[0].created});
+        lines.forEach( (line, index) => {
+            if (index === 0) {
+                this.restangular.one('annotated_lines', Number(line.created)).patch({
+                    next_line: lines[index + 1].created
                 });
+                return;
             }
-        }}
+            if (index === lines.length - 1) {
+                this.restangular.one('annotated_lines', Number(line.created)).patch({
+                    previous_line: lines[index - 1].created
+                });
+                return;
+            } else {
+                this.restangular.one('annotated_lines', Number(line.created)).patch({
+                    previous_line: lines[index - 1].created,
+                    next_line: lines[index + 1].created
+                });
+                return;
+            }
+        });
+    }
 }

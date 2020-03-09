@@ -37,4 +37,5 @@
 <kht-annotate-line *ngFor="let shape of highlightShapes; let i = index"
                    [offset]="offsets[i]"
                    [shape]="shape"
-                   (count)="updateCount(i, $event)"></kht-annotate-line>
+                   (count)="updateCount(i, $event)"
+                   (changeLine)="updateLines(forward)"></kht-annotate-line>

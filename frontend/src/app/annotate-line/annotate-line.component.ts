@@ -1,9 +1,10 @@
-import { ChangeDetectorRef, Component, OnInit, ViewChild, ElementRef, Input, HostBinding } from '@angular/core';
+import { ChangeDetectorRef, Component, OnInit, ViewChild, ElementRef, EventEmitter, Input, HostBinding, Output } from '@angular/core';
 import { faComment, faCommentSlash, faStickyNote } from '@fortawesome/free-solid-svg-icons';
 import { HypoEditorComponent } from '../hypo-editor/hypo-editor.component';
 import { Rectangle } from '../models/shapes';
 import { Restangular } from 'ngx-restangular';
 import { DomSanitizer, SafeStyle } from '@angular/platform-browser';
+import { AnimateChildOptions } from '@angular/animations';
 
 const CONTAINER_WIDTH = 1344;
 const PADDING_LEFT = 50;
@@ -46,6 +47,9 @@ export class AnnotateLineComponent implements OnInit {
     @Input()
     offset = 0;
 
+    @Output()
+    changeLine = new EventEmitter<boolean>();
+
     dir = 'ltr';
 
     maskPoints: string;
@@ -63,6 +67,9 @@ export class AnnotateLineComponent implements OnInit {
     isHypo: boolean;
 
     public researchNoteText: string;
+    public manuscript: any;
+    public previousText: string;
+    public nextText: string;
 
     constructor(
         private changeDetectorRef: ChangeDetectorRef,
@@ -129,6 +136,19 @@ export class AnnotateLineComponent implements OnInit {
         this.canvas.nativeElement.setAttribute(
             'viewBox',
             `${this.viewBox.x} ${this.viewBox.y} ${this.viewBox.width} ${this.viewBox.height}`);
+        this.manuscript = this.shape.manuscript;
+        const previous = this.shape.annotatedLine.previous_line;
+        const next = this.shape.annotatedLine.next_line;
+        if (previous) {
+            this.restangular.one('annotated_lines', previous).get().subscribe( line => {
+                this.previousText = line.text;
+            });
+        }
+        if (next) {
+            this.restangular.one('annotated_lines', next).get().subscribe( line => {
+                this.nextText = line.text;
+            });
+        }
     }
 
     toggleShowContext() {
@@ -161,10 +181,22 @@ export class AnnotateLineComponent implements OnInit {
     }
 
     moveNext() {
+        if (this.shape.annotatedLine.next_line) {
+            this.restangular.one('manuscripts', this.shape.manuscript.id).patch({
+                currently_annotating: this.shape.annotatedLine.next_line
+            });
+            this.changeLine.next(true);
+        }
         this.saveComplete();
     }
 
     movePrevious() {
+        if (this.shape.annotatedLine.previous_line) {
+            this.restangular.one('manuscripts', this.shape.manuscript.id).patch({
+                currently_annotating: this.shape.annotatedLine.previous_line
+            });
+            this.changeLine.next(false);
+        }
         this.saveComplete();
     }
 

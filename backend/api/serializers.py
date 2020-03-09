@@ -42,37 +42,43 @@ class BookSerializer(serializers.ModelSerializer):
         return Book.objects.create(author=author, **validated_data)
 
 
+class AnnotationSerializerShort(serializers.ModelSerializer):
+    ''' Serialize the id of an annotation,
+    and whether it is complete.
+    '''
+    class Meta:
+        model = Annotation
+        fields = ['id', 'complete']
+
+    def to_representation(self, instance):
+        try:
+            instance.chapter
+            annotation_type = 'chapter'
+        except:
+            try:
+                instance.annotated_line
+                annotation_type = 'annotated_line'
+            except:
+                annotation_type = None
+        return {
+            'id': instance.id,
+            'complete': instance.complete,
+            'annotation_type': annotation_type
+        }
+
+
 class ManuscriptSerializer(serializers.ModelSerializer):
-    editor = EditorSerializer()
+    editor = serializers.SlugRelatedField(
+        queryset=Editor.objects.all(), 
+        slug_field='name')
     book = serializers.SlugRelatedField(
         queryset=Book.objects.all(),
         slug_field="title")
+    annotations = AnnotationSerializerShort(many=True, read_only=True)
 
     class Meta:
         model = Manuscript
-        fields = ['book', 'title', 'editor', 'filepath',
-                   'date', 'text_direction', 'page_direction']
-        validators = []
-    
-    def to_representation(self, instance):
-        lines = AnnotatedLine.objects.filter(annotation__manuscript=instance.id)
-        lines_serialized = AnnotationSerializerShort([line.annotation for line in lines], many=True).data
-        chapters = Chapter.objects.filter(annotation__manuscript=instance.id)
-        chapters_serialized = AnnotationSerializerShort([chapter.annotation for chapter in chapters], many=True).data
-        asides = Aside.objects.filter(annotation__manuscript=instance.id)
-        asides_serialized = AnnotationSerializerShort([aside.annotation for aside in asides], many=True).data
-        editor_serialized = EditorSerializer(instance.editor).data['name']
-
-        return {
-            'id': instance.id,
-            'title': instance.title,
-            'editor': editor_serialized,
-            'currently_marking': instance.currently_marking,
-            'currently_annotating': instance.currently_annotating,
-            'annotated_lines': lines_serialized,
-            'chapters': chapters_serialized,
-            'asides': asides_serialized
-        }
+        fields = '__all__'
     
     def create(self, validated_data):
         editor_data = validated_data.pop('editor')
@@ -87,35 +93,32 @@ class AnnotationSerializer(serializers.ModelSerializer):
     annotator = serializers.PrimaryKeyRelatedField(
         read_only=True
     )
+    manuscript = serializers.PrimaryKeyRelatedField(
+        queryset=Manuscript.objects.all()
+    )
 
     class Meta:
         model = Annotation
-        fields = ['annotator', 'bounding_box', 'complete', 'label', 'text', 'research_note']
-
-
-class AnnotationSerializerShort(serializers.ModelSerializer):
-    ''' Serialize the id of an annotation,
-    and whether it is complete.
-    '''
-    class Meta:
-        model = Annotation
-        fields = ['id', 'complete']
-
+        fields = '__all__'
 
 
 class AnnotatedLineSerializer(serializers.ModelSerializer):
     ''' Serialize an annotated line, extending the annotation model.
     '''
+    previous_line = serializers.PrimaryKeyRelatedField(queryset=AnnotatedLine.objects.all(), required=False, allow_null=True)
+    next_line = serializers.PrimaryKeyRelatedField(queryset=AnnotatedLine.objects.all(), required=False, allow_null=True)
+    annotation = AnnotationSerializer()
+
     class Meta:
         model = AnnotatedLine
-        fields = ['id', 'annotation', 'text_field']
+        fields = ['previous_line', 'next_line', 'annotation']
         depth = 1
     
     def create(self, validated_data):
         annotation_data = validated_data.pop('annotation')
-        annotation = Annotation.objects.create(**annotation_data)
-        text_field = TextField.objects.get(pk=validated_data['text_field'])
-        return AnnotatedLine.objects.create(annotation=annotation, text_field=text_field)
+        manuscript = Manuscript.objects.get(pk=annotation_data.pop('manuscript'))
+        annotation = Annotation.objects.create(manuscript=manuscript, **annotation_data)
+        return AnnotatedLine.objects.create(annotation=annotation)
 
 
 class TextFieldSerializer(serializers.ModelSerializer):

@@ -8,7 +8,7 @@
     <div class="control">
         <div class="tags has-addons">
             <span class="tag is-dark">Page {{annotation.page + 1}}/240</span>
-            <span class="tag is-black">Line {{completed}}/{{manuscript.annotated_lines.length}}</span>
+            <span class="tag is-black">Line {{lineIndex}}/{{totalLines.length}}</span>
         </div>
     </div>
     <ng-container *ngFor="let label of labels; let i = index">

@@ -18,7 +18,8 @@ export class AnnotateComponent implements OnInit {
         books.getList().subscribe( bookList => {
             this.books = bookList;
             this.books.forEach( (book, index) => {
-                const lines = book.manuscripts.map( man => man.annotated_lines).flat(1);
+                const annotations =  book.manuscripts.map( man => man.annotations).flat(1);
+                const lines = annotations.filter( ann => ann.annotation_type === 'annotated_line');
                 this.books[index].lines = lines.filter(line => line.complete).length.toString() + '/' + lines.length.toString();
             });
         });

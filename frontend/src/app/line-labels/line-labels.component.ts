@@ -10,7 +10,6 @@ import { Restangular } from 'ngx-restangular';
 export class LineLabelsComponent implements OnInit, AfterViewChecked {
     @Input() manuscript: any;
     @Input() annotation: any;
-    
     @Output()
     blur = new EventEmitter();
 
@@ -20,12 +19,14 @@ export class LineLabelsComponent implements OnInit, AfterViewChecked {
     labels: { text: string, original: string, editing: boolean }[] = [];
     adding = false;
     focusLabel = false;
-    public completed: number;
+    public lineIndex: number;
+    public totalLines: any[];
 
     constructor(private restangular: Restangular) { }
 
     ngOnInit() {
-        this.completed = this.manuscript.annotated_lines.filter(line => line.completed).length;
+        this.totalLines = this.manuscript.annotations.filter(line => line.annotation_type === 'annotated_line');
+        this.lineIndex = this.totalLines.findIndex( line => line.id === this.annotation.id );
     }
 
     ngAfterViewChecked() {

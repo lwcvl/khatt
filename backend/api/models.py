@@ -32,7 +32,7 @@ class Manuscript(models.Model):
     - editor of the book (can be None)
     - book of which the manuscript is a rendition
     - page (wrt file) on which the manuscript was last marked
-    - page (wrt file) on which the manuscript was last annotated
+    - line id on which the manuscript was last annotated
     - title of the manuscript
     - date of the manuscript
     - text_direction
@@ -79,7 +79,7 @@ class Annotation(models.Model):
     - optional hypotext
     - optional research notes
     '''
-    manuscript = models.ForeignKey('Manuscript', on_delete=models.PROTECT)
+    manuscript = models.ForeignKey('Manuscript', on_delete=models.PROTECT, related_name='annotations')
     page = models.IntegerField(default=0)
     annotator = models.ForeignKey(get_user_model(), on_delete=models.PROTECT)
     text = models.CharField(max_length=800, default='')
@@ -94,7 +94,8 @@ class Chapter(models.Model):
     We save the text, the bounding box, and also mappings
     to chapters in another manuscript, corresponding to this chapter.
     '''
-    annotation = models.OneToOneField('Annotation', on_delete=models.CASCADE)
+    annotation = models.OneToOneField('Annotation', 
+        on_delete=models.CASCADE, primary_key=True)
     same_as = models.ForeignKey('self', related_name='corresponding', 
         on_delete=models.PROTECT, blank=True, null=True)
 
@@ -105,8 +106,8 @@ class AnnotatedLine(models.Model):
     and also registers the previous and next lines,
     as well as (optional) hypotext.
     '''
-    annotation = models.OneToOneField('Annotation', on_delete=models.CASCADE)
-    text_field = models.ForeignKey('TextField', on_delete=models.PROTECT, null=True)
+    annotation = models.OneToOneField('Annotation', on_delete=models.CASCADE, 
+        primary_key=True, related_name = 'annotated_line')
     previous_line = models.OneToOneField('self', related_name="previous", on_delete=models.PROTECT,
         blank=True, null=True)
     next_line = models.OneToOneField('self', related_name="next", on_delete=models.PROTECT,
@@ -119,7 +120,8 @@ class Aside(models.Model):
     An aside is an annotation
     We extend to be able to separate asides, lines and chapters.
     '''
-    annotation = models.OneToOneField('Annotation', on_delete=models.CASCADE)
+    annotation = models.OneToOneField('Annotation', 
+        on_delete=models.CASCADE, primary_key=True)
 
 
 class Author(models.Model):

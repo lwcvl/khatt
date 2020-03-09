@@ -1,4 +1,4 @@
-import { Component, Input } from '@angular/core';
+import { Component, Input, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { ListType } from '../lib';
 import { iif } from 'rxjs';
@@ -8,7 +8,7 @@ import { iif } from 'rxjs';
     templateUrl: './manuscripts.component.html',
     styleUrls: ['./manuscripts.component.scss']
 })
-export class ManuscriptsComponent {
+export class ManuscriptsComponent implements OnInit {
     @Input() manuscripts: any[] = [];
     annotatedLines: string;
 
@@ -16,15 +16,18 @@ export class ManuscriptsComponent {
 
     ngOnInit() {
         this.manuscripts.forEach( (manuscript, index) => {
-            if (manuscript.annotated_lines.length > 0 ) {
-                this.manuscripts[index].annotated_lines = manuscript.annotated_lines.filter( line => line.complete ).length.toString() + "/" + manuscript.annotated_lines.length.toString()
+            if (manuscript.annotations.length > 0 ) {
+                this.manuscripts[index].annotated_lines = 0;
+                // this.manuscripts[index].annotated_lines = manuscript.annotated_lines.filter( line => line.complete ).length.toString() + "/" + manuscript.annotated_lines.length.toString()
+            } else {
+                this.manuscripts[index].annotated_lines = 0;
             }
-            else this.manuscripts[index].annotated_lines = 0;
-        })
+        });
     }
 
 
     markManuscript(manuscript: ListType<ManuscriptsComponent['manuscripts']>) {
+        console.log(manuscript.id);
         this.router.navigate(['/mark-manuscript', manuscript.id]);
     }
 
