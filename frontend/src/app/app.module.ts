@@ -33,6 +33,7 @@ import { EditLabelComponent } from './edit-label/edit-label.component';
 import { LineLabelsComponent } from './line-labels/line-labels.component';
 import { MapChaptersComponent } from './map-chapters/map-chapters.component';
 import { MapBookChaptersComponent } from './map-book-chapters/map-book-chapters.component';
+import { DownloadComponent } from './download/download.component';
 
 export function RestangularConfigFactory(RestangularProvider) {
     RestangularProvider.setBaseUrl('/api');
@@ -69,7 +70,8 @@ export function RestangularConfigFactory(RestangularProvider) {
         EditLabelComponent,
         LineLabelsComponent,
         MapChaptersComponent,
-        MapBookChaptersComponent
+        MapBookChaptersComponent,
+        DownloadComponent
     ],
     imports: [
         AppRoutingModule,

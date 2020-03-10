@@ -1,4 +1,4 @@
-import { ChangeDetectorRef, Component, OnInit, ViewChild, ElementRef, EventEmitter, Input, HostBinding, Output } from '@angular/core';
+import { ChangeDetectorRef, Component, OnInit, ViewChild, ElementRef, EventEmitter, Input, HostBinding, Output, OnChanges } from '@angular/core';
 import { faComment, faCommentSlash, faStickyNote } from '@fortawesome/free-solid-svg-icons';
 import { HypoEditorComponent } from '../hypo-editor/hypo-editor.component';
 import { Rectangle } from '../models/shapes';
@@ -15,7 +15,7 @@ const PADDING_TOP = 25;
     templateUrl: './annotate-line.component.html',
     styleUrls: ['./annotate-line.component.scss']
 })
-export class AnnotateLineComponent implements OnInit {
+export class AnnotateLineComponent implements OnInit, OnChanges {
     /**
      * SVG masks need a unique ID
      */
@@ -136,17 +136,20 @@ export class AnnotateLineComponent implements OnInit {
         this.canvas.nativeElement.setAttribute(
             'viewBox',
             `${this.viewBox.x} ${this.viewBox.y} ${this.viewBox.width} ${this.viewBox.height}`);
+    }
+
+    ngOnChanges() {
         this.manuscript = this.shape.manuscript;
         const previous = this.shape.annotatedLine.previous_line;
         const next = this.shape.annotatedLine.next_line;
         if (previous) {
             this.restangular.one('annotated_lines', previous).get().subscribe( line => {
-                this.previousText = line.text;
+                this.previousText = line.text ? line.text : 'Previous line';
             });
         }
         if (next) {
             this.restangular.one('annotated_lines', next).get().subscribe( line => {
-                this.nextText = line.text;
+                this.nextText = line.text ? line.text : 'Next line';
             });
         }
     }
@@ -182,6 +185,7 @@ export class AnnotateLineComponent implements OnInit {
 
     moveNext() {
         if (this.shape.annotatedLine.next_line) {
+            console.log(this.shape.annotatedLine.next_line);
             this.restangular.one('manuscripts', this.shape.manuscript.id).patch({
                 currently_annotating: this.shape.annotatedLine.next_line
             });

@@ -56,10 +56,14 @@ class AnnotationSerializerShort(serializers.ModelSerializer):
             annotation_type = 'chapter'
         except:
             try:
-                instance.annotated_line
-                annotation_type = 'annotated_line'
+                instance.aside
+                annotation_type = 'aside'
             except:
-                annotation_type = None
+                try:
+                    instance.annotated_line
+                    annotation_type = 'annotated_line'
+                except:
+                    annotation_type = None
         return {
             'id': instance.id,
             'complete': instance.complete,
@@ -127,3 +131,11 @@ class TextFieldSerializer(serializers.ModelSerializer):
     class Meta:
         model = TextField
         fields = ['id', 'manuscript', 'page', 'bounding_box']
+
+
+class DownloadSerializer(serializers.ModelSerializer):
+    manuscript = serializers.SlugRelatedField(read_only=True, slug_field='title')
+    
+    class Meta:
+        model = Annotation
+        fields = ['id', 'manuscript', 'page', 'text', 'label', 'research_note']
