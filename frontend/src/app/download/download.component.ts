@@ -1,4 +1,5 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, Inject, OnInit } from '@angular/core';
+import { DOCUMENT } from '@angular/common';
 
 @Component({
   selector: 'kht-download',
@@ -7,12 +8,13 @@ import { Component, OnInit } from '@angular/core';
 })
 export class DownloadComponent implements OnInit {
 
-    constructor() { }
+    constructor(@Inject(DOCUMENT) private document: Document) { }
 
     ngOnInit() {
     }
 
-  downloadAnnotations(){
-  }
+    downloadAnnotations() {
+        this.document.location.href = '/api/annotations/download/';
+    }
 
 }
