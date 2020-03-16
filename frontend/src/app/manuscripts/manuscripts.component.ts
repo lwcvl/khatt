@@ -17,8 +17,10 @@ export class ManuscriptsComponent implements OnInit {
     ngOnInit() {
         this.manuscripts.forEach( (manuscript, index) => {
             if (manuscript.annotations.length > 0 ) {
-                this.manuscripts[index].annotated_lines = 0;
-                // this.manuscripts[index].annotated_lines = manuscript.annotated_lines.filter( line => line.complete ).length.toString() + "/" + manuscript.annotated_lines.length.toString()
+                this.manuscripts[index].annotated_lines = manuscript.annotations.filter(
+                    line => line.annotation_type === 'annotated_line' && line.complete ).length.toString() +
+                    '/' + manuscript.annotations.filter(
+                        line => line.annotation_type === 'annotated_line').length.toString();
             } else {
                 this.manuscripts[index].annotated_lines = 0;
             }
@@ -27,7 +29,6 @@ export class ManuscriptsComponent implements OnInit {
 
 
     markManuscript(manuscript: ListType<ManuscriptsComponent['manuscripts']>) {
-        console.log(manuscript.id);
         this.router.navigate(['/mark-manuscript', manuscript.id]);
     }
 

@@ -72,6 +72,7 @@ export class HypoEditorComponent implements AfterViewInit {
     }
 
     ngAfterViewInit() {
+        this.replaceParts([{text: this.annotation.text, hypo: false}]);
         this.partSpans.changes.subscribe((t: any) => {
             this.renderText(t.toArray());
             this.checkHypoVal();
@@ -88,7 +89,6 @@ export class HypoEditorComponent implements AfterViewInit {
 
     private renderText(spansRefs: ElementRef<HTMLSpanElement>[]) {
         const spans = spansRefs.map(s => s.nativeElement);
-
         for (const part of this.parts.items()) {
             spans[part.index].innerText = part.text;
         }

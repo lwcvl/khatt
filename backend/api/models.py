@@ -76,11 +76,10 @@ class Annotation(models.Model):
     - annotated text
     - optional labels
     - the previous and next lines
-    - optional hypotext
     - optional research notes
     '''
     manuscript = models.ForeignKey('Manuscript', on_delete=models.PROTECT, related_name='annotations')
-    page = models.IntegerField(default=0)
+    page = models.IntegerField(default=1)
     annotator = models.ForeignKey(get_user_model(), on_delete=models.PROTECT)
     text = models.CharField(max_length=800, default='')
     label = models.CharField(max_length=50, default='')

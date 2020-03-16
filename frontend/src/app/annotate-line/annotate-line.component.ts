@@ -48,7 +48,7 @@ export class AnnotateLineComponent implements OnInit {
     offset = 0;
 
     @Output()
-    changeLine = new EventEmitter<boolean>();
+    changeLine: EventEmitter<boolean> = new EventEmitter();
 
     dir = 'ltr';
 
@@ -68,8 +68,8 @@ export class AnnotateLineComponent implements OnInit {
 
     public researchNoteText: string;
     public manuscript: any;
-    public previousText: string;
-    public nextText: string;
+    public previousText = 'Previous line';
+    public nextText = 'Next line';
 
     constructor(
         private changeDetectorRef: ChangeDetectorRef,
@@ -139,14 +139,14 @@ export class AnnotateLineComponent implements OnInit {
         this.manuscript = this.shape.manuscript;
         const previous = this.shape.annotatedLine.previous_line;
         const next = this.shape.annotatedLine.next_line;
-        if (previous) {
+        if (previous !== null) {
             this.restangular.one('annotated_lines', previous).get().subscribe( line => {
-                this.previousText = line.text;
+                this.previousText = line.annotation.text.length > 0 ? line.annotation.text : 'Previous line';
             });
         }
-        if (next) {
+        if (next !== null) {
             this.restangular.one('annotated_lines', next).get().subscribe( line => {
-                this.nextText = line.text;
+                this.nextText = line.annotation.text.length > 0 ? line.annotation.text : 'Next line';
             });
         }
     }
@@ -185,7 +185,7 @@ export class AnnotateLineComponent implements OnInit {
             this.restangular.one('manuscripts', this.shape.manuscript.id).patch({
                 currently_annotating: this.shape.annotatedLine.next_line
             });
-            this.changeLine.next(true);
+            this.changeLine.emit(true);
         }
         this.saveComplete();
     }
@@ -195,7 +195,7 @@ export class AnnotateLineComponent implements OnInit {
             this.restangular.one('manuscripts', this.shape.manuscript.id).patch({
                 currently_annotating: this.shape.annotatedLine.previous_line
             });
-            this.changeLine.next(false);
+            this.changeLine.emit(false);
         }
         this.saveComplete();
     }

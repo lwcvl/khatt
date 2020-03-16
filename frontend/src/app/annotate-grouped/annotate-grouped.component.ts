@@ -70,10 +70,12 @@ export class AnnotateGroupedComponent implements OnInit {
     updateLines(forward: boolean) {
         this.highlightShapes.forEach((shape, index) => {
             const lineID = this.getLineID(shape, forward);
-            this.restangular.one('annotated_lines', lineID).get().subscribe( line => {
-                const newShape = this.generateShape(line, shape.manuscript);
-                this.highlightShapes[index] = newShape;
-            });
+            if (lineID) {
+                this.restangular.one('annotated_lines', lineID).get().subscribe( line => {
+                    const newShape = this.generateShape(line, shape.manuscript);
+                    this.highlightShapes[index] = newShape;
+                });
+            }
         });
     }
 
