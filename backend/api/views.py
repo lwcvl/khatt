@@ -1,4 +1,5 @@
 from io import BytesIO
+import csv
 
 from django.shortcuts import get_object_or_404
 from django.http import HttpResponse
@@ -12,7 +13,7 @@ from rest_framework.decorators import action
 from wsgiref.util import FileWrapper
 
 from .models import Annotation, AnnotatedLine, Book, Editor, Manuscript, TextField
-from .serializers import AnnotationSerializer, AnnotatedLineSerializer, BookSerializer, ManuscriptSerializer, TextFieldSerializer
+from .serializers import AnnotationSerializer, AnnotatedLineSerializer, BookSerializer, DownloadSerializer, ManuscriptSerializer, TextFieldSerializer
 
 
 class BookViewSet(viewsets.ModelViewSet):
@@ -68,6 +69,18 @@ class ManuscriptViewSet(viewsets.ModelViewSet):
 class AnnotationViewSet(viewsets.ModelViewSet):
     queryset = Annotation.objects.all()
     serializer_class = AnnotationSerializer
+
+    @action(detail=False, methods=['get'], url_path='download')
+    def download_annotations(self, request):
+        annotations = Annotation.objects.all().filter(complete=True)
+        serialized = DownloadSerializer(annotations, many=True).data
+        keys = serialized[0].keys()
+        response = HttpResponse(content_type='text/csv')
+        response['Content-Disposition'] = 'attachment; filename="annotations.csv"'
+        writer = csv.DictWriter(response, keys)
+        writer.writeheader()
+        writer.writerows(serialized)
+        return response
 
 
 class AnnotatedLineViewSet(viewsets.ModelViewSet):

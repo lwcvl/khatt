@@ -10,6 +10,7 @@ import { MapChaptersComponent } from './map-chapters/map-chapters.component';
 import { MapBookChaptersComponent } from './map-book-chapters/map-book-chapters.component';
 import { MarkManuscriptComponent } from './mark-manuscript/mark-manuscript.component';
 import { ManuscriptFormComponent } from './manuscript-form/manuscript-form.component';
+import { DownloadComponent } from './download/download.component';
 
 const routes: Routes = [
     {
@@ -51,6 +52,10 @@ const routes: Routes = [
     {
         path: 'upload',
         component: ManuscriptFormComponent
+    },
+    {
+        path: 'download',
+        component: DownloadComponent
     },
     {
         path: '',

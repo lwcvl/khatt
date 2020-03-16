@@ -17,10 +17,16 @@ export class ManuscriptsComponent implements OnInit {
     ngOnInit() {
         this.manuscripts.forEach( (manuscript, index) => {
             if (manuscript.annotations.length > 0 ) {
+<<<<<<< HEAD
                 this.manuscripts[index].annotated_lines = manuscript.annotations.filter(
                     line => line.annotation_type === 'annotated_line' && line.complete ).length.toString() +
                     '/' + manuscript.annotations.filter(
                         line => line.annotation_type === 'annotated_line').length.toString();
+=======
+                this.manuscripts[index].annotated_lines = manuscript.annotations.filter(ann => {
+                    return ann.annotation_type === 'annotated_line';
+                }).length;
+>>>>>>> feature/download
             } else {
                 this.manuscripts[index].annotated_lines = 0;
             }
