@@ -17,7 +17,7 @@ const routes: Routes = [
         component: AnnotateComponent,
     },
     {
-        path: 'annotate/grouped',
+        path: 'annotate/grouped/:book',
         component: AnnotateGroupedComponent,
     },
     {
@@ -25,7 +25,7 @@ const routes: Routes = [
         component: BooksComponent,
     },
     {
-        path: 'books/edit',
+        path: 'books/edit/:book',
         component: BookComponent,
     },
     {
@@ -45,7 +45,7 @@ const routes: Routes = [
         component: MapBookChaptersComponent
     },
     {
-        path: 'mark-manuscript',
+        path: 'mark-manuscript/:manuscript',
         component: MarkManuscriptComponent
     },
     {

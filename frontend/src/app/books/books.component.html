@@ -12,7 +12,7 @@
         <tr *ngFor="let book of books" (click)="viewBook(book)">
             <td>{{book.title}}</td>
             <td>{{book.author}}</td>
-            <td>{{book.manuscripts}}</td>
+            <td>{{book.manuscripts.length}}</td>
             <td>{{book.annotatedLines}}</td>
         </tr>
     </tbody>

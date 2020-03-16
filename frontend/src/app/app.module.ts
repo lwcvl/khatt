@@ -20,7 +20,6 @@ import { AnnotateGroupedComponent } from './annotate-grouped/annotate-grouped.co
 import { AnnotateLineComponent } from './annotate-line/annotate-line.component';
 import { BookComponent } from './book/book.component';
 import { BooksComponent } from './books/books.component';
-import { EditingComponent } from './editing/editing.component';
 import { ManuscriptsComponent } from './manuscripts/manuscripts.component';
 import { MarkManuscriptComponent } from './mark-manuscript/mark-manuscript.component';
 import { FooterComponent } from './footer/footer.component';
@@ -40,12 +39,13 @@ export function RestangularConfigFactory(RestangularProvider) {
     RestangularProvider.addFullRequestInterceptor((element, operation, path, url, headers, params) => {
         const token = decodeURIComponent(document.cookie);
         if (token) {
-            const csrf = token.split(';').filter(item => item.trim().startsWith('csrf'))[0].split('=')[1];
+            const csrf = token.split(';').filter(item => item.trim().startsWith('csrft'))[0].split('=')[1];
             return {
               headers: Object.assign(headers, {'X-CSRFToken': csrf}),
             };
         }
     });
+    RestangularProvider.setRequestSuffix('/');
     }
 
 
@@ -57,7 +57,6 @@ export function RestangularConfigFactory(RestangularProvider) {
         AnnotateLineComponent,
         BookComponent,
         BooksComponent,
-        EditingComponent,
         MarkManuscriptComponent,
         ManuscriptsComponent,
         FooterComponent,

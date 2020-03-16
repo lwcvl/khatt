@@ -1,4 +1,7 @@
 import { Component, OnInit } from '@angular/core';
+import { Restangular } from 'ngx-restangular';
+import { ActivatedRoute } from '@angular/router';
+import { AnimationQueryMetadata } from '@angular/animations';
 
 @Component({
   selector: 'kht-book',
@@ -6,10 +9,20 @@ import { Component, OnInit } from '@angular/core';
   styleUrls: ['./book.component.scss']
 })
 export class BookComponent implements OnInit {
+    book: any;
+    bookID: number;
+    manuscripts: [];
 
-  constructor() { }
+    constructor(private activatedRoute: ActivatedRoute, private restAngular: Restangular) { }
 
-  ngOnInit() {
-  }
+    ngOnInit() {
+        this.activatedRoute.paramMap.subscribe( params => {
+            this.bookID = Number(params.get('book'));
+        });
+        this.restAngular.one('books', this.bookID).get().subscribe( book => {
+            this.book = book;
+            this.manuscripts = book.manuscripts;
+        });
+    }
 
 }

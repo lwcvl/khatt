@@ -13,7 +13,7 @@
         </div>
     </div>
     <div class="level-item">
-        <h1 class="title">Title of the Book</h1>
+        <h1 *ngIf="book" class="title">{{book.title}}</h1>
         <a class="button is-text" [routerLink]="['/books/edit']">
             <span class="icon">
                 <fa-icon [icon]="faPencilAlt"></fa-icon>
@@ -37,4 +37,5 @@
 <kht-annotate-line *ngFor="let shape of highlightShapes; let i = index"
                    [offset]="offsets[i]"
                    [shape]="shape"
-                   (count)="updateCount(i, $event)"></kht-annotate-line>
+                   (count)="updateCount(i, $event)"
+                   (changeLine)="updateLines($event)"></kht-annotate-line>

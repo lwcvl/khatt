@@ -28,6 +28,9 @@ from api import views
 api_router = routers.DefaultRouter()  # register viewsets with this router
 api_router.register(r'books', views.BookViewSet)
 api_router.register(r'manuscripts', views.ManuscriptViewSet)
+api_router.register(r'annotated_lines', views.AnnotatedLineViewSet)
+api_router.register(r'text_fields', views.TextFieldViewSet)
+api_router.register(r'annotations', views.AnnotationViewSet)
 
 if settings.PROXY_FRONTEND:
     spa_url = re_path(r'^(?P<path>.*)$', proxy_frontend)

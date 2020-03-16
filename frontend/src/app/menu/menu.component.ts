@@ -1,5 +1,6 @@
 import { Component, OnInit, NgZone } from '@angular/core';
 import { animations, showState } from '../animations';
+import { Restangular } from 'ngx-restangular';
 
 @Component({
     animations,
@@ -11,7 +12,7 @@ export class MenuComponent implements OnInit {
     burgerShow: showState;
     burgerActive = false;
 
-    constructor(private ngZone: NgZone) { }
+    constructor(private ngZone: NgZone, private restangular: Restangular) { }
 
     ngOnInit() {
     }

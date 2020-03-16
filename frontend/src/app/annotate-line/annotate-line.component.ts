@@ -1,7 +1,10 @@
-import { ChangeDetectorRef, Component, OnInit, ViewChild, ElementRef, Input, HostBinding } from '@angular/core';
+import { ChangeDetectorRef, Component, OnInit, ViewChild, ElementRef, EventEmitter, Input, HostBinding, Output } from '@angular/core';
 import { faComment, faCommentSlash, faStickyNote } from '@fortawesome/free-solid-svg-icons';
 import { HypoEditorComponent } from '../hypo-editor/hypo-editor.component';
 import { Rectangle } from '../models/shapes';
+import { Restangular } from 'ngx-restangular';
+import { DomSanitizer, SafeStyle } from '@angular/platform-browser';
+import { AnimateChildOptions } from '@angular/animations';
 
 const CONTAINER_WIDTH = 1344;
 const PADDING_LEFT = 50;
@@ -39,10 +42,13 @@ export class AnnotateLineComponent implements OnInit {
 
     // TODO: other shapes
     @Input()
-    shape: Rectangle;
+    shape: {manuscript: any, path: string, annotatedLine: any, highlight: Rectangle};
 
     @Input()
     offset = 0;
+
+    @Output()
+    changeLine: EventEmitter<boolean> = new EventEmitter();
 
     dir = 'ltr';
 
@@ -50,15 +56,6 @@ export class AnnotateLineComponent implements OnInit {
 
     @HostBinding('class')
     class = 'box is-paddingless';
-
-    @HostBinding('style.background-image')
-    backgroundImage = 'url(\'assets/page.jpg\')';
-
-    @HostBinding('style.background-position')
-    backgroundPosition = '0 0';
-
-    @HostBinding('style.background-size')
-    backgroundSize = `${this.width}px`;
 
     @ViewChild('canvas', { static: true })
     canvas: ElementRef<SVGImageElement>;
@@ -69,7 +66,14 @@ export class AnnotateLineComponent implements OnInit {
     isComplete: boolean;
     isHypo: boolean;
 
-    constructor(private changeDetectorRef: ChangeDetectorRef) {
+    public researchNoteText: string;
+    public manuscript: any;
+    public previousText = 'Previous line';
+    public nextText = 'Next line';
+
+    constructor(
+        private changeDetectorRef: ChangeDetectorRef,
+        private restangular: Restangular) {
     }
 
     hypoChange(isHypo: boolean) {
@@ -78,21 +82,24 @@ export class AnnotateLineComponent implements OnInit {
     }
 
     ngOnInit() {
+        this.canvas.nativeElement.setAttribute('viewBox', `0 0 ${this.width} ${this.height}`);
+        this.canvas.nativeElement.children[0].setAttributeNS(null, 'href', this.shape.path);
+
         const points = [{
-            x: this.shape.x,
-            y: this.shape.y
+            x: this.shape.highlight.x,
+            y: this.shape.highlight.y
         },
         {
-            x: this.shape.x + this.shape.width,
-            y: this.shape.y
+            x: this.shape.highlight.x + this.shape.highlight.width,
+            y: this.shape.highlight.y
         },
         {
-            x: this.shape.x + this.shape.width,
-            y: this.shape.y + this.shape.height
+            x: this.shape.highlight.x + this.shape.highlight.width,
+            y: this.shape.highlight.y + this.shape.highlight.height
         },
         {
-            x: this.shape.x,
-            y: this.shape.y + this.shape.height
+            x: this.shape.highlight.x,
+            y: this.shape.highlight.y + this.shape.highlight.height
         }];
         this.maskPoints = points.map(h => `${h.x},${h.y}`).join(' ');
 
@@ -125,12 +132,23 @@ export class AnnotateLineComponent implements OnInit {
         };
 
         const scale = CONTAINER_WIDTH / (boundingBox.x2 - boundingBox.x1);
-        this.backgroundSize = `${scale * this.width}px`;
-        this.backgroundPosition = `${-scale * boundingBox.x1}px ${-scale * boundingBox.y1}px`;
         this.canvasHeight = Math.ceil(-scale * (boundingBox.y1 - boundingBox.y2));
         this.canvas.nativeElement.setAttribute(
             'viewBox',
             `${this.viewBox.x} ${this.viewBox.y} ${this.viewBox.width} ${this.viewBox.height}`);
+        this.manuscript = this.shape.manuscript;
+        const previous = this.shape.annotatedLine.previous_line;
+        const next = this.shape.annotatedLine.next_line;
+        if (previous !== null) {
+            this.restangular.one('annotated_lines', previous).get().subscribe( line => {
+                this.previousText = line.annotation.text.length > 0 ? line.annotation.text : 'Previous line';
+            });
+        }
+        if (next !== null) {
+            this.restangular.one('annotated_lines', next).get().subscribe( line => {
+                this.nextText = line.annotation.text.length > 0 ? line.annotation.text : 'Next line';
+            });
+        }
     }
 
     toggleShowContext() {
@@ -143,10 +161,13 @@ export class AnnotateLineComponent implements OnInit {
             this.researchNotes.nativeElement.focus();
         } else {
             this.researchNotesHeight = '0';
+            const annID = this.shape.annotatedLine.annotation.id;
+            this.restangular.one('annotations', annID).patch({research_note: this.researchNoteText});
         }
     }
 
     researchNotesKeydown(event: KeyboardEvent) {
+        const keycode = event.which || event.keyCode;
         if (event.altKey) {
             switch (event.key) {
                 case 'r':
@@ -157,6 +178,32 @@ export class AnnotateLineComponent implements OnInit {
             }
         }
         return true;
+    }
+
+    moveNext() {
+        if (this.shape.annotatedLine.next_line) {
+            this.restangular.one('manuscripts', this.shape.manuscript.id).patch({
+                currently_annotating: this.shape.annotatedLine.next_line
+            });
+            this.changeLine.emit(true);
+        }
+        this.saveComplete();
+    }
+
+    movePrevious() {
+        if (this.shape.annotatedLine.previous_line) {
+            this.restangular.one('manuscripts', this.shape.manuscript.id).patch({
+                currently_annotating: this.shape.annotatedLine.previous_line
+            });
+            this.changeLine.emit(false);
+        }
+        this.saveComplete();
+    }
+
+    saveComplete() {
+        this.restangular.one('annotations', this.shape.annotatedLine.annotation.id).patch({
+            complete: this.isComplete
+        });
     }
 }
 

@@ -1,5 +1,6 @@
-import { Component, EventEmitter, OnInit, Output, ViewChild, AfterViewChecked } from '@angular/core';
+import { Component, EventEmitter, Input, OnInit, Output, ViewChild, AfterViewChecked } from '@angular/core';
 import { EditLabelComponent } from '../edit-label/edit-label.component';
+import { Restangular } from 'ngx-restangular';
 
 @Component({
     selector: 'kht-line-labels',
@@ -7,6 +8,8 @@ import { EditLabelComponent } from '../edit-label/edit-label.component';
     styleUrls: ['./line-labels.component.scss']
 })
 export class LineLabelsComponent implements OnInit, AfterViewChecked {
+    @Input() manuscript: any;
+    @Input() annotation: any;
     @Output()
     blur = new EventEmitter();
 
@@ -16,10 +19,14 @@ export class LineLabelsComponent implements OnInit, AfterViewChecked {
     labels: { text: string, original: string, editing: boolean }[] = [];
     adding = false;
     focusLabel = false;
+    public lineIndex: number;
+    public totalLines: any[];
 
-    constructor() { }
+    constructor(private restangular: Restangular) { }
 
     ngOnInit() {
+        this.totalLines = this.manuscript.annotations.filter(line => line.annotation_type === 'annotated_line');
+        this.lineIndex = this.totalLines.findIndex( line => line.id === this.annotation.id );
     }
 
     ngAfterViewChecked() {
@@ -53,6 +60,7 @@ export class LineLabelsComponent implements OnInit, AfterViewChecked {
 
     commit(text: string, index: number = -1) {
         text = text.trim();
+        this.restangular.one('annotations', this.annotation.id).patch({label: text});
         if (index >= 0) {
             const labels = [...this.labels];
             labels[index] = { text, original: text, editing: false };

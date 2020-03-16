@@ -14,6 +14,7 @@ import { CursorPosition, Direction } from '../models/cursor-position';
 import { TextPart, TextPartCollection, TextPartSelection } from '../models/text-part-collection';
 
 import { ClipboardService } from '../clipboard.service';
+import { Restangular } from 'ngx-restangular';
 
 const NODE_ID_ATTRIBUTE = 'data-part-id';
 
@@ -35,6 +36,8 @@ export class HypoEditorComponent implements AfterViewInit {
 
     @Input()
     dir: string;
+
+    @Input() annotation: any;
 
     @Output()
     hypoChange = new EventEmitter<boolean>();
@@ -63,10 +66,13 @@ export class HypoEditorComponent implements AfterViewInit {
 
     composingKey = false;
 
-    constructor(private clipboardService: ClipboardService) {
+    constructor(
+        private clipboardService: ClipboardService,
+        private restangular: Restangular) {
     }
 
     ngAfterViewInit() {
+        this.replaceParts([{text: this.annotation.text, hypo: false}]);
         this.partSpans.changes.subscribe((t: any) => {
             this.renderText(t.toArray());
             this.checkHypoVal();
@@ -83,7 +89,6 @@ export class HypoEditorComponent implements AfterViewInit {
 
     private renderText(spansRefs: ElementRef<HTMLSpanElement>[]) {
         const spans = spansRefs.map(s => s.nativeElement);
-
         for (const part of this.parts.items()) {
             spans[part.index].innerText = part.text;
         }
@@ -338,6 +343,9 @@ export class HypoEditorComponent implements AfterViewInit {
 
             case 13: // ENTER
                 event.preventDefault();
+                this.restangular.one('annotations', this.annotation.id).patch(
+                    {text: this.parts.items()[0].text}
+                );
                 return false;
         }
 
