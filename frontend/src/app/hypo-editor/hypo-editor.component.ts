@@ -6,6 +6,7 @@ import {
     Input,
     Output,
     AfterViewInit,
+    OnChanges,
     QueryList,
     ViewChildren
 } from '@angular/core';
@@ -23,7 +24,7 @@ const NODE_ID_ATTRIBUTE = 'data-part-id';
     templateUrl: './hypo-editor.component.html',
     styleUrls: ['./hypo-editor.component.scss']
 })
-export class HypoEditorComponent implements AfterViewInit {
+export class HypoEditorComponent implements AfterViewInit, OnChanges {
 
     @ViewChild('transcription', { static: true })
     transcription: ElementRef<HTMLParagraphElement>;
@@ -72,11 +73,15 @@ export class HypoEditorComponent implements AfterViewInit {
     }
 
     ngAfterViewInit() {
-        this.replaceParts([{text: this.annotation.text, hypo: false}]);
+        this.renderText(this.partSpans.toArray());
         this.partSpans.changes.subscribe((t: any) => {
             this.renderText(t.toArray());
             this.checkHypoVal();
         });
+    }
+
+    ngOnChanges() {
+        this.replaceParts([{text: this.annotation.text, hypo: false}]);
     }
 
     private checkHypoVal() {
