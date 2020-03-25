@@ -3,7 +3,7 @@
         <div class="level-item">
             <div class="field">
                 <p class="control">
-                    <a class="button is-primary is-inverted" title="_P_revious lines" accesskey="p">
+                    <a class="button is-primary is-inverted" (click)="updateLines(false)" title="_P_revious lines" accesskey="p">
                         <span class="icon">
                             <fa-icon [icon]="faChevronLeft"></fa-icon>
                         </span>
@@ -24,7 +24,7 @@
         <div class="level-item">
             <div class="field">
                 <p class="control">
-                    <a class="button is-primary is-inverted" title="_N_ext lines" accesskey="n">
+                    <a class="button is-primary is-inverted" (click)="updateLines(true)" title="_N_ext lines" accesskey="n">
                         <span class="icon">
                             <fa-icon [icon]="faChevronRight"></fa-icon>
                         </span>

@@ -1,4 +1,4 @@
-import { ChangeDetectorRef, Component, OnInit, ViewChild, ElementRef, EventEmitter, Input, HostBinding, Output, OnChanges } from '@angular/core';
+import { ChangeDetectorRef, Component, OnInit, ViewChild, ElementRef, EventEmitter, Input, HostBinding, Output, OnChanges, SimpleChanges } from '@angular/core';
 import { faComment, faCommentSlash, faStickyNote } from '@fortawesome/free-solid-svg-icons';
 import { HypoEditorComponent } from '../hypo-editor/hypo-editor.component';
 import { Rectangle } from '../models/shapes';
@@ -68,8 +68,8 @@ export class AnnotateLineComponent implements OnInit, OnChanges {
 
     public researchNoteText: string;
     public manuscript: any;
-    public previousText = 'Previous line';
-    public nextText = 'Next line';
+    public previousText = '';
+    public nextText = '';
 
     constructor(
         private changeDetectorRef: ChangeDetectorRef,
@@ -140,16 +140,18 @@ export class AnnotateLineComponent implements OnInit, OnChanges {
 
     ngOnChanges() {
         this.manuscript = this.shape.manuscript;
+        this.researchNoteText = this.shape.annotatedLine.annotation.research_note;
+        this.isComplete = this.shape.annotatedLine.annotation.complete;
         const previous = this.shape.annotatedLine.previous_line;
         const next = this.shape.annotatedLine.next_line;
         if (previous !== null) {
             this.restangular.one('annotated_lines', previous).get().subscribe( line => {
-                this.previousText = line.annotation.text.length > 0 ? line.annotation.text : 'Previous line';
+                this.previousText = line.annotation.text.length > 0 ? line.annotation.text : '';
             });
         }
         if (next !== null) {
             this.restangular.one('annotated_lines', next).get().subscribe( line => {
-                this.nextText = line.annotation.text.length > 0 ? line.annotation.text : 'Next line';
+                this.nextText = line.annotation.text.length > 0 ? line.annotation.text : '';
             });
         }
     }
@@ -185,13 +187,11 @@ export class AnnotateLineComponent implements OnInit, OnChanges {
 
     moveNext() {
         if (this.shape.annotatedLine.next_line) {
-            console.log(this.shape.annotatedLine.next_line);
             this.restangular.one('manuscripts', this.shape.manuscript.id).patch({
                 currently_annotating: this.shape.annotatedLine.next_line
             });
             this.changeLine.emit(true);
         }
-        this.saveComplete();
     }
 
     movePrevious() {
@@ -201,7 +201,6 @@ export class AnnotateLineComponent implements OnInit, OnChanges {
             });
             this.changeLine.emit(false);
         }
-        this.saveComplete();
     }
 
     saveComplete() {
