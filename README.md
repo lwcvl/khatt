@@ -7,7 +7,7 @@ Knowledge Hyperlinking and Text Transcription
 ## To Run
 - Install [Node](https://nodejs.org/en/), [Yarn](https://classic.yarnpkg.com/en/docs/install), [PostgreSQL](https://www.postgresql.org/) and  [Python 3.6](https://www.python.org/downloads/) on your computer.
 - Start PostgreSQL
-- To keep your Python packages isolated, install [virtualenv] (https://virtualenv.pypa.io/en/stable/installation.html)
+- To keep your Python packages isolated, install [virtualenv](https://virtualenv.pypa.io/en/stable/installation.html)
 - Download this directory (using git clone or downloading a zip and extracting it)
 - Navigate to `{name-of-topdirectory}/backend`
 - Run `python bootstrap.py`
