@@ -4,7 +4,7 @@
 
 Knowledge Hyperlinking and Text Transcription
 
-## TO RUN
+## To Run
 - Install [Node](https://nodejs.org/en/), [Yarn](https://classic.yarnpkg.com/en/docs/install), [PostgreSQL](https://www.postgresql.org/) and  [Python 3.6](https://www.python.org/downloads/) on your computer.
 - Start PostgreSQL
 - To keep your Python packages isolated, install [virtualenv] (https://virtualenv.pypa.io/en/stable/installation.html)
@@ -13,9 +13,8 @@ Knowledge Hyperlinking and Text Transcription
 - Run `python bootstrap.py`
 - Follow the instructions of the script: setting up a virtual environment, creating the database, creating a superuser
 - Enable your virtual environment (in the typical case, by running `source activate .env`)
-- Run `pip install -r requirements.txt`. This will take a while.
 - Navigate to `{name-of-topdirectory}`
-- Run `yarn install`. This will take a while.
+- Run `yarn`. This will install all frontend and backend dependencies. Grab a cup of coffee, tea or other beverage of your choice.
 - Run `yarn start`. This will start the server.
 - Open your browser. At `localhost:8000`, you should be able to see the application.
 - As there are no books in the database yet, create them. Navigate to `localhost:8000/api/books/` (NB: don't omit the last slash!)
@@ -25,7 +24,7 @@ Knowledge Hyperlinking and Text Transcription
 - To download, go to `localhost:8000/download`. By clicking the download link, you will get *all* annotations in the database which have been marked as complete, with information about the associated book, manuscript and page.
 
 
-## Before you start
+## For developers
 
 You need to install the following software:
 
@@ -42,7 +41,7 @@ You need to install the following software:
 [2]: https://pypi.org/project/selenium/#drivers
 
 
-## How it works
+### Architecture
 
 This project integrates three isolated subprojects, each inside its own subdirectory with its own code, package dependencies and tests:
 
@@ -60,9 +59,6 @@ This project integrates three isolated subprojects, each inside its own subdirec
 Each subproject is configurable from the outside. Integration is achieved using "magic configuration" which is contained inside the root directory together with this README. In this way, the subprojects can stay truly isolated from each other.
 
 If you are reading this README, you'll likely be working with the integrated project as a whole rather than with one of the subprojects in isolation. In this case, this README should be your primary source of information on how to develop or deploy the project. However, we recommend that you also read the "How it works" section in the README of each subproject.
-
-
-## Development
 
 ### Quickstart
 
