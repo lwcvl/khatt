@@ -16,6 +16,7 @@ git+git://github.com/TracyWebTech/django-revproxy@master#egg=django-revproxy>=0.
 django==3.0b1
 djangorestframework==3.10.3
 execnet==1.7.1            # via pytest-xdist
+gunicorn==20.0.4
 importlib-metadata==0.23  # via pluggy, pytest
 more-itertools==7.2.0     # via pytest, zipp
 packaging==19.2           # via pytest

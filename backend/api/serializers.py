@@ -14,6 +14,11 @@ class EditorSerializer(serializers.ModelSerializer):
     class Meta:
         model = Editor
         fields = ['name']
+    
+    def to_representation(self, instance):
+        return {
+            instance.name
+        }
         
 
 class BookSerializer(serializers.ModelSerializer):
@@ -72,9 +77,7 @@ class AnnotationSerializerShort(serializers.ModelSerializer):
 
 
 class ManuscriptSerializer(serializers.ModelSerializer):
-    editor = serializers.SlugRelatedField(
-        queryset=Editor.objects.all(), 
-        slug_field='name')
+    editor = EditorSerializer()
     book = serializers.SlugRelatedField(
         queryset=Book.objects.all(),
         slug_field="title")
