@@ -95,7 +95,7 @@ class AnnotatedLineViewSet(viewsets.ModelViewSet):
         return Response({'created': AnnotatedLineSerializer(item).data['annotation']['id']})
 
     def perform_create(self, serializer):
-        self.request.data['annotation']['annotator'] = self.request.user
+        # self.request.data['annotation']['annotator'] = self.request.user
         return serializer.create(validated_data=self.request.data)
     
     def retrieve(self, request, pk=None):

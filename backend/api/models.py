@@ -71,7 +71,7 @@ class Annotation(models.Model):
     '''
     An annotation, which tracks
     - the page number in the file on which the annotation is marked
-    - which user transcribed it,
+    - which user transcribed it (future work),
     - the chapter it's associated to,
     - annotated text
     - optional labels
@@ -80,7 +80,7 @@ class Annotation(models.Model):
     '''
     manuscript = models.ForeignKey('Manuscript', on_delete=models.PROTECT, related_name='annotations')
     page = models.IntegerField(default=1)
-    annotator = models.ForeignKey(get_user_model(), on_delete=models.PROTECT)
+    # annotator = models.ForeignKey(get_user_model(), on_delete=models.PROTECT)
     text = models.CharField(max_length=800, default='')
     label = models.CharField(max_length=50, default='')
     research_note = models.CharField(max_length=800, default='')
