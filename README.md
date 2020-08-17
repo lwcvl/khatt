@@ -5,24 +5,38 @@
 Knowledge Hyperlinking and Text Transcription
 
 ## To Run
-- Install [Node](https://nodejs.org/en/), [Yarn](https://classic.yarnpkg.com/en/docs/install), [PostgreSQL](https://www.postgresql.org/) and  [Python 3.6](https://www.python.org/downloads/) on your computer.
-- Start PostgreSQL
-- To keep your Python packages isolated, install [virtualenv] (https://virtualenv.pypa.io/en/stable/installation.html)
-- Download this directory (using git clone or downloading a zip and extracting it)
-- Navigate to `{name-of-topdirectory}/backend`
-- Run `python bootstrap.py`
-- Follow the instructions of the script: setting up a virtual environment, creating the database, creating a superuser
-- Enable your virtual environment (in the typical case, by running `source activate .env`)
-- Navigate to `{name-of-topdirectory}`
-- Run `yarn`. This will install all frontend and backend dependencies. Grab a cup of coffee, tea or other beverage of your choice.
-- Run `yarn start`. This will start the server.
-- Open your browser. At `localhost:8000`, you should be able to see the application.
-- As there are no books in the database yet, create them. Navigate to `localhost:8000/api/books/` (NB: don't omit the last slash!)
-- There is a form at the bottom of the page which allows you to define a book with title and author.
-- Go to `localhost:8000/upload` to upload a manuscript page for the book (for now: .jpg, .png only).
-- Start marking and annotating
-- To download, go to `localhost:8000/download`. By clicking the download link, you will get *all* annotations in the database which have been marked as complete, with information about the associated book, manuscript and page.
+### Without Docker
+1. Install [Node](https://nodejs.org/en/), [Yarn](https://classic.yarnpkg.com/en/docs/install), [PostgreSQL](https://www.postgresql.org/) and  [Python 3.6](https://www.python.org/downloads/) on your computer.
+2. Start PostgreSQL
+3. To keep your Python packages isolated, install [virtualenv] (https://virtualenv.pypa.io/en/stable/installation.html)
+4. Download this directory (using git clone or downloading a zip and extracting it)
+5. Navigate to `{name-of-topdirectory}/backend`
+6. Run `python bootstrap.py`
+7. Follow the instructions of the script: setting up a virtual environment, creating the database, creating a superuser
+8. Enable your virtual environment (in the typical case, by running `source activate .env`)
+9. Navigate to `{name-of-topdirectory}`
+10. Run `yarn`. This will install all frontend and backend dependencies. Grab a cup of coffee, tea or other beverage of your choice.
+11. Run `yarn start`. This will start the server.
+12. Open your browser. At `localhost:8000`, you should be able to see the application.
+13. As there are no books in the database yet, create them. Navigate to `localhost:8000/api/books/` (NB: don't omit the last slash!)
+14. There is a form at the bottom of the page which allows you to define a book with title and author.
+15. Go to `localhost:8000/upload` to upload a manuscript page for the book (for now: .jpg, .png only).
+16. Start marking and annotating
+17. To download, go to `localhost:8000/download`. By clicking the download link, you will get *all* annotations in the database which have been marked as complete, with information about the associated book, manuscript and page.
 
+### With Docker (requires 10 GB+ hard disk space)
+1. NB: does not run on all Windows licenses, please check [this link](https://docs.docker.com/docker-for-windows/install/)
+2. Download [Docker](https://www.docker.com/products/docker-desktop)
+3. Download this directory (using git clone or downloading a zip and extracting it)
+4. Navigate to `{name-of-your-khatt-directory}`
+5. Run `docker-compose up`. This will build and start the application. Wait until all four containers (frontend, db, backend, nginx) have been started. Grab a cup of coffee in the meantime.
+6. As there are no books in the database yet, create them. Navigate to `localhost/api/books/` (NB: don't omit the last slash!)
+7. There is a form at the bottom of the page which allows you to define a book with title and author.
+8. Go to `localhost/upload` to upload a manuscript page for the book (for now: .jpg, .png only).
+9. Start marking and annotating
+10. To download, go to `localhost/download`. By clicking the download link, you will get *all* annotations in the database which have been marked as complete, with information about the associated book, manuscript and page.
+11. To stop the container at any point, press crtl-c.
+12. To start the container again, repeat steps 4 and 5. Startup should go much faster (since the build only needs to be done once).
 
 ## For developers
 
