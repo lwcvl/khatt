@@ -1,10 +1,8 @@
-import { ChangeDetectorRef, Component, OnInit, ViewChild, ElementRef, EventEmitter, Input, HostBinding, Output, OnChanges, SimpleChanges } from '@angular/core';
+import { ChangeDetectorRef, Component, OnInit, ViewChild, ElementRef, EventEmitter, Input, HostBinding, Output, OnChanges } from '@angular/core';
 import { faComment, faCommentSlash, faStickyNote } from '@fortawesome/free-solid-svg-icons';
 import { HypoEditorComponent } from '../hypo-editor/hypo-editor.component';
 import { Rectangle } from '../models/shapes';
 import { Restangular } from 'ngx-restangular';
-import { DomSanitizer, SafeStyle } from '@angular/platform-browser';
-import { AnimateChildOptions } from '@angular/animations';
 
 const CONTAINER_WIDTH = 1344;
 const PADDING_LEFT = 50;

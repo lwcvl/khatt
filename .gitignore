@@ -4,7 +4,7 @@ __pycache__/
 *$py.class
 
 # Temporary files
-/static/
+backend/staticfiles/
 
 # Installer logs
 pip-log.txt
