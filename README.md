@@ -1,3 +1,6 @@
+# Knowledge Hyperlinking and Text Transcription
+I partnered with the DH Lab of Utrecht University, Faculty of Humanities, to experiment with text transcription of multiple manuscript copies using the line as a basis. The initial idea was suggested Fall 2018. Spring 2020 a first version was released. No active development is undertaken, mainly because the DH Lab could not deliver the level of programming necessary. 
+
 # KHATT
 
 [![Build Status](https://travis-ci.org/UUDigitalHumanitieslab/khatt.svg?branch=develop)](https://travis-ci.org/UUDigitalHumanitieslab/khatt)
